@@ -16,3 +16,9 @@ __pycache__/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# ML models
+*.pkl
+
+# or only this file
+outputs/baseline2/metadata_model.pkl
