@@ -10,8 +10,8 @@ This repository contains the implementation of multiple baselines and federated 
 |-------|-------------|--------|
 | Baseline 1 | Rules-only transaction categorisation | ✅ Completed |
 | Baseline 2 | Merchant keyword dictionary | ✅ Completed |
-| Baseline 3 | Metadata-only machine learning | 🚧 In Progress |
-| Baseline 4 | Feature engineering | ⏳ Pending |
+| Baseline 3 | Metadata-only machine learning | ✅ Completed |
+| Baseline 4 | Feature engineering | 🚧 In Progress |
 | Baseline 5 | Metadata + Notes | ⏳ Pending |
 
 ---
