@@ -1,0 +1,5 @@
+Baseline : Metadata + Notes
+Model : Random Forest
+Training Samples : 9225
+Testing Samples : 2308
+Total Features : 43

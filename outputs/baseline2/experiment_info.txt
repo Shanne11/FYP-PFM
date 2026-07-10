@@ -1,0 +1,4 @@
+Training Samples : 9224
+Testing Samples  : 2307
+Features         : ['transaction_type', 'amount', 'payment_mode', 'location', 'year', 'month', 'day', 'weekday']
+Model            : Random Forest
