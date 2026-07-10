@@ -46,3 +46,10 @@ def evaluate(actual, predicted, output_folder):
     plt.close()
 
     print("Results saved to:", output_folder)
+    return {
+    "accuracy": accuracy,
+    "precision": precision,
+    "recall": recall,
+    "macro_f1": macro_f1,
+    "weighted_f1": weighted_f1
+}

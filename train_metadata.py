@@ -37,12 +37,26 @@ model.fit(X_train, y_train)
 # Predict
 prediction = model.predict(X_test)
 
+metrics = evaluate(
+    y_test,
+    prediction,
+    OUTPUT
+)
+
 # Save model
 joblib.dump(
     model,
     os.path.join(
         OUTPUT,
         "metadata_model.pkl"
+    )
+)
+
+joblib.dump(
+    encoders,
+    os.path.join(
+        OUTPUT,
+        "label_encoders.pkl"
     )
 )
 
@@ -61,11 +75,6 @@ results.to_csv(
     index=False
 )
 
-# Evaluate
-evaluate(
-    y_test,
-    prediction,
-    OUTPUT
-)
+print(metrics)
 
 print("\nMetadata baseline completed.")
