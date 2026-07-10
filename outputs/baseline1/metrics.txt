@@ -1,0 +1,62 @@
+Accuracy      : 0.0041
+Precision     : 0.0017
+Recall        : 0.0041
+Macro F1      : 0.0016
+Weighted F1   : 0.0024
+
+               precision    recall  f1-score   support
+
+        Bills       0.00      0.00      0.00         0
+        Bonus       0.00      0.00      0.00       326
+          EDU       0.00      0.00      0.00       181
+    Education       0.01      0.02      0.01       187
+     Educaton       0.00      0.00      0.00       177
+    Entertain       0.00      0.00      0.00       261
+Entertainment       0.02      0.03      0.02       230
+    Entrtnmnt       0.00      0.00      0.00       245
+         FOOD       0.00      0.00      0.00       435
+          Fod       0.00      0.00      0.00       392
+         Food       0.03      0.09      0.05       421
+        Foodd       0.00      0.00      0.00       397
+        Foods       0.00      0.00      0.00       435
+    Freelance       0.00      0.00      0.00       357
+       HEALTH       0.00      0.00      0.00       105
+       Health       0.00      0.00      0.00       117
+   Healthcare       0.00      0.00      0.00         0
+        Helth       0.00      0.00      0.00       120
+   Investment       0.00      0.00      0.00       349
+         Misc       0.00      0.00      0.00        36
+       OTHERS       0.00      0.00      0.00        30
+        Other       0.00      0.00      0.00        38
+       Others       0.00      0.00      0.00       401
+         RENT       0.00      0.00      0.00       422
+         Rent       0.00      0.00      0.00       406
+        Rentt       0.00      0.00      0.00       391
+          Rnt       0.00      0.00      0.00       386
+      SAVINGS       0.00      0.00      0.00        74
+       Salary       0.00      0.00      0.00       336
+       Saving       0.00      0.00      0.00        58
+      Savings       0.00      0.00      0.00        82
+       TRAVEL       0.00      0.00      0.00       293
+    Transport       0.00      0.00      0.00         0
+       Traval       0.00      0.00      0.00       298
+       Travel       0.00      0.00      0.00       320
+        Travl       0.00      0.00      0.00       274
+      Unknown       0.00      0.00      0.00         0
+    Utilities       0.00      0.00      0.00       227
+      Utility       0.00      0.00      0.00       254
+     Utilties       0.00      0.00      0.00       224
+     Utlities       0.00      0.00      0.00       228
+    education       0.00      0.00      0.00       208
+entertainment       0.00      0.00      0.00       254
+         food       0.00      0.00      0.00       418
+       health       0.00      0.00      0.00       121
+       others       0.00      0.00      0.00        33
+         rent       0.00      0.00      0.00       398
+      savings       0.00      0.00      0.00        69
+       travel       0.00      0.00      0.00       286
+    utilities       0.00      0.00      0.00       231
+
+     accuracy                           0.00     11531
+    macro avg       0.00      0.00      0.00     11531
+ weighted avg       0.00      0.00      0.00     11531

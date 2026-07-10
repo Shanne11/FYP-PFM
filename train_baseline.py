@@ -1,27 +1,41 @@
+import os
 import pandas as pd
 
 from models.rules import predict
+from utils.metrics import evaluate
+
+OUTPUT_FOLDER = "outputs/baseline1"
+
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # Load cleaned dataset
 df = pd.read_csv("dataset/clean_budgetwise.csv")
 
-correct = 0
-total = 0
+actual = []
+predicted = []
 
 for _, row in df.iterrows():
 
-    prediction = predict(row["notes"])
+    actual.append(row["category"])
 
-    actual = row["category"]
+    predicted.append(
+        predict(row["notes"])
+    )
 
-    if prediction == actual:
+# Save predictions
+df["predicted_category"] = predicted
 
-        correct += 1
+df.to_csv(
+    os.path.join(
+        OUTPUT_FOLDER,
+        "predictions.csv"
+    ),
+    index=False
+)
 
-    total += 1
-
-accuracy = correct / total
-
-print(f"Total Transactions : {total}")
-print(f"Correct Predictions: {correct}")
-print(f"Accuracy           : {accuracy:.4f}")
+# Evaluate and save metrics
+evaluate(
+    actual,
+    predicted,
+    OUTPUT_FOLDER
+)
