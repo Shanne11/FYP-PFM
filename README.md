@@ -1,100 +1,37 @@
-# 📊 Project Progress Overview
+# 📊 Personal Finance Management (PFM) AI Framework
 
-This repository contains the implementation of multiple baselines and federated learning experiments for the **Personal Finance Management (PFM)** project.
-
----
-
-## ✅ Implemented Baselines
-
-| Stage | Description | Status |
-|-------|-------------|--------|
-| Baseline 1 | Rules-only transaction categorisation | ✅ Completed |
-| Baseline 2 | Merchant keyword dictionary | ✅ Completed |
-| Baseline 3 | Metadata-only machine learning | ✅ Completed |
-| Baseline 4 | Feature engineering | 🚧 In Progress |
-| Baseline 5 | Metadata + Notes | ⏳ Pending |
+This repository contains the implementation of centralized baselines, decentralized privacy-preserving federated learning nodes, and the proposed human-in-the-loop cognitive framework for transaction classification.
 
 ---
 
-## 🚧 Extra Work Needed
+## 🚀 Architectural Paradigm Matrix
 
-### 📝 Smart Notes
+The project evaluates performance across a progressive benchmark layout, transitioning from traditional heuristics to decentralized, privacy-preserving client environments.
 
-- Add synthetic Smart Notes
-- Collect volunteer-generated Smart Notes
-- Improve contextual transaction descriptions
-
-### 🌐 Federated Learning (FedAvg)
-
-- Split dataset into simulated users
-- Train using FedAvg
-- Evaluate model performance
-
-### 🌐 Federated Learning (FedProx)
-
-- Use the same client split as FedAvg
-- Train using FedProx
-- Compare with FedAvg
-
----
-
-## 🚀 Proposed Model
-
-### Adaptive Cognitive Trigger Model (ACTM)
-
-The proposed model combines:
-
-- 🧠 ACTM
-- 📝 Smart Notes
-- ⭐ Utility Score
-
-to provide personalised transaction categorisation with human-in-the-loop learning.
-
----
-
-## 📅 Development Roadmap
-
-| Phase | Status |
-|------|--------|
-| Baseline Implementation | ✅ Completed |
-| Smart Notes Dataset | 🚧 In Progress |
-| FedAvg | ⏳ Pending |
-| FedProx | ⏳ Pending |
-| Proposed ACTM Model | ⏳ Pending |
-| Final Evaluation | ⏳ Pending |
-
----
-
-## 🎯 Objectives
-
-- Improve categorisation accuracy
-- Reduce manual correction effort
-- Learn from user feedback
-- Preserve privacy using federated learning
-- Personalise financial management
+| Variant | Learning Paradigm | Model Architecture | Core Purpose / Feature Focus | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **B1** | Centralized | Rule-Based System | Traditional heuristics baseline | ✅ Completed |
+| **B2** | Centralized | Random Forest | Merchant keyword & transaction metadata baseline | ✅ Completed |
+| **B3** | Centralized | Random Forest | Centralized framework measuring unstructured text note contributions | ✅ Completed |
+| **B4** | Federated | MLP | Standard FedAvg baseline (Privacy-preserving anchor across 150 clients) | ✅ Completed |
+| **B5** | Federated | MLP | FedProx baseline (Mitigates non-IID client weight drift) | 🚧 In Progress |
+| **Proposed**| Federated | MLP + ACTM | Utility-weighted aggregation & cognitive engagement framework | ⏳ Pending |
 
 ---
 
 ## 📌 Project Workflow
 
 ```text
-Baseline
-    │
-    ▼
-Feature Engineering
-    │
-    ▼
-Metadata + Notes
-    │
-    ▼
-Smart Notes
-    │
-    ▼
-FedAvg
-    │
-    ▼
-FedProx
-    │
-    ▼
-ACTM + Smart Notes + Utility Score
-```
+Centralized Baselines (B1 - B3)
+             │
+             ▼
+Decentralized Sharding (U001 - U150 Data Splits)
+             │
+             ▼
+Federated Baseline: FedAvg (B4) ───► Explores "Federated Penalty" & Client Drift
+             │
+             ▼
+Federated Baseline: FedProx (B5) ───► Mitigates Non-IID Weight Fluctuations
+             │
+             ▼
+Proposed Framework: ACTM + Smart Notes + Utility-Weighted Aggregation
