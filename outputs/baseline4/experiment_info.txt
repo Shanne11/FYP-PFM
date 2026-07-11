@@ -1,0 +1,5 @@
+Baseline: FedAvg
+Model: MLP
+Rounds: 10
+Local Epochs: 3
+Clients: 150

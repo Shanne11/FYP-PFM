@@ -14,7 +14,8 @@ def prepare_metadata_features(df):
     df["date"] = pd.to_datetime(
         df["date"],
         errors="coerce",
-        dayfirst=False
+        dayfirst=False,
+        format="mixed"
     )
 
     df["year"] = df["date"].dt.year.fillna(0).astype(int)
@@ -112,3 +113,113 @@ def prepare_metadata_note_features(df):
     )
 
     return X, y, encoders, vectorizer
+
+#baseline 4
+from scipy.sparse import hstack
+
+
+def prepare_metadata_note_features_with_existing(
+        df,
+        encoders,
+        vectorizer
+):
+
+
+    df = df.copy()
+
+
+    # Amount
+    df["amount"] = pd.to_numeric(
+        df["amount"],
+        errors="coerce"
+    )
+
+    df["amount"] = df["amount"].fillna(0)
+
+
+
+    # Date
+
+    df["date"] = pd.to_datetime(
+        df["date"],
+        errors="coerce",
+        dayfirst=False,
+        format="mixed"
+    )
+
+
+    df["year"] = df["date"].dt.year.fillna(0)
+    df["month"] = df["date"].dt.month.fillna(0)
+    df["day"] = df["date"].dt.day.fillna(0)
+    df["weekday"] = df["date"].dt.weekday.fillna(0)
+
+
+
+    # Missing values
+
+    for col in [
+        "transaction_type",
+        "payment_mode",
+        "location"
+    ]:
+
+        df[col] = df[col].fillna(
+            "Unknown"
+        )
+
+
+
+    # Use EXISTING encoders
+
+    for col, encoder in encoders.items():
+
+        if col != "category":
+
+            df[col] = encoder.transform(
+                df[col]
+            )
+
+
+
+    X_meta = df[
+        [
+            "transaction_type",
+            "amount",
+            "payment_mode",
+            "location",
+            "year",
+            "month",
+            "day",
+            "weekday"
+        ]
+    ]
+
+
+
+    X_notes = vectorizer.transform(
+        df["notes"].fillna("").astype(str)
+    )
+
+
+
+    X = hstack(
+        [
+            X_meta.values,
+            X_notes
+        ],
+        format="csr"
+    )
+
+
+    y = df["category"]
+
+
+    y = encoders["category"].transform(
+        y.fillna("Unknown")
+    )
+
+
+    y = pd.Series(y)
+
+
+    return X, y
