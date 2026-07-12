@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 
 from models.mlp import MLP
 
-from federated.client import FederatedClient
-from federated.server import FederatedServer
+from models.federated.client import FederatedClient
+from models.federated.server import FederatedServer
 
 from utils.federated_dataset import load_client_dataset
 from utils.feature_engineering import prepare_metadata_note_features

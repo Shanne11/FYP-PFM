@@ -1,4 +1,4 @@
-from federated.aggregation import fedavg
+from models.federated.aggregation import fedavg
 
 
 class FederatedServer:

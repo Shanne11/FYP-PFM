@@ -1,0 +1,10 @@
+Experiment : Baseline 5
+Algorithm  : FedProx
+Model      : Multi-Layer Perceptron
+Communication Rounds : 10
+Local Epochs         : 3
+Mu Regularization    : 0.01
+Clients Participating: 150
+Input Feature Dims   : 43
+Global Classes Count : 46
+Optimal Round Accuracy: 0.0620
