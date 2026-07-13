@@ -1,0 +1,11 @@
+Experiment : Proposed Method
+Model : Multi-Layer Perceptron
+Aggregation : Utility-weighted Federated Aggregation
+Trust Mechanism : ACTM
+Communication Rounds : 10
+Local Epochs : 3
+FedProx Mu : 0.01
+Clients : 150
+Input Features : 43
+Output Classes : 46
+Best Accuracy : 0.0433
