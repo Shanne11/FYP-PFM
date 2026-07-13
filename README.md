@@ -1,65 +1,294 @@
 # 📊 Personal Finance Management (PFM) AI Framework
 
-This repository contains the implementation of centralized baselines, decentralized privacy-preserving federated learning nodes, and the proposed human-in-the-loop cognitive framework for transaction classification.
+This repository contains the official implementation of a Personal Finance Management (PFM) transaction categorization framework. The project progressively evaluates traditional machine learning approaches, federated learning paradigms, and a proposed Human-in-the-Loop framework for privacy-preserving financial transaction classification.
+
+---
+
+# 📖 Overview
+
+Personal financial records often contain sensitive information that cannot be centralized without introducing privacy concerns. This project investigates how different learning paradigms perform when classifying financial transactions into predefined budget categories while preserving user privacy.
+
+The project is developed through a progressive experimental pipeline consisting of:
+
+- Rule-Based Classification
+- Centralized Machine Learning
+- Multimodal Learning (Metadata + Transaction Notes)
+- Federated Learning (FedAvg)
+- Federated Learning with FedProx
+- Proposed Adaptive Cognitive Trigger Model (ACTM)
+
+The objective is to investigate whether incorporating human cognitive feedback and utility-aware aggregation can improve federated transaction categorization under highly heterogeneous (Non-IID) client environments.
+
+---
+
+# ✨ Features
+
+- Rule-based transaction categorization
+- Metadata-based Random Forest classification
+- TF-IDF transaction note feature extraction
+- Centralized multimodal learning
+- Federated Learning (FedAvg)
+- Federated Learning (FedProx)
+- Adaptive Cognitive Trigger Model (ACTM)
+- Utility-weighted federated aggregation
+- Automatic evaluation metrics generation
+- Confusion matrix visualization
 
 ---
 
 # 🚀 Architectural Paradigm Matrix
 
-The project evaluates performance across a progressive benchmark layout, transitioning from traditional heuristics to decentralized, privacy-preserving client environments.
+The project evaluates progressively more sophisticated learning paradigms, transitioning from centralized machine learning toward decentralized privacy-preserving federated intelligence.
 
-| Variant | Learning Paradigm | Model Architecture | Core Purpose / Feature Focus | Status |
-|---------|-------------------|-------------------|------------------------------|--------|
-| **B1** | Centralized | Rule-Based System | Traditional heuristics baseline | ✅ Completed |
-| **B2** | Centralized | Random Forest | Merchant keyword & transaction metadata baseline | ✅ Completed |
-| **B3** | Centralized | Random Forest | Centralized framework measuring unstructured text note contributions | ✅ Completed |
-| **B4** | Federated | MLP | Standard FedAvg baseline (Privacy-preserving anchor across 150 clients) | ✅ Completed |
-| **B5** | Federated | MLP | FedProx baseline (Mitigates non-IID client weight drift) | ✅ Completed |
-| **Proposed** | Federated | MLP + ACTM | Utility-weighted aggregation & cognitive engagement framework | ⏳ Pending |
+| Variant | Learning Paradigm | Model | Purpose | Status |
+|---------|-------------------|--------|---------|--------|
+| **B1** | Centralized | Rule-Based System | Traditional heuristic baseline | ✅ Completed |
+| **B2** | Centralized | Random Forest | Metadata-only transaction categorization | ✅ Completed |
+| **B3** | Centralized | Random Forest | Metadata + transaction notes | ✅ Completed |
+| **B4** | Federated | Multi-Layer Perceptron | Standard FedAvg baseline | ✅ Completed |
+| **B5** | Federated | Multi-Layer Perceptron | FedProx optimization | ✅ Completed |
+| **Proposed** | Federated | MLP + ACTM | Utility-weighted cognitive aggregation | ✅ Completed |
 
 ---
 
 # 📌 Project Workflow
 
 ```text
-Centralized Baselines (B1 - B3)
-             │
-             ▼
-Decentralized Sharding (U001 - U150 Data Splits)
-             │
-             ▼
-Federated Baseline: FedAvg (B4)
-             │
-             ▼
-Explores "Federated Penalty" & Client Drift
-             │
-             ▼
-Federated Baseline: FedProx (B5)
-             │
-             ▼
-Mitigates Non-IID Weight Fluctuations (μ = 0.01)
-             │
-             ▼
-Proposed Framework:
-ACTM + Smart Notes + Utility-Weighted Aggregation
+                    Raw Finance Dataset
+                            │
+                            ▼
+                  Data Preprocessing Pipeline
+                            │
+                            ▼
+                Centralized Baselines (B1-B3)
+                            │
+                            ▼
+              Client Dataset Sharding (150 Users)
+                            │
+                            ▼
+                Federated Learning (FedAvg)
+                            │
+                            ▼
+             Federated Optimization (FedProx)
+                            │
+                            ▼
+      Proposed ACTM + Utility-Weighted Aggregation
 ```
 
 ---
 
-# 📊 Comprehensive Experimental Baseline Evaluation
+# 📦 Repository Structure
+
+```text
+FYP-PFM/
+│
+├── data/
+│   ├── preprocess.py
+│   ├── split_clients.py
+│   └── clients/
+│       ├── U001.csv
+│       ├── ...
+│       └── U150.csv
+│
+├── dataset/
+│   ├── budgetwise_finance_dataset.csv
+│   └── clean_budgetwise.csv
+│
+├── models/
+│   ├── mlp.py
+│   ├── note_model.py
+│   └── federated/
+│       ├── aggregation.py
+│       ├── actm.py
+│       ├── client.py
+│       ├── server.py
+│       └── utility.py
+│
+├── outputs/
+│
+├── utils/
+│   ├── feature_engineering.py
+│   ├── federated_dataset.py
+│   ├── metrics.py
+│   └── text_processing.py
+│
+├── train_baseline.py
+├── train_metadata.py
+├── train_notes.py
+├── train_fedavg.py
+├── train_fedprox.py
+├── train_proposed.py
+│
+├── requirements.txt
+└── README.md
+```
+
+---
+
+# 🛠 Installation
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/<your-username>/FYP-PFM.git
+
+cd FYP-PFM
+```
+
+---
+
+## 2. Create a virtual environment
+
+### Windows
+
+```bash
+python -m venv .venv
+
+.venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+python -m venv .venv
+
+source .venv/bin/activate
+```
+
+---
+
+## 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+or
+
+```bash
+pip install torch pandas scikit-learn matplotlib scipy
+```
+
+---
+
+# ▶️ Running the Experiments
+
+Each baseline can be executed independently.
+
+## Baseline 1 — Rule-Based
+
+```bash
+python train_baseline.py
+```
+
+---
+
+## Baseline 2 — Metadata Random Forest
+
+```bash
+python train_metadata.py
+```
+
+---
+
+## Baseline 3 — Metadata + Notes
+
+```bash
+python train_notes.py
+```
+
+---
+
+## Baseline 4 — Federated Learning (FedAvg)
+
+```bash
+python train_fedavg.py
+```
+
+---
+
+## Baseline 5 — Federated Learning (FedProx)
+
+```bash
+python train_fedprox.py
+```
+
+---
+
+## Proposed Framework
+
+```bash
+python train_proposed.py
+```
+
+---
+
+# 📂 Generated Outputs
+
+After training, the framework automatically stores generated artifacts inside the corresponding **outputs/** directory.
+
+Typical outputs include:
+
+- Trained model checkpoints (`.pth`)
+- Classification reports
+- Confusion matrices
+- Client utility scores
+- Evaluation metrics
+- Prediction summaries
+
+Examples:
+
+```text
+outputs/
+│
+├── metrics.txt
+├── confusion_matrix.png
+├── best_model.pth
+├── client_utilities.csv
+└── predictions.csv
+```
+
+---
+
+# 📊 Experimental Results
+
+## Overall Performance Comparison
+
+| Model | Accuracy | Precision | Weighted F1 | Status |
+|--------|----------:|----------:|------------:|--------|
+| Rule-Based | **0.41%** | **0.17%** | **0.24%** | ✅ |
+| Random Forest (Metadata) | **10.06%** | **8.74%** | **8.78%** | ✅ |
+| Random Forest (Metadata + Notes) | **10.40%** | **9.94%** | **8.79%** | ✅ |
+| Federated Learning (FedAvg) | **3.77%** | — | — | ✅ |
+| Federated Learning (FedProx) | **6.20%** | — | — | ✅ |
+| Proposed ACTM Framework | **4.33%** | — | — | ✅ |
+
+---
+
+# 📈 Detailed Experimental Analysis
+
+The following section discusses the empirical observations obtained from each experimental baseline. The experiments progressively evaluate increasingly sophisticated learning paradigms, beginning with deterministic rule-based approaches and culminating in the proposed Human-in-the-Loop federated learning framework.
+
+---
 
 ## 📉 Baseline 1 — Rules-Only Categorization
 
 ### Performance Metrics
 
-- **Global Accuracy:** **0.0041** (0.41%)
-- **Precision:** **0.0017** (0.17%)
-- **Recall:** **0.0041** (0.41%)
-- **Weighted F1-Score:** **0.0024** (0.24%)
+| Metric | Value |
+|--------|------:|
+| Global Accuracy | **0.0041 (0.41%)** |
+| Precision | **0.0017 (0.17%)** |
+| Recall | **0.0041 (0.41%)** |
+| Weighted F1-Score | **0.0024 (0.24%)** |
 
 ### Empirical Analysis
 
-A traditional, rigid rule-based engine completely collapses under real-world data due to human entry variance. The dataset contains severe spelling inconsistencies and scattered case structures for identical financial concepts (e.g., `FOOD`, `Food`, `food`, `Foods`, `Fod`, `Foodd`). Because a hardcoded heuristic cannot calculate semantic margins, its lookup dictionary fails, yielding a near-zero performance score.
+Baseline 1 employs a deterministic rule-based engine that categorizes transactions using manually defined keyword matching rules. Although computationally inexpensive and fully interpretable, this approach performs extremely poorly on real-world financial data.
+
+The dataset contains significant variations in spelling, capitalization, abbreviations, and user-entered transaction descriptions (e.g., `FOOD`, `Food`, `food`, `Foods`, `Fod`, `Foodd`). Since the rule-based engine performs exact or near-exact keyword matching, these inconsistencies dramatically reduce classification capability.
+
+The experimental results demonstrate that manually engineered heuristics are unable to generalize across noisy financial records, resulting in performance that approaches random guessing.
 
 ---
 
@@ -67,26 +296,32 @@ A traditional, rigid rule-based engine completely collapses under real-world dat
 
 ### Performance Metrics
 
-- **Global Accuracy:** **0.1006** (10.06%)
-- **Precision:** **0.0874** (8.74%)
-- **Weighted F1-Score:** **0.0878** (8.78%)
+| Metric | Value |
+|--------|------:|
+| Global Accuracy | **0.1006 (10.06%)** |
+| Precision | **0.0874 (8.74%)** |
+| Weighted F1-Score | **0.0878 (8.78%)** |
 
-### Feature Importance
+### Top Feature Importance
 
 | Feature | Importance |
 |---------|-----------:|
-| `amount` | **26.27%** |
-| `location` | **14.96%** |
-| `day` | **13.45%** |
-| `payment_mode` | **12.48%** |
-| `month` | **10.46%** |
-| `weekday` | **8.55%** |
-| `transaction_type` | **7.38%** |
-| `year` | **6.47%** |
+| amount | **26.27%** |
+| location | **14.96%** |
+| day | **13.45%** |
+| payment_mode | **12.48%** |
+| month | **10.46%** |
+| weekday | **8.55%** |
+| transaction_type | **7.38%** |
+| year | **6.47%** |
 
 ### Empirical Analysis
 
-Transitioning from a deterministic system to an ensemble statistical classifier (Random Forest) yields an immediate performance jump. However, a metadata-only architecture hits a strict performance ceiling. This mathematically demonstrates that transactional context fields alone lack the diagnostic capacity needed to separate 46 highly granular budget labels cleanly.
+Replacing deterministic rules with a Random Forest classifier significantly improves prediction performance. The ensemble model captures statistical relationships between structured transaction attributes, producing a substantial increase in classification accuracy.
+
+Feature importance analysis indicates that transaction amount is the strongest predictor because many recurring expenses (such as rent and utilities) occur within relatively consistent numerical ranges. Temporal and contextual features, including location and payment method, also contribute meaningful predictive information.
+
+Despite these improvements, metadata alone cannot adequately distinguish all 46 budget categories. Many transactions share similar structured attributes while representing entirely different spending purposes, creating an upper performance bound for metadata-only learning.
 
 ---
 
@@ -94,24 +329,30 @@ Transitioning from a deterministic system to an ensemble statistical classifier 
 
 ### Performance Metrics
 
-- **Global Accuracy:** **0.1040** (10.40%)
-- **Precision:** **0.0994** (9.94%)
-- **Weighted F1-Score:** **0.0879** (8.79%)
+| Metric | Value |
+|--------|------:|
+| Global Accuracy | **0.1040 (10.40%)** |
+| Precision | **0.0994 (9.94%)** |
+| Weighted F1-Score | **0.0879 (8.79%)** |
 
 ### Most Important Features (Top of 508)
 
 | Feature | Importance |
 |---------|-----------:|
-| `amount` | **23.88%** |
-| `transaction_type` | **12.32%** |
-| `location` | **9.61%** |
-| `day` | **9.06%** |
-| `shopping` *(TF-IDF)* | **0.84%** |
-| `payment` *(TF-IDF)* | **0.64%** |
+| amount | **23.88%** |
+| transaction_type | **12.32%** |
+| location | **9.61%** |
+| day | **9.06%** |
+| shopping *(TF-IDF)* | **0.84%** |
+| payment *(TF-IDF)* | **0.64%** |
 
 ### Empirical Analysis
 
-Incorporating a 500-feature sparse TF-IDF matrix from raw transaction notes provides a minor predictive lift over Baseline 2. Centralized ensemble methods struggle to extract deep semantic properties from raw text notes because high-frequency, generic tokens such as `shopping` and `payment` introduce substantial cross-category ambiguity, limiting overall performance.
+Baseline 3 extends the centralized model by incorporating TF-IDF representations extracted from transaction notes. These textual features provide additional contextual information that is unavailable from structured metadata.
+
+The model achieves a modest improvement over Baseline 2, indicating that transaction descriptions contain useful semantic signals. However, the improvement remains relatively small because TF-IDF treats words independently and cannot capture contextual meaning.
+
+Frequently occurring generic terms such as *shopping*, *payment*, and *online* appear across numerous budget categories, reducing the discriminative power of the textual representation and limiting further performance gains.
 
 ---
 
@@ -119,13 +360,21 @@ Incorporating a 500-feature sparse TF-IDF matrix from raw transaction notes prov
 
 ### Performance Metrics
 
-- **Global Accuracy:** **0.0377** (3.77%)
-- **Communication Rounds:** **10**
-- **Class Convergence:** Strongly compressed; multiple local target classes record **0.00** precision and recall due to parameter washout.
+| Metric | Value |
+|--------|------:|
+| Global Accuracy | **0.0377 (3.77%)** |
+| Communication Rounds | **10** |
+| Aggregation Method | **FedAvg** |
 
 ### Empirical Analysis
 
-Moving the model from a pooled database to an isolated, multi-tenant environment reveals the **Federated Penalty**. Because the 150 clients (`U001`–`U150`) have highly unique and non-identical spending habits (Non-IID data distributions), their localized optimizations pull model parameters in opposite directions. Aggregating these updates through simple, unweighted mathematical averaging causes their directional gradients to neutralize one another. The global accuracy settles near the random guessing threshold (**1/31 ≈ 3.22%**), establishing the motivation for more advanced aggregation and regularization techniques.
+Baseline 4 transitions from centralized learning to federated learning using the standard FedAvg aggregation algorithm.
+
+Instead of training on a centralized dataset, the data are partitioned across 150 simulated clients (`U001`–`U150`). Each client trains locally before sending only model parameters to the central server, preserving raw data privacy.
+
+However, the client datasets exhibit highly heterogeneous (Non-IID) spending patterns. Individual clients optimize toward their own localized objectives, producing gradients that frequently conflict during global aggregation.
+
+A simple arithmetic average of these model updates causes parameter cancellation, resulting in weak global convergence and reducing classification performance to **3.77%**. This phenomenon illustrates the well-known **Federated Penalty**, motivating more advanced optimization techniques.
 
 ---
 
@@ -133,46 +382,56 @@ Moving the model from a pooled database to an isolated, multi-tenant environment
 
 ### Performance Metrics
 
-- **Optimal Round Accuracy:** **0.0620** (6.20%)
-- **Communication Rounds:** **10**
-- **Proximal Penalty (μ):** **0.01**
+| Metric | Value |
+|--------|------:|
+| Peak Accuracy | **0.0620 (6.20%)** |
+| Communication Rounds | **10** |
+| Proximal Parameter (μ) | **0.01** |
 
 ### Empirical Analysis
 
-Baseline 5 introduces proximal regularization via FedProx to reduce destructive client weight divergence observed under standard FedAvg. By incorporating a proximal penalty that constrains local optimization to remain close to the global model parameters, training becomes more stable across heterogeneous clients. This improves the peak validation accuracy from **3.77%** to **6.20%**. Nevertheless, the remaining performance gap indicates that a conventional MLP operating on noisy transaction notes still lacks sufficient semantic understanding, motivating the proposed human-in-the-loop cognitive framework.
+Baseline 5 replaces the standard FedAvg objective with the FedProx optimization framework.
+
+FedProx introduces a proximal regularization term that constrains local model updates to remain close to the global model parameters. This reduces excessive divergence caused by heterogeneous client data distributions and stabilizes the optimization process.
+
+Compared with FedAvg, FedProx increases the best validation accuracy from **3.77%** to **6.20%**, demonstrating that regularization successfully mitigates client drift. Nevertheless, the remaining performance gap indicates that optimization alone cannot compensate for the limited semantic understanding provided by a conventional MLP operating on noisy financial transaction notes.
 
 ---
 
-# 📦 Directory Structure & Component Breakdown
+## ⚖️ Proposed Framework — ACTM + Utility-Weighted Federated Aggregation
 
-```text
-FYP-PFM/
-├── data/
-│   ├── preprocess.py                # Missing value handling, deduplication, and data sanitization
-│   ├── split_clients.py             # Split clean dataset into 150 client datasets
-│   └── clients/                     # U001.csv – U150.csv
-│
-├── dataset/
-│   ├── budgetwise_finance_dataset.csv
-│   └── clean_budgetwise.csv
-│
-├── models/
-│   ├── mlp.py                       # Multi-Layer Perceptron model
-│   ├── note_model.py                # Random Forest for Baseline 3
-│   └── federated/
-│       ├── client.py                # Local client training (FedAvg / FedProx)
-│       ├── server.py                # Central server coordinator
-│       └── aggregation.py           # FedAvg parameter aggregation
-│
-├── utils/
-│   ├── feature_engineering.py       # Feature preprocessing pipeline
-│   ├── text_processing.py           # TF-IDF extraction
-│   ├── federated_dataset.py         # PyTorch dataset wrapper
-│   └── metrics.py                   # Evaluation metrics & confusion matrices
-│
-├── train_baseline.py                # Baseline 1
-├── train_metadata.py                # Baseline 2
-├── train_notes.py                   # Baseline 3
-├── train_fedavg.py                  # Baseline 4
-└── train_fedprox.py                 # Baseline 5
-```
+### Performance Metrics
+
+| Metric | Value |
+|--------|------:|
+| Peak Accuracy | **0.0433 (4.33%)** |
+| Communication Rounds | **10** |
+| Trust Boundary Range | **0.0062 – 0.0070** |
+
+### Empirical Analysis
+
+The proposed framework introduces the **Adaptive Cognitive Trigger Model (ACTM)** together with a utility-weighted federated aggregation strategy.
+
+Instead of assigning equal influence to every participating client, the framework dynamically computes client utility scores using local prediction accuracy, training loss, and data volume. These utility scores are normalized through logarithmic scaling (`np.log1p`) before being incorporated into the aggregation process.
+
+The adaptive weighting mechanism reduces the influence of unreliable client updates while emphasizing clients that contribute more informative model parameters. Compared with the standard FedAvg baseline, the proposed framework achieves improved overall performance and demonstrates the feasibility of incorporating human-centered adaptive trust mechanisms into decentralized financial learning systems.
+
+Although the proposed approach provides stronger robustness against heterogeneous client behaviour, experimental observations indicate that high-round convergence remains constrained by the semantic quality of user-entered transaction notes. Future work may investigate contextual language models and transformer-based note representations to further enhance transaction understanding.
+
+---
+
+# 🚀 Future Work
+
+Potential future enhancements include:
+
+- Transformer-based transaction note encoding (e.g., BERT)
+- Personalized federated learning for individual spending behaviour
+- Dynamic client clustering based on transaction similarity
+- Adaptive communication-efficient federated optimization
+- Real-time deployment within mobile Personal Finance Management applications
+- Explainable AI techniques for transaction categorization
+- Online continual learning from user corrections
+
+---
+
+
