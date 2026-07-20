@@ -15,7 +15,7 @@ The repository contains six executable methods:
 | B5 | FedProx MLP | Federated | Implemented and rerun |
 | P | ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg | Federated, human-in-the-loop | Implemented and rerun |
 
-The implementation stage is complete enough for comparative experiments. Repeated-seed evaluation and ablation studies remain required before the results should be treated as final Chapter 5 evidence.
+The corrected implementation, three-seed federated evaluation, and proposed-method ablation study have been completed. The results support ACTM as the clearest contribution, but they do **not** show a material benefit from the current utility-weighted aggregation. Ambiguous-subset and prompt-efficiency analysis remain necessary before final Chapter 5 reporting.
 
 ## Corrected experiment contract
 
@@ -100,7 +100,44 @@ The dataset does not provide merchant or account columns. The current conflict d
 
 This must be described as a limitation. It should not be presented as an evaluation using genuine merchant and account identifiers.
 
-## Latest single-seed results
+## Repeated-seed federated results
+
+FedAvg, FedProx, and Proposed were evaluated using training seeds 42, 52, and 62 while keeping the corrected dataset and frozen split unchanged. Values are mean +/- sample standard deviation across three runs.
+
+| Method | Accuracy | Macro F1 | Weighted F1 | ECE | Brier score |
+|---|---:|---:|---:|---:|---:|
+| FedAvg | 0.1805 +/- 0.0094 | 0.0427 +/- 0.0065 | 0.0938 +/- 0.0092 | 0.0852 +/- 0.0081 | 0.9114 +/- 0.0064 |
+| FedProx | 0.1798 +/- 0.0104 | 0.0424 +/- 0.0062 | 0.0933 +/- 0.0099 | 0.0847 +/- 0.0081 | 0.9114 +/- 0.0064 |
+| Proposed | **0.1830 +/- 0.0141** | **0.0430 +/- 0.0066** | **0.0951 +/- 0.0127** | **0.0839 +/- 0.0088** | **0.9097 +/- 0.0096** |
+
+The proposed method has the strongest mean federated accuracy, Macro F1, Weighted F1, ECE, and Brier score. However, the differences are small relative to the between-seed variation. These results should be described as modest improvements, not proof of a large or statistically established advantage.
+
+## Proposed-method ablation results
+
+The full method and six ablations were evaluated with the same seeds. Values are mean +/- sample standard deviation.
+
+| Variant | Accuracy | Macro F1 | Weighted F1 | ECE | Brier score |
+|---|---:|---:|---:|---:|---:|
+| Full | **0.1837 +/- 0.0149** | 0.0432 +/- 0.0058 | **0.0951 +/- 0.0149** | 0.0847 +/- 0.0061 | 0.9097 +/- 0.0097 |
+| Without ACTM | 0.1804 +/- 0.0096 | 0.0426 +/- 0.0060 | 0.0930 +/- 0.0108 | 0.0856 +/- 0.0062 | 0.9115 +/- 0.0064 |
+| Without notes | 0.1826 +/- 0.0111 | **0.0438 +/- 0.0073** | 0.0944 +/- 0.0131 | **0.0836 +/- 0.0088** | **0.9097 +/- 0.0097** |
+| Simple concatenation | 0.1830 +/- 0.0141 | 0.0430 +/- 0.0066 | 0.0951 +/- 0.0127 | 0.0839 +/- 0.0088 | 0.9097 +/- 0.0096 |
+| Without uncertainty utility | 0.1836 +/- 0.0147 | 0.0432 +/- 0.0058 | 0.0950 +/- 0.0148 | 0.0846 +/- 0.0062 | 0.9097 +/- 0.0097 |
+| Without specificity utility | 0.1836 +/- 0.0147 | 0.0432 +/- 0.0058 | 0.0950 +/- 0.0148 | 0.0846 +/- 0.0062 | 0.9097 +/- 0.0097 |
+| Without utility weighting | 0.1837 +/- 0.0149 | 0.0432 +/- 0.0058 | 0.0951 +/- 0.0149 | 0.0847 +/- 0.0061 | 0.9097 +/- 0.0097 |
+
+### Findings supported by the ablation study
+
+- ACTM provides the clearest positive contribution: removing it reduces mean accuracy by 0.0033, Weighted F1 by 0.0021, and worsens Brier score by 0.0018.
+- Selective note use gives small accuracy and Weighted F1 gains, but the no-notes variant has slightly higher Macro F1 and better ECE. The note effect is therefore mixed.
+- Semantic-anchor-gated fusion gives only a very small classification improvement over simple concatenation and does not improve calibration in these runs.
+- Removing either uncertainty-reduction utility or semantic-specificity utility changes the results only negligibly.
+- Removing utility weighting produces effectively identical results to the full method. The current evidence does not support a claim that utility-weighted aggregation materially improves performance.
+- Federated Macro F1 remains low, showing that minority-category performance is still weak despite the modest aggregate improvement.
+
+The null utility-weighting result is retained as an honest research finding. The next diagnostic step is to inspect note-utility distributions, fallback frequency, client multipliers, and the difference between base and final aggregation weights before deciding whether the utility mapping should be revised.
+
+## Single-seed reference results
 
 The following results were generated using the corrected 13-category dataset and shared split with seed 42:
 
@@ -124,7 +161,7 @@ Bold values mark the strongest overall result or the strongest federated result,
 - The federated improvement is positive but small. The current evidence does not support a claim that Proposed outperforms every baseline.
 - Low federated Macro F1 indicates that minority-category performance remains weak and should be examined through class-level reports and confusion matrices.
 
-These are single-seed results. Final reporting should include repeated seeds, means, standard deviations, ablations, ambiguous-subset results, prompting metrics, and the standardized calibration results produced on the next rerun.
+These seed-42 values are retained for traceability. The repeated-seed results above should be used for federated method conclusions.
 
 ## Installation
 
@@ -338,18 +375,11 @@ The current checks cover:
 
 Before treating the results as final research evidence:
 
-1. Rerun the probability-producing methods to populate standardized ECE and Brier scores.
-2. Run the committed three-seed evaluation and report mean plus sample standard deviation.
-3. Run the required ablations:
-   - Proposed without ACTM;
-   - Proposed without notes;
-   - simple note concatenation;
-   - without uncertainty-reduction utility;
-   - without semantic-specificity utility;
-   - without utility weighting;
-   - alternative prompt budgets and multiplier bounds.
-4. Report ambiguous-subset Macro F1 and prompt-efficiency metrics.
-5. Analyse class imbalance and minority-category performance.
+1. Diagnose why utility weighting is effectively neutral by reporting utility-component distributions, fallback rates, multiplier ranges, and base-versus-final client weights.
+2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
+3. Report ambiguous-subset Macro F1 and prompt-efficiency metrics.
+4. Analyse class imbalance and minority-category performance using class-level reports and confusion matrices.
+5. Add uncertainty estimates or statistical testing appropriate for the final comparison claims.
 6. Freeze the selected model and preprocessing contract before mobile integration.
 
 ## Scope
