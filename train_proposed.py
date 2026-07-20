@@ -227,6 +227,7 @@ def main(config):
         "utility_multiplier_bounds": [0.75, 1.25], "minimum_notes_for_weighting": config.min_notes,
         "cross_account_proxy": {"merchant": "location", "account": "payment_mode"},
         "rounds": config.rounds, "local_epochs": config.local_epochs,
+        "training_seed": config.seed,
         "best_validation_macro_f1": best_f1, "final_test_metrics": overall,
     }
     (output / "experiment_info.json").write_text(json.dumps(experiment, indent=2), encoding="utf-8")
