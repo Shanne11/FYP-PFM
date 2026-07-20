@@ -1,5 +1,7 @@
-Baseline : Metadata + Notes
-Model : Random Forest
-Training Samples : 9225
-Testing Samples : 2308
-Total Features : 43
+Baseline: Metadata + Notes Random Forest
+Train: 7494
+Validation: 1729
+Test: 2308
+Classes: 13
+Split manifest version: 2
+Metrics: {'accuracy': 0.3119584055459272, 'macro_precision': 0.2584132975830368, 'macro_recall': 0.18558976073263683, 'macro_f1': 0.15821329817343008, 'weighted_precision': 0.31178609162826, 'weighted_recall': 0.3119584055459272, 'weighted_f1': 0.22005181525151815}

@@ -1,4 +1,7 @@
-Training Samples : 9224
-Testing Samples  : 2307
-Features         : ['transaction_type', 'amount', 'payment_mode', 'location', 'year', 'month', 'day', 'weekday']
-Model            : Random Forest
+Baseline: Metadata-only Random Forest
+Train: 7494
+Validation: 1729
+Test: 2308
+Classes: 13
+Split manifest version: 2
+Metrics: {'accuracy': 0.3011265164644714, 'macro_precision': 0.14735142994940473, 'macro_recall': 0.1674448523001006, 'macro_f1': 0.13809233104679347, 'weighted_precision': 0.2171513313973726, 'weighted_recall': 0.3011265164644714, 'weighted_f1': 0.21201014915729924}

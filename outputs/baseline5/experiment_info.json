@@ -1,0 +1,24 @@
+{
+  "baseline": "FedProx",
+  "aggregation": "sample-weighted FedAvg",
+  "fedprox_mu": 0.01,
+  "train": 7494,
+  "validation": 1729,
+  "test": 2308,
+  "classes": 13,
+  "clients": 150,
+  "rounds": 10,
+  "local_epochs": 3,
+  "seed": 42,
+  "split_manifest_version": 2,
+  "best_validation_macro_f1": 0.04494257389660454,
+  "test_metrics": {
+    "accuracy": 0.18804159445407279,
+    "macro_precision": 0.030745787897051423,
+    "macro_recall": 0.07740418185305967,
+    "macro_f1": 0.04136667929771379,
+    "weighted_precision": 0.07921622475961823,
+    "weighted_recall": 0.18804159445407279,
+    "weighted_f1": 0.10466770823550839
+  }
+}

@@ -2,9 +2,10 @@
   "method": "ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg",
   "split": {
     "train": 7494,
-    "validation": 1730,
-    "test": 2307,
-    "seed": 42
+    "validation": 1729,
+    "test": 2308,
+    "seed": 42,
+    "manifest_version": 2
   },
   "actm": {
     "entropy_threshold": 0.65,
@@ -27,14 +28,14 @@
   },
   "rounds": 10,
   "local_epochs": 3,
-  "best_validation_macro_f1": 0.006241411923491841,
+  "best_validation_macro_f1": 0.04423901439177585,
   "final_test_metrics": {
-    "accuracy": 0.035977459904638055,
-    "macro_precision": 0.009924950732235321,
-    "macro_recall": 0.022636278014838734,
-    "macro_f1": 0.006025839685425656,
-    "weighted_f1": 0.009479683853083141,
-    "ece": 0.008886696231451753,
-    "brier_score": 0.9764211902154725
+    "accuracy": 0.19670710571923744,
+    "macro_precision": 0.029377166776901328,
+    "macro_recall": 0.0755434490696336,
+    "macro_f1": 0.04228614830278135,
+    "weighted_f1": 0.10973815495775449,
+    "ece": 0.08034810283103477,
+    "brier_score": 0.8985780095696434
   }
 }

@@ -1,7 +1,5 @@
-Experiment : Baseline 1
-Algorithm  : Rule-based Classification
-Model      : Keyword Matching
-Dataset    : clean_budgetwise.csv
-Training   : Not Required
-Testing    : Full Evaluation Dataset
-Remarks    : Transactions are classified using predefined keyword rules without machine learning.
+Baseline: Rules-only
+Train: 0
+Validation: 0
+Test: 2308
+Split manifest version: 2
