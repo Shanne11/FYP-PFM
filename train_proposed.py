@@ -1,605 +1,279 @@
-import os
-import glob
+"""Train and evaluate the complete proposed FYP method.
+
+Pipeline: leakage-safe split -> metadata prediction -> ACTM -> selective Smart
+Notes -> note utility -> bounded utility-weighted FedAvg -> held-out evaluation.
+Run ``python train_proposed.py --help`` for reproducible experiment controls.
+"""
+
+import argparse
 import copy
-import torch
-import pandas as pd
+import json
+import os
+import random
+from pathlib import Path
+
+import joblib
 import matplotlib.pyplot as plt
-
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
 from sklearn.metrics import (
-    accuracy_score,
-    classification_report,
-    confusion_matrix
+    accuracy_score, brier_score_loss, classification_report, confusion_matrix,
+    f1_score, precision_score, recall_score,
 )
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader, TensorDataset
 
+from models.federated.actm import ACTM, ACTMConfig, CrossAccountConflictDetector
+from models.federated.utility import bounded_fedavg, note_utility
 from models.mlp import MLP
-
-from models.federated.client import FederatedClient
-from models.federated.server import FederatedServer
-
-from utils.federated_dataset import load_client_dataset
-
-from utils.feature_engineering import (
-    prepare_metadata_note_features,
-    prepare_metadata_note_features_with_existing
-)
-
-# ==================================================
-# Configuration
-# ==================================================
-
-OUTPUT = "outputs/proposed"
-
-CLIENT_PATH = "data/clients/*.csv"
-
-DATASET_PATH = "dataset/clean_budgetwise.csv"
-
-ROUNDS = 10
-
-LOCAL_EPOCHS = 3
-
-MU = 0.01
-
-os.makedirs(
-    OUTPUT,
-    exist_ok=True
-)
-
-print("=" * 60)
-print("Proposed Model")
-print("MLP + ACTM + Utility-weighted Aggregation")
-print("=" * 60)
-
-# ==================================================
-# Load Client Files
-# ==================================================
-
-client_files = sorted(
-    glob.glob(CLIENT_PATH)
-)
-
-print(f"Total Clients : {len(client_files)}")
-
-if len(client_files) == 0:
-
-    raise Exception(
-        "No client datasets found. Run split_clients.py first."
-    )
-
-# ==================================================
-# Build Global Feature Space
-# ==================================================
-
-print("\nPreparing global feature space...")
-
-full_df = pd.read_csv(
-    DATASET_PATH
-)
-
-_, _, encoders, vectorizer = prepare_metadata_note_features(
-    full_df
-)
-
-sample_X, _ = load_client_dataset(
-    client_files[0],
-    encoders,
-    vectorizer
-)
-
-input_size = sample_X.shape[1]
-
-num_classes = len(
-    encoders["category"].classes_
-)
-
-print(f"Input Features : {input_size}")
-
-print(f"Output Classes : {num_classes}")
-
-# ==================================================
-# Global Model
-# ==================================================
-
-global_model = MLP(
-    input_size,
-    num_classes
-)
-
-server = FederatedServer()
-
-# ==================================================
-# Prepare Evaluation Dataset
-# ==================================================
-
-test_indices = pd.read_csv(
-    "outputs/baseline2/test_indices.csv",
-    header=None
-)[0]
-
-test_df = pd.read_csv(
-    DATASET_PATH
-)
-
-test_df = test_df.iloc[
-    test_indices
-].reset_index(
-    drop=True
-)
-
-X_test, y_test = prepare_metadata_note_features_with_existing(
-    test_df,
-    encoders,
-    vectorizer
-)
-
-X_test = torch.FloatTensor(
-    X_test.toarray()
-)
-
-y_test_tensor = torch.LongTensor(
-    y_test.values.copy()
-)
-
-# ==================================================
-# Federated Training
-# ==================================================
-
-round_results = []
-
-best_accuracy = 0
-
-print("\nStarting Federated Training...\n")
-
-for current_round in range(ROUNDS):
-
-    print(
-        f"Communication Round "
-        f"{current_round+1}/{ROUNDS}"
-    )
-
-    client_results = []
-
-    global_weights = {
-
-        name: param.detach().clone()
-
-        for name, param in global_model.named_parameters()
-
-    }
-
-    # --------------------------------------------
-    # Client Training
-    # --------------------------------------------
-
-    for index, client_file in enumerate(client_files):
-
-        print(
-            f" Client {index+1}/{len(client_files)}"
-        )
-
-        X_train, y_train = load_client_dataset(
-            client_file,
-            encoders,
-            vectorizer
-        )
-
-        local_model = copy.deepcopy(
-            global_model
-        )
-
-        client = FederatedClient(
-            local_model
-        )
-
-        result = client.train(
-
-            X_train,
-
-            y_train,
-
-            epochs=LOCAL_EPOCHS,
-
-            global_weights=global_weights,
-
-            mu=MU
-
-        )
-
-        client_results.append(
-            result
-        )
-
-    # --------------------------------------------
-    # Server Aggregation
-    # --------------------------------------------
-
-    new_weights, utilities = server.aggregate(
-        client_results
-    )
-
-    global_model.load_state_dict(
-        new_weights
-    )
-
-    print("\nClient Utility Scores")
-
-    for i, utility in enumerate(utilities):
-
-        print(
-            f"Client {i+1:03d} : {utility:.4f}"
-        )
-
-    # --------------------------------------------
-    # Evaluate Global Model
-    # --------------------------------------------
-
-    global_model.eval()
-
+from utils.proposed_features import ProposedFeatureBuilder
+
+
+def arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", default="dataset/clean_budgetwise.csv")
+    parser.add_argument("--output", default="outputs/proposed")
+    parser.add_argument("--rounds", type=int, default=10)
+    parser.add_argument("--local-epochs", type=int, default=3)
+    parser.add_argument("--learning-rate", type=float, default=0.001)
+    parser.add_argument("--entropy-threshold", type=float, default=0.65)
+    parser.add_argument("--margin-threshold", type=float, default=0.15)
+    parser.add_argument("--prompt-budget", type=float, default=0.30)
+    parser.add_argument("--min-notes", type=int, default=1)
+    parser.add_argument("--max-clients", type=int, default=None,
+                        help="Development/smoke-test limit; omit for the experiment.")
+    parser.add_argument("--seed", type=int, default=42)
+    return parser.parse_args()
+
+
+def set_seed(seed):
+    random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
+
+
+def probabilities(model, sparse_features):
+    model.eval()
+    tensor = torch.as_tensor(sparse_features.toarray(), dtype=torch.float32)
     with torch.no_grad():
+        return torch.softmax(model(tensor), dim=1).cpu().numpy()
 
-        output = global_model(
-            X_test
-        )
 
-        prediction = torch.argmax(
-            output,
-            dim=1
-        )
+def local_train(model, features, labels, epochs, learning_rate):
+    tensor_x = torch.as_tensor(features.toarray(), dtype=torch.float32)
+    tensor_y = torch.as_tensor(labels, dtype=torch.long)
+    loader = DataLoader(TensorDataset(tensor_x, tensor_y), batch_size=32, shuffle=True)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = nn.CrossEntropyLoss()
+    model.train()
+    loss_sum = 0.0
+    batches = 0
+    for _ in range(epochs):
+        for batch_x, batch_y in loader:
+            optimizer.zero_grad()
+            loss = criterion(model(batch_x), batch_y)
+            loss.backward(); optimizer.step()
+            loss_sum += loss.item(); batches += 1
+    return loss_sum / max(batches, 1)
 
-    prediction_numpy = prediction.numpy()
 
-    actual_numpy = y_test_tensor.numpy()
+def expected_calibration_error(actual, probs, bins=10):
+    confidence = probs.max(axis=1); predicted = probs.argmax(axis=1)
+    edges = np.linspace(0, 1, bins + 1); ece = 0.0
+    for lower, upper in zip(edges[:-1], edges[1:]):
+        mask = (confidence > lower) & (confidence <= upper)
+        if mask.any():
+            ece += mask.mean() * abs((predicted[mask] == actual[mask]).mean() - confidence[mask].mean())
+    return float(ece)
 
-    accuracy = accuracy_score(
-        actual_numpy,
-        prediction_numpy
-    )
 
-    print(
-        f"Round Accuracy : {accuracy:.4f}"
-    )
-
-    # --------------------------------------------
-    # Save Best Model
-    # --------------------------------------------
-
-    if accuracy > best_accuracy:
-
-        best_accuracy = accuracy
-
-        torch.save(
-
-            global_model.state_dict(),
-
-            os.path.join(
-
-                OUTPUT,
-
-                "best_proposed_model.pth"
-
-            )
-
-        )
-
-        print(
-            "Best model updated."
-        )
-
-    # --------------------------------------------
-    # Save Round Information
-    # --------------------------------------------
-
-    round_results.append(
-
-        {
-
-            "Round": current_round + 1,
-
-            "Accuracy": accuracy,
-
-            "Average Utility": float(sum(utilities) / len(utilities)),
-
-            "Highest Utility": float(max(utilities)),
-
-            "Lowest Utility": float(min(utilities))
-
-        }
-
-    )
-
-print("\nTraining Completed.")
-
-# ==================================================
-# Final Evaluation
-# ==================================================
-
-print("\nRunning Final Evaluation...")
-
-global_model.eval()
-
-with torch.no_grad():
-
-    output = global_model(
-        X_test
-    )
-
-    prediction = torch.argmax(
-        output,
-        dim=1
-    )
-
-prediction = prediction.numpy()
-
-actual = y_test_tensor.numpy()
-
-accuracy = accuracy_score(
-    actual,
-    prediction
-)
-
-print(
-    f"Final Accuracy : {accuracy:.4f}"
-)
-
-# ==================================================
-# Save Predictions
-# ==================================================
-
-prediction_df = pd.DataFrame(
-
-    {
-
-        "Actual": actual,
-
-        "Predicted": prediction
-
+def metric_row(actual, probs):
+    predicted = probs.argmax(axis=1)
+    one_hot = np.eye(probs.shape[1])[actual]
+    return {
+        "accuracy": accuracy_score(actual, predicted),
+        "macro_precision": precision_score(actual, predicted, average="macro", zero_division=0),
+        "macro_recall": recall_score(actual, predicted, average="macro", zero_division=0),
+        "macro_f1": f1_score(actual, predicted, average="macro", zero_division=0),
+        "weighted_f1": f1_score(actual, predicted, average="weighted", zero_division=0),
+        "ece": expected_calibration_error(actual, probs),
+        "brier_score": float(np.mean(np.sum((probs - one_hot) ** 2, axis=1))),
     }
 
-)
 
-prediction_df.to_csv(
-
-    os.path.join(
-
-        OUTPUT,
-
-        "predictions.csv"
-
-    ),
-
-    index=False
-
-)
-
-# ==================================================
-# Save Metrics
-# ==================================================
-
-report = classification_report(
-
-    actual,
-
-    prediction,
-
-    zero_division=0
-
-)
-
-with open(
-
-    os.path.join(
-
-        OUTPUT,
-
-        "metrics.txt"
-
-    ),
-
-    "w"
-
-) as f:
-
-    f.write(
-        "Model : Proposed\n"
+def main(config):
+    set_seed(config.seed)
+    output = Path(config.output); output.mkdir(parents=True, exist_ok=True)
+    frame = pd.read_csv(config.dataset).reset_index(names="source_index")
+    train_dev, test = train_test_split(
+        frame, test_size=0.20, random_state=config.seed, stratify=frame["category"]
     )
-
-    f.write(
-        "Algorithm : MLP + ACTM + Utility-weighted Aggregation\n"
+    train, validation = train_test_split(
+        train_dev, test_size=0.1875, random_state=config.seed,
+        stratify=train_dev["category"],  # 65/15/20 overall
     )
+    for name, split in (("train", train), ("validation", validation), ("test", test)):
+        split[["source_index"]].to_csv(output / f"{name}_indices.csv", index=False, header=False)
 
-    f.write(
-        f"Accuracy : {accuracy:.4f}\n\n"
-    )
+    features = ProposedFeatureBuilder().fit(train)
+    conflict_detector = CrossAccountConflictDetector().fit(train)
+    actm = ACTM(ACTMConfig(
+        config.entropy_threshold, config.margin_threshold, config.prompt_budget
+    ))
+    train_parts = features.transform_parts(train)
+    input_size = features.metadata_size + features.note_size
+    classes = len(features.category_encoder.classes_)
+    global_model = MLP(input_size, classes)
 
-    f.write(
-        report
-    )
+    client_ids = sorted(train["user_id"].fillna("Unknown").astype(str).unique())
+    if config.max_clients:
+        client_ids = client_ids[:config.max_clients]
+        train = train[train["user_id"].fillna("Unknown").astype(str).isin(client_ids)]
+    round_rows, weight_rows, utility_rows, trigger_rows = [], [], [], []
+    best_f1 = -1.0; checkpoint = output / "best_global_model.pt"
 
-# ==================================================
-# Save Utility Scores
-# ==================================================
-
-utility_df = pd.DataFrame(
-
-    {
-
-        "Client": list(
-
-            range(
-
-                1,
-
-                len(utilities)+1
-
+    for round_number in range(1, config.rounds + 1):
+        client_results = []
+        for client_id in client_ids:
+            client_frame = train[train["user_id"].fillna("Unknown").astype(str) == client_id]
+            metadata, notes, anchors, labels = features.transform_parts(client_frame)
+            before = probabilities(global_model, features.metadata_only(metadata))
+            decisions = actm.decide(before, conflict_detector.transform(client_frame))
+            use_notes = decisions["triggered"].to_numpy() & client_frame["notes"].fillna("").str.strip().ne("").to_numpy()
+            fused = features.fused(metadata, notes, use_notes)
+            local_model = copy.deepcopy(global_model)
+            local_loss = local_train(local_model, fused, labels, config.local_epochs, config.learning_rate)
+            after = probabilities(local_model, fused)
+            selected = np.flatnonzero(use_notes)
+            if len(selected):
+                utility, reduction, specificity, effort, nonempty = note_utility(
+                    before[selected], after[selected], notes[selected], anchors[selected],
+                    client_frame.iloc[selected]["notes"].tolist(),
+                )
+                valid_utility = utility[nonempty]
+                mean_utility = float(valid_utility.mean()) if len(valid_utility) else None
+                for position, row_index in enumerate(selected):
+                    utility_rows.append({
+                        "round": round_number, "client_id": client_id,
+                        "source_index": int(client_frame.iloc[row_index]["source_index"]),
+                        "uncertainty_reduction": reduction[position],
+                        "semantic_specificity": specificity[position],
+                        "bounded_effort": effort[position], "utility": utility[position],
+                    })
+            else:
+                mean_utility = None
+            decisions = decisions.assign(
+                round=round_number, client_id=client_id,
+                source_index=client_frame["source_index"].to_numpy(), note_used=use_notes,
             )
+            trigger_rows.extend(decisions.to_dict("records"))
+            client_results.append({
+                "client_id": client_id, "weights": copy.deepcopy(local_model.state_dict()),
+                "sample_count": len(client_frame), "note_count": int(use_notes.sum()),
+                "mean_note_utility": mean_utility, "local_loss": local_loss,
+            })
 
-        ),
+        weights, diagnostics = bounded_fedavg(client_results, min_notes=config.min_notes)
+        global_model.load_state_dict(weights)
+        for result, diagnostic in zip(client_results, diagnostics):
+            weight_rows.append({"round": round_number, "client_id": result["client_id"],
+                                "local_loss": result["local_loss"], **diagnostic})
+        val_metadata, val_notes, _, val_labels = features.transform_parts(validation)
+        val_before = probabilities(global_model, features.metadata_only(val_metadata))
+        val_decisions = actm.decide(val_before, conflict_detector.transform(validation))
+        val_mask = val_decisions["triggered"].to_numpy() & validation["notes"].fillna("").str.strip().ne("").to_numpy()
+        val_probs = probabilities(global_model, features.fused(val_metadata, val_notes, val_mask))
+        metrics = metric_row(val_labels, val_probs)
+        round_rows.append({"round": round_number, "clients": len(client_results),
+                           "prompts_per_100": 100 * val_decisions["triggered"].mean(), **metrics})
+        if metrics["macro_f1"] > best_f1:
+            best_f1 = metrics["macro_f1"]; torch.save(global_model.state_dict(), checkpoint)
+        print(f"Round {round_number}/{config.rounds}: validation macro-F1={metrics['macro_f1']:.4f}")
 
-        "Utility": utilities
+    # Final outputs always represent the validation-selected checkpoint.
+    global_model.load_state_dict(torch.load(checkpoint, map_location="cpu", weights_only=True))
+    metadata, notes, _, actual = features.transform_parts(test)
+    before = probabilities(global_model, features.metadata_only(metadata))
+    decisions = actm.decide(before, conflict_detector.transform(test))
+    note_mask = decisions["triggered"].to_numpy() & test["notes"].fillna("").str.strip().ne("").to_numpy()
+    final_probs = probabilities(global_model, features.fused(metadata, notes, note_mask))
+    predicted = final_probs.argmax(axis=1); overall = metric_row(actual, final_probs)
+    ambiguous = decisions["eligible"].to_numpy()
+    ambiguous_metrics = metric_row(actual[ambiguous], final_probs[ambiguous]) if ambiguous.any() else {}
 
+    pd.DataFrame(round_rows).to_csv(output / "round_metrics.csv", index=False)
+    pd.DataFrame(weight_rows).to_csv(output / "aggregation_weights.csv", index=False)
+    pd.DataFrame(utility_rows).to_csv(output / "utility_scores.csv", index=False)
+    pd.DataFrame(trigger_rows).to_csv(output / "actm_triggers.csv", index=False)
+    confidence = final_probs.max(axis=1); correct = predicted == actual
+    calibration_rows = []
+    for lower, upper in zip(np.linspace(0, 1, 11)[:-1], np.linspace(0, 1, 11)[1:]):
+        mask = (confidence > lower) & (confidence <= upper)
+        calibration_rows.append({
+            "bin_lower": lower, "bin_upper": upper, "count": int(mask.sum()),
+            "mean_confidence": float(confidence[mask].mean()) if mask.any() else np.nan,
+            "accuracy": float(correct[mask].mean()) if mask.any() else np.nan,
+        })
+    pd.DataFrame(calibration_rows).to_csv(output / "calibration_metrics.csv", index=False)
+    pd.DataFrame([{"model": "Proposed", **overall}]).to_csv(output / "overall_metrics.csv", index=False)
+    pd.DataFrame([{"model": "Proposed", "ambiguous_count": int(ambiguous.sum()), **ambiguous_metrics}]).to_csv(output / "ambiguous_metrics.csv", index=False)
+    pd.DataFrame([{
+        "strategy": "ACTM", "transactions": len(test), "eligible": int(decisions["eligible"].sum()),
+        "prompts": int(decisions["triggered"].sum()), "notes_used": int(note_mask.sum()),
+        "prompts_per_100": 100 * decisions["triggered"].mean(),
+        "prompt_precision": float((before.argmax(axis=1)[decisions["triggered"].to_numpy()] != actual[decisions["triggered"].to_numpy()]).mean()) if decisions["triggered"].any() else 0,
+        "note_acceptance_rate": float(note_mask.sum() / max(decisions["triggered"].sum(), 1)),
+        "mean_uncertainty_reduction": float(np.maximum(
+            0.0, -(before * np.log(np.clip(before, 1e-12, 1))).sum(axis=1)
+            + (final_probs * np.log(np.clip(final_probs, 1e-12, 1))).sum(axis=1)
+        )[note_mask].mean()) if note_mask.any() else 0.0,
+    }]).to_csv(output / "prompt_metrics.csv", index=False)
+    pd.DataFrame({
+        "source_index": test["source_index"].to_numpy(), "actual": actual, "predicted": predicted,
+        "actual_label": features.category_encoder.inverse_transform(actual),
+        "predicted_label": features.category_encoder.inverse_transform(predicted),
+        "confidence": final_probs.max(axis=1), "actm_triggered": decisions["triggered"].to_numpy(),
+        "note_used": note_mask,
+    }).to_csv(output / "predictions.csv", index=False)
+    pd.DataFrame(final_probs).to_csv(output / "class_probabilities.csv", index=False)
+    (output / "classification_report.txt").write_text(
+        classification_report(actual, predicted, target_names=features.category_encoder.classes_, zero_division=0),
+        encoding="utf-8",
+    )
+    pd.DataFrame({"category": features.category_encoder.classes_, "encoded": range(classes)}).to_csv(output / "category_mapping.csv", index=False)
+    joblib.dump(features, output / "feature_pipeline.pkl")
+    model_config = {"input_features": input_size, "output_classes": classes, "hidden_layers": [128, 64]}
+    (output / "model_config.json").write_text(json.dumps(model_config, indent=2), encoding="utf-8")
+    experiment = {
+        "method": "ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg",
+        "split": {"train": len(train), "validation": len(validation), "test": len(test), "seed": config.seed},
+        "actm": vars(actm.config), "utility_weights": [0.5, 0.3, 0.2],
+        "utility_multiplier_bounds": [0.75, 1.25], "minimum_notes_for_weighting": config.min_notes,
+        "cross_account_proxy": {"merchant": "location", "account": "payment_mode"},
+        "rounds": config.rounds, "local_epochs": config.local_epochs,
+        "best_validation_macro_f1": best_f1, "final_test_metrics": overall,
     }
-
-)
-
-utility_df.to_csv(
-
-    os.path.join(
-
-        OUTPUT,
-
-        "client_utilities.csv"
-
-    ),
-
-    index=False
-
-)
-
-# ==================================================
-# Save Communication Rounds
-# ==================================================
-
-pd.DataFrame(
-
-    round_results
-
-).to_csv(
-
-    os.path.join(
-
-        OUTPUT,
-
-        "communication_rounds.csv"
-
-    ),
-
-    index=False
-
-)
-
-# ==================================================
-# Confusion Matrix
-# ==================================================
-
-cm = confusion_matrix(
-
-    actual,
-
-    prediction
-
-)
-
-plt.figure(
-
-    figsize=(8,6)
-
-)
-
-plt.imshow(
-
-    cm,
-
-    cmap="viridis"
-
-)
-
-plt.title(
-
-    "Proposed Model Confusion Matrix"
-
-)
-
-plt.xlabel(
-
-    "Predicted"
-
-)
-
-plt.ylabel(
-
-    "Actual"
-
-)
-
-plt.colorbar()
-
-plt.tight_layout()
-
-plt.savefig(
-
-    os.path.join(
-
-        OUTPUT,
-
-        "confusion_matrix.png"
-
-    )
-
-)
-
-plt.close()
-
-# ==================================================
-# Experiment Information
-# ==================================================
-
-with open(
-
-    os.path.join(
-
-        OUTPUT,
-
-        "experiment_info.txt"
-
-    ),
-
-    "w"
-
-) as f:
-
-    f.write(
-        "Experiment : Proposed Method\n"
-    )
-
-    f.write(
-        "Model : Multi-Layer Perceptron\n"
-    )
-
-    f.write(
-        "Aggregation : Utility-weighted Federated Aggregation\n"
-    )
-
-    f.write(
-        "Trust Mechanism : ACTM\n"
-    )
-
-    f.write(
-        f"Communication Rounds : {ROUNDS}\n"
-    )
-
-    f.write(
-        f"Local Epochs : {LOCAL_EPOCHS}\n"
-    )
-
-    f.write(
-        f"FedProx Mu : {MU}\n"
-    )
-
-    f.write(
-        f"Clients : {len(client_files)}\n"
-    )
-
-    f.write(
-        f"Input Features : {input_size}\n"
-    )
-
-    f.write(
-        f"Output Classes : {num_classes}\n"
-    )
-
-    f.write(
-        f"Best Accuracy : {best_accuracy:.4f}\n"
-    )
-
-print("\n==========================================")
-print(" Proposed Model Training Completed ")
-print("==========================================")
+    (output / "experiment_info.json").write_text(json.dumps(experiment, indent=2), encoding="utf-8")
+
+    cm = confusion_matrix(actual, predicted, labels=np.arange(classes))
+    plt.figure(figsize=(9, 7)); plt.imshow(cm, cmap="viridis"); plt.colorbar()
+    plt.title("Proposed Method Confusion Matrix"); plt.xlabel("Predicted"); plt.ylabel("Actual")
+    plt.tight_layout(); plt.savefig(output / "confusion_matrix.png", dpi=160); plt.close()
+    rounds = pd.DataFrame(round_rows)
+    plt.figure(figsize=(8, 5)); plt.plot(rounds["round"], rounds["macro_f1"], marker="o")
+    plt.xlabel("Communication round"); plt.ylabel("Validation macro-F1"); plt.tight_layout()
+    plt.savefig(output / "convergence_curve.png", dpi=160); plt.close()
+    calibration = pd.DataFrame(calibration_rows).dropna()
+    plt.figure(figsize=(6, 6)); plt.plot([0, 1], [0, 1], "--", color="gray")
+    plt.plot(calibration["mean_confidence"], calibration["accuracy"], marker="o")
+    plt.xlabel("Mean confidence"); plt.ylabel("Observed accuracy"); plt.tight_layout()
+    plt.savefig(output / "reliability_diagram.png", dpi=160); plt.close()
+    if utility_rows:
+        plt.figure(figsize=(7, 5)); plt.hist(pd.DataFrame(utility_rows)["utility"], bins=20)
+        plt.xlabel("Smart Note utility"); plt.ylabel("Count"); plt.tight_layout()
+        plt.savefig(output / "utility_distribution.png", dpi=160); plt.close()
+    print(f"Final held-out test macro-F1={overall['macro_f1']:.4f}; outputs: {output}")
+
+
+if __name__ == "__main__":
+    main(arguments())
