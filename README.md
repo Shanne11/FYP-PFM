@@ -466,3 +466,28 @@ python train_proposed.py
 
 Use `python train_proposed.py --help` for thresholds, prompt budget, seed, and
 training controls. `--max-clients` is intended only for development smoke tests.
+
+## Shared experiment data contract
+
+All six methods now use `data/experiment_split.json`. It freezes the exact
+source rows assigned to the 7,494-record training set, 1,729-record
+validation set, and 2,308-record held-out test set. Every script verifies the
+dataset fingerprint before training. Source-row identity is necessary because
+the supplied dataset contains duplicate transaction IDs.
+
+The 31 inconsistent source labels are normalised into 13 categories by
+`utils/experiment_data.py`. Preprocessors and text vocabularies are fitted on
+training records only. Federated client partitions are created from the frozen
+training set in memory, so test transactions cannot enter local training.
+
+Run the methods in any order:
+
+```bash
+python train_baseline.py
+python train_metadata.py
+python train_notes.py
+python train_fedavg.py
+python train_fedprox.py
+python train_proposed.py
+python evaluation/compare_all_models.py
+```

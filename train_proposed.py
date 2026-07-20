@@ -22,18 +22,19 @@ from sklearn.metrics import (
     accuracy_score, brier_score_loss, classification_report, confusion_matrix,
     f1_score, precision_score, recall_score,
 )
-from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, TensorDataset
 
 from models.federated.actm import ACTM, ACTMConfig, CrossAccountConflictDetector
 from models.federated.utility import bounded_fedavg, note_utility
 from models.mlp import MLP
+from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.proposed_features import ProposedFeatureBuilder
 
 
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", default="dataset/clean_budgetwise.csv")
+    parser.add_argument("--split-manifest", default="data/experiment_split.json")
     parser.add_argument("--output", default="outputs/proposed")
     parser.add_argument("--rounds", type=int, default=10)
     parser.add_argument("--local-epochs", type=int, default=3)
@@ -104,16 +105,10 @@ def metric_row(actual, probs):
 def main(config):
     set_seed(config.seed)
     output = Path(config.output); output.mkdir(parents=True, exist_ok=True)
-    frame = pd.read_csv(config.dataset).reset_index(names="source_index")
-    train_dev, test = train_test_split(
-        frame, test_size=0.20, random_state=config.seed, stratify=frame["category"]
+    train, validation, test, manifest = load_experiment_data(
+        config.dataset, config.split_manifest
     )
-    train, validation = train_test_split(
-        train_dev, test_size=0.1875, random_state=config.seed,
-        stratify=train_dev["category"],  # 65/15/20 overall
-    )
-    for name, split in (("train", train), ("validation", validation), ("test", test)):
-        split[["source_index"]].to_csv(output / f"{name}_indices.csv", index=False, header=False)
+    save_split_indices(output, {"train": train, "validation": validation, "test": test})
 
     features = ProposedFeatureBuilder().fit(train)
     conflict_detector = CrossAccountConflictDetector().fit(train)
@@ -155,7 +150,7 @@ def main(config):
                 for position, row_index in enumerate(selected):
                     utility_rows.append({
                         "round": round_number, "client_id": client_id,
-                        "source_index": int(client_frame.iloc[row_index]["source_index"]),
+                        "transaction_id": client_frame.iloc[row_index]["transaction_id"],
                         "uncertainty_reduction": reduction[position],
                         "semantic_specificity": specificity[position],
                         "bounded_effort": effort[position], "utility": utility[position],
@@ -164,7 +159,7 @@ def main(config):
                 mean_utility = None
             decisions = decisions.assign(
                 round=round_number, client_id=client_id,
-                source_index=client_frame["source_index"].to_numpy(), note_used=use_notes,
+                transaction_id=client_frame["transaction_id"].to_numpy(), note_used=use_notes,
             )
             trigger_rows.extend(decisions.to_dict("records"))
             client_results.append({
@@ -229,7 +224,7 @@ def main(config):
         )[note_mask].mean()) if note_mask.any() else 0.0,
     }]).to_csv(output / "prompt_metrics.csv", index=False)
     pd.DataFrame({
-        "source_index": test["source_index"].to_numpy(), "actual": actual, "predicted": predicted,
+        "transaction_id": test["transaction_id"].to_numpy(), "actual": actual, "predicted": predicted,
         "actual_label": features.category_encoder.inverse_transform(actual),
         "predicted_label": features.category_encoder.inverse_transform(predicted),
         "confidence": final_probs.max(axis=1), "actm_triggered": decisions["triggered"].to_numpy(),
@@ -246,7 +241,8 @@ def main(config):
     (output / "model_config.json").write_text(json.dumps(model_config, indent=2), encoding="utf-8")
     experiment = {
         "method": "ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg",
-        "split": {"train": len(train), "validation": len(validation), "test": len(test), "seed": config.seed},
+        "split": {"train": len(train), "validation": len(validation), "test": len(test),
+                  "seed": manifest["seed"], "manifest_version": manifest["version"]},
         "actm": vars(actm.config), "utility_weights": [0.5, 0.3, 0.2],
         "utility_multiplier_bounds": [0.75, 1.25], "minimum_notes_for_weighting": config.min_notes,
         "cross_account_proxy": {"merchant": "location", "account": "payment_mode"},

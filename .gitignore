@@ -14,6 +14,16 @@ __pycache__/
 *.csv
 *.xlsx
 
+# Aggregate evaluation evidence is safe to review and compare in GitHub.
+!outputs/**/overall_metrics.csv
+!outputs/**/ambiguous_metrics.csv
+!outputs/**/prompt_metrics.csv
+!outputs/**/calibration_metrics.csv
+!outputs/**/round_metrics.csv
+!outputs/**/aggregation_weights.csv
+!outputs/**/client_metrics.csv
+!outputs/comparison/baseline_comparison.csv
+
 # Jupyter
 .ipynb_checkpoints/
 

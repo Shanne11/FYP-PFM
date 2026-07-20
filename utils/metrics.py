@@ -19,6 +19,8 @@ def evaluate(actual, predicted, output_folder):
     accuracy = accuracy_score(actual, predicted)
     precision = precision_score(actual, predicted, average="weighted", zero_division=0)
     recall = recall_score(actual, predicted, average="weighted", zero_division=0)
+    macro_precision = precision_score(actual, predicted, average="macro", zero_division=0)
+    macro_recall = recall_score(actual, predicted, average="macro", zero_division=0)
     macro_f1 = f1_score(actual, predicted, average="macro", zero_division=0)
     weighted_f1 = f1_score(actual, predicted, average="weighted", zero_division=0)
 
@@ -80,10 +82,18 @@ def evaluate(actual, predicted, output_folder):
 
     plt.close()
 
-    return {
+    summary = {
         "accuracy": accuracy,
-        "precision": precision,
-        "recall": recall,
+        "macro_precision": macro_precision,
+        "macro_recall": macro_recall,
         "macro_f1": macro_f1,
-        "weighted_f1": weighted_f1
+        "weighted_precision": precision,
+        "weighted_recall": recall,
+        "weighted_f1": weighted_f1,
     }
+    import pandas as pd
+    pd.DataFrame([summary]).to_csv(
+        os.path.join(output_folder, "overall_metrics.csv"), index=False
+    )
+
+    return summary
