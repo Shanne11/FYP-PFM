@@ -18,9 +18,13 @@ builder = ProposedFeatureBuilder().fit(train)
 X_train, _, _, y_train = builder.transform_parts(train)
 X_test, _, _, y_test = builder.transform_parts(test)
 model = build_model(); model.fit(X_train, y_train); predicted = model.predict(X_test)
+probabilities = model.predict_proba(X_test)
 actual_labels = builder.category_encoder.inverse_transform(y_test)
 predicted_labels = builder.category_encoder.inverse_transform(predicted)
-metrics = evaluate(actual_labels, predicted_labels, str(OUTPUT))
+metrics = evaluate(
+    actual_labels, predicted_labels, str(OUTPUT), probabilities,
+    builder.category_encoder.inverse_transform(model.classes_),
+)
 
 feature_names = list(builder.categorical_encoder.get_feature_names_out()) + builder.numeric
 pd.DataFrame({"feature": feature_names, "importance": model.feature_importances_}).sort_values(

@@ -15,7 +15,7 @@ The repository contains six executable methods:
 | B5 | FedProx MLP | Federated | Implemented and rerun |
 | P | ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg | Federated, human-in-the-loop | Implemented and rerun |
 
-The implementation stage is complete enough for comparative experiments. Repeated-seed evaluation, ablation studies, and complete calibration comparison remain required before the results should be treated as final Chapter 5 evidence.
+The implementation stage is complete enough for comparative experiments. Repeated-seed evaluation and ablation studies remain required before the results should be treated as final Chapter 5 evidence.
 
 ## Corrected experiment contract
 
@@ -124,7 +124,7 @@ Bold values mark the strongest overall result or the strongest federated result,
 - The federated improvement is positive but small. The current evidence does not support a claim that Proposed outperforms every baseline.
 - Low federated Macro F1 indicates that minority-category performance remains weak and should be examined through class-level reports and confusion matrices.
 
-These are single-seed results. Final reporting should include repeated seeds, means, standard deviations, ablations, ambiguous-subset results, prompting metrics, and calibration metrics.
+These are single-seed results. Final reporting should include repeated seeds, means, standard deviations, ablations, ambiguous-subset results, prompting metrics, and the standardized calibration results produced on the next rerun.
 
 ## Installation
 
@@ -279,10 +279,9 @@ The current checks cover:
 
 Before treating the results as final research evidence:
 
-1. Standardise probability-based metrics across all compatible models.
-2. Add ECE and Brier score to probability-producing baselines.
-3. Run at least three random seeds and report mean plus standard deviation.
-4. Run the required ablations:
+1. Rerun the probability-producing methods to populate standardized ECE and Brier scores.
+2. Run at least three random seeds and report mean plus standard deviation.
+3. Run the required ablations:
    - Proposed without ACTM;
    - Proposed without notes;
    - simple note concatenation;
@@ -290,9 +289,9 @@ Before treating the results as final research evidence:
    - without semantic-specificity utility;
    - without utility weighting;
    - alternative prompt budgets and multiplier bounds.
-5. Report ambiguous-subset Macro F1 and prompt-efficiency metrics.
-6. Analyse class imbalance and minority-category performance.
-7. Freeze the selected model and preprocessing contract before mobile integration.
+4. Report ambiguous-subset Macro F1 and prompt-efficiency metrics.
+5. Analyse class imbalance and minority-category performance.
+6. Freeze the selected model and preprocessing contract before mobile integration.
 
 ## Scope
 

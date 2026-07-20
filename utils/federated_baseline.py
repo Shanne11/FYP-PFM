@@ -24,11 +24,11 @@ def _tensor(matrix):
     return torch.as_tensor(matrix.toarray(), dtype=torch.float32)
 
 
-def _predict(model, matrix):
+def _predict_probabilities(model, matrix):
     model.eval()
     with torch.no_grad():
         logits = model(_tensor(matrix))
-    return torch.argmax(logits, dim=1).numpy()
+    return torch.softmax(logits, dim=1).numpy()
 
 
 def _local_train(model, matrix, labels, global_weights, mu, epochs, learning_rate):
@@ -89,7 +89,7 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
             client_rows.append({"round": round_number, "client_id": client_id,
                                 "sample_count": len(client_frame), "local_loss": loss})
         global_model.load_state_dict(_sample_weighted_average(results))
-        validation_prediction = _predict(global_model, validation_x)
+        validation_prediction = _predict_probabilities(global_model, validation_x).argmax(axis=1)
         macro_f1 = f1_score(validation_y, validation_prediction, average="macro", zero_division=0)
         accuracy = accuracy_score(validation_y, validation_prediction)
         round_rows.append({"round": round_number, "validation_accuracy": accuracy,
@@ -99,10 +99,14 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
         print(f"{name} round {round_number}/{rounds}: validation macro-F1={macro_f1:.4f}")
 
     global_model.load_state_dict(torch.load(checkpoint, map_location="cpu", weights_only=True))
-    prediction = _predict(global_model, test_x)
+    test_probabilities = _predict_probabilities(global_model, test_x)
+    prediction = test_probabilities.argmax(axis=1)
     actual_labels = builder.category_encoder.inverse_transform(test_y)
     predicted_labels = builder.category_encoder.inverse_transform(prediction)
-    metrics = evaluate(actual_labels, predicted_labels, str(output))
+    metrics = evaluate(
+        actual_labels, predicted_labels, str(output), test_probabilities,
+        builder.category_encoder.classes_,
+    )
     pd.DataFrame(round_rows).to_csv(output / "round_metrics.csv", index=False)
     pd.DataFrame(client_rows).to_csv(output / "client_metrics.csv", index=False)
     pd.DataFrame({"transaction_id": test["transaction_id"], "actual": actual_labels,
