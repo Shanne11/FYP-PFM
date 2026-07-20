@@ -180,6 +180,31 @@ outputs/comparison/baseline_comparison.csv
 outputs/comparison/baseline_comparison.png
 ```
 
+### Repeated-seed federated evaluation
+
+Run FedAvg, FedProx, and Proposed with training seeds 42, 52, and 62 while
+keeping the frozen data split unchanged:
+
+```powershell
+python evaluation/run_repeated_seeds.py
+```
+
+This performs nine full federated runs and may take considerably longer than a
+single comparison. Results are written to:
+
+```text
+outputs/repeated/repeated_runs.csv
+outputs/repeated/repeated_summary.csv
+outputs/repeated/*_mean_std.png
+```
+
+The summary reports the arithmetic mean and sample standard deviation. For a
+non-reportable smoke test only, use:
+
+```powershell
+python evaluation/run_repeated_seeds.py --seeds 42 --rounds 1 --local-epochs 1 --max-clients 3
+```
+
 ## Proposed experiment options
 
 Display available settings:
@@ -280,7 +305,7 @@ The current checks cover:
 Before treating the results as final research evidence:
 
 1. Rerun the probability-producing methods to populate standardized ECE and Brier scores.
-2. Run at least three random seeds and report mean plus standard deviation.
+2. Run the committed three-seed evaluation and report mean plus sample standard deviation.
 3. Run the required ablations:
    - Proposed without ACTM;
    - Proposed without notes;

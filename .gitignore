@@ -23,6 +23,8 @@ __pycache__/
 !outputs/**/aggregation_weights.csv
 !outputs/**/client_metrics.csv
 !outputs/comparison/baseline_comparison.csv
+!outputs/repeated/repeated_runs.csv
+!outputs/repeated/repeated_summary.csv
 
 # Jupyter
 .ipynb_checkpoints/

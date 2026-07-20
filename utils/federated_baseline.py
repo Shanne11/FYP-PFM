@@ -60,7 +60,7 @@ def _sample_weighted_average(results):
 
 
 def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
-                           learning_rate=0.001, seed=42):
+                           learning_rate=0.001, seed=42, max_clients=None):
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     train, validation, test, manifest = load_experiment_data()
@@ -76,6 +76,9 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
     global_model = MLP(input_size, classes); checkpoint = output / "best_global_model.pt"
     best_macro_f1 = -1.0; round_rows = []; client_rows = []
     client_ids = sorted(train["user_id"].fillna("Unknown").astype(str).unique())
+    if max_clients is not None:
+        client_ids = client_ids[:max_clients]
+        train = train[train["user_id"].fillna("Unknown").astype(str).isin(client_ids)]
     for round_number in range(1, rounds + 1):
         global_weights = {name: parameter.detach().clone() for name, parameter in global_model.named_parameters()}
         results = []
@@ -115,7 +118,7 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
         "baseline": name, "aggregation": "sample-weighted FedAvg", "fedprox_mu": mu,
         "train": len(train), "validation": len(validation), "test": len(test),
         "classes": classes, "clients": len(client_ids), "rounds": rounds,
-        "local_epochs": local_epochs, "seed": seed,
+        "local_epochs": local_epochs, "training_seed": seed,
         "split_manifest_version": manifest["version"], "best_validation_macro_f1": best_macro_f1,
         "test_metrics": metrics,
     }
