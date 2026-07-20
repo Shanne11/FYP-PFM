@@ -227,6 +227,40 @@ Important defaults:
 
 `--max-clients` is intended only for development smoke tests. Do not use it for final experimental results.
 
+## Ablation study
+
+Run the full method and six component ablations using seeds 42, 52, and 62:
+
+```powershell
+python evaluation/run_ablations.py
+```
+
+The study evaluates:
+
+- full proposed method;
+- without ACTM (notes always available);
+- without Smart Notes;
+- simple note concatenation instead of semantic-anchor-gated fusion;
+- without uncertainty-reduction utility;
+- without semantic-specificity utility;
+- without utility-weighted aggregation.
+
+This performs 21 full federated runs. Outputs include raw runs, mean plus sample
+standard deviation, deltas from the full method, and error-bar charts:
+
+```text
+outputs/ablations/ablation_runs.csv
+outputs/ablations/ablation_summary.csv
+outputs/ablations/ablation_deltas.csv
+outputs/ablations/*_ablation.png
+```
+
+For orchestration testing only:
+
+```powershell
+python evaluation/run_ablations.py --seeds 42 --rounds 1 --local-epochs 1 --max-clients 3
+```
+
 ## Generated outputs
 
 Each experiment writes to its own directory:

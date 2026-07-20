@@ -39,6 +39,8 @@ def proposed_config(output, seed, rounds, local_epochs, max_clients):
         output=str(output), rounds=rounds, local_epochs=local_epochs,
         learning_rate=0.001, entropy_threshold=0.65, margin_threshold=0.15,
         prompt_budget=0.30, min_notes=1, max_clients=max_clients, seed=seed,
+        note_strategy="selective", fusion_mode="semantic_anchor",
+        utility_weights=[0.5, 0.3, 0.2], disable_utility_weighting=False,
     )
 
 
