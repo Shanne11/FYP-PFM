@@ -1,0 +1,30 @@
+accuracy: 0.1681109185441941
+macro_precision: 0.024713683469033337
+macro_recall: 0.07538263453284913
+macro_f1: 0.036767784586614116
+weighted_precision: 0.059691469979348155
+weighted_recall: 0.1681109185441941
+weighted_f1: 0.08736022195226253
+ece: 0.07705303196322362
+brier_score: 0.9150038483974544
+calibration_available: True
+
+               precision    recall  f1-score   support
+
+        Bonus       0.00      0.00      0.00        65
+    Education       0.00      0.00      0.00       151
+Entertainment       0.00      0.00      0.00       198
+         Food       0.24      0.60      0.34       500
+    Freelance       0.00      0.00      0.00        71
+       Health       0.00      0.00      0.00        93
+   Investment       0.00      0.00      0.00        70
+        Other       0.00      0.00      0.00       108
+         Rent       0.00      0.00      0.00       401
+       Salary       0.00      0.00      0.00        67
+      Savings       0.00      0.00      0.00        57
+       Travel       0.00      0.00      0.00       294
+    Utilities       0.09      0.38      0.14       233
+
+     accuracy                           0.17      2308
+    macro avg       0.02      0.08      0.04      2308
+ weighted avg       0.06      0.17      0.09      2308

@@ -1,0 +1,27 @@
+{
+  "baseline": "FedAvg",
+  "aggregation": "sample-weighted FedAvg",
+  "fedprox_mu": 0.0,
+  "train": 7494,
+  "validation": 1729,
+  "test": 2308,
+  "classes": 13,
+  "clients": 150,
+  "rounds": 10,
+  "local_epochs": 3,
+  "training_seed": 52,
+  "split_manifest_version": 2,
+  "best_validation_macro_f1": 0.03666502469688057,
+  "test_metrics": {
+    "accuracy": 0.16984402079722705,
+    "macro_precision": 0.024868817345106257,
+    "macro_recall": 0.07599801914823374,
+    "macro_f1": 0.03704671149716548,
+    "weighted_precision": 0.06002233708333052,
+    "weighted_recall": 0.16984402079722705,
+    "weighted_f1": 0.08800454468150531,
+    "ece": 0.07830986453210564,
+    "brier_score": 0.9149786339278668,
+    "calibration_available": true
+  }
+}
