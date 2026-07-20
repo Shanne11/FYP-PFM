@@ -1,0 +1,52 @@
+               precision    recall  f1-score   support
+
+        Bonus       0.00      0.00      0.00        65
+          EDU       0.00      0.00      0.00        36
+    Education       0.00      0.00      0.00        37
+     Educaton       0.00      0.00      0.00        35
+    Entertain       0.00      0.00      0.00        52
+Entertainment       0.00      0.00      0.00        46
+    Entrtnmnt       0.00      0.00      0.00        49
+         FOOD       0.04      0.10      0.05        87
+          Fod       0.00      0.00      0.00        78
+         Food       0.00      0.00      0.00        84
+        Foodd       0.03      0.81      0.07        80
+        Foods       0.00      0.00      0.00        87
+    Freelance       0.00      0.00      0.00        71
+       HEALTH       0.00      0.00      0.00        21
+       Health       0.00      0.00      0.00        23
+        Helth       0.00      0.00      0.00        24
+   Investment       0.00      0.00      0.00        70
+         Misc       0.00      0.00      0.00         7
+       OTHERS       0.00      0.00      0.00         6
+        Other       0.00      0.00      0.00         8
+       Others       0.28      0.06      0.10        80
+         RENT       0.00      0.00      0.00        85
+         Rent       0.00      0.00      0.00        81
+        Rentt       0.08      0.01      0.02        78
+          Rnt       0.00      0.00      0.00        77
+      SAVINGS       0.00      0.00      0.00        15
+       Salary       0.00      0.00      0.00        67
+       Saving       0.00      0.00      0.00        12
+      Savings       0.00      0.00      0.00        16
+       TRAVEL       0.00      0.00      0.00        59
+       Traval       0.02      0.05      0.03        60
+       Travel       0.00      0.00      0.00        64
+        Travl       0.00      0.00      0.00        55
+    Utilities       0.00      0.00      0.00        45
+      Utility       0.00      0.00      0.00        51
+     Utilties       0.00      0.00      0.00        45
+     Utlities       0.00      0.00      0.00        46
+    education       0.00      0.00      0.00        42
+entertainment       0.00      0.00      0.00        51
+         food       0.00      0.00      0.00        84
+       health       0.00      0.00      0.00        24
+       others       0.00      0.00      0.00         7
+         rent       0.00      0.00      0.00        80
+      savings       0.00      0.00      0.00        14
+       travel       0.00      0.00      0.00        57
+    utilities       0.00      0.00      0.00        46
+
+     accuracy                           0.04      2307
+    macro avg       0.01      0.02      0.01      2307
+ weighted avg       0.02      0.04      0.01      2307
