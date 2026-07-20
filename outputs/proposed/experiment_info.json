@@ -34,8 +34,11 @@
     "macro_precision": 0.029377166776901328,
     "macro_recall": 0.0755434490696336,
     "macro_f1": 0.04228614830278135,
+    "weighted_precision": 0.07613553501693648,
+    "weighted_recall": 0.19670710571923744,
     "weighted_f1": 0.10973815495775449,
-    "ece": 0.08034810283103477,
-    "brier_score": 0.8985780095696434
+    "ece": 0.08034809667171598,
+    "brier_score": 0.8985780095696434,
+    "calibration_available": true
   }
 }

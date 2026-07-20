@@ -1,8 +1,13 @@
-Accuracy      : 0.1880
-Precision     : 0.0792
-Recall        : 0.1880
-Macro F1      : 0.0414
-Weighted F1   : 0.1047
+accuracy: 0.18804159445407279
+macro_precision: 0.030745787897051423
+macro_recall: 0.07740418185305967
+macro_f1: 0.04136667929771379
+weighted_precision: 0.07921622475961823
+weighted_recall: 0.18804159445407279
+weighted_f1: 0.10466770823550839
+ece: 0.08385524182117171
+brier_score: 0.9040706915103627
+calibration_available: True
 
                precision    recall  f1-score   support
 

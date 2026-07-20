@@ -19,6 +19,9 @@
     "macro_f1": 0.04136667929771379,
     "weighted_precision": 0.07921622475961823,
     "weighted_recall": 0.18804159445407279,
-    "weighted_f1": 0.10466770823550839
+    "weighted_f1": 0.10466770823550839,
+    "ece": 0.08385524182117171,
+    "brier_score": 0.9040706915103627,
+    "calibration_available": true
   }
 }
