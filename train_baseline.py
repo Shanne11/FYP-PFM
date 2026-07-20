@@ -1,41 +1,27 @@
-import os
+"""Baseline 1: rules-only categorisation on the shared held-out test set."""
+
+from pathlib import Path
+
 import pandas as pd
 
 from models.rules import predict
+from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import evaluate
 
-OUTPUT_FOLDER = "outputs/baseline1"
 
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+OUTPUT = Path("outputs/baseline1")
+train, validation, test, manifest = load_experiment_data()
+save_split_indices(OUTPUT, {"train": train, "validation": validation, "test": test})
 
-# Load cleaned dataset
-df = pd.read_csv("dataset/clean_budgetwise.csv")
-
-actual = []
-predicted = []
-
-for _, row in df.iterrows():
-
-    actual.append(row["category"])
-
-    predicted.append(
-        predict(row["notes"])
-    )
-
-# Save predictions
-df["predicted_category"] = predicted
-
-df.to_csv(
-    os.path.join(
-        OUTPUT_FOLDER,
-        "predictions.csv"
-    ),
-    index=False
-)
-
-# Evaluate and save metrics
-evaluate(
-    actual,
-    predicted,
-    OUTPUT_FOLDER
+predicted = test["notes"].map(predict)
+pd.DataFrame({
+    "transaction_id": test["transaction_id"],
+    "actual": test["category"],
+    "predicted": predicted,
+}).to_csv(OUTPUT / "predictions.csv", index=False)
+evaluate(test["category"].to_numpy(), predicted.to_numpy(), str(OUTPUT))
+(OUTPUT / "experiment_info.txt").write_text(
+    f"Baseline: Rules-only\nTrain: 0\nValidation: 0\nTest: {len(test)}\n"
+    f"Split manifest version: {manifest['version']}\n",
+    encoding="utf-8",
 )

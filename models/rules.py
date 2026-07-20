@@ -4,9 +4,9 @@ Simple Rule-Based Transaction Categorisation
 
 rules = {
 
-    "electricity": "Bills",
-    "water": "Bills",
-    "internet": "Bills",
+    "electricity": "Utilities",
+    "water": "Utilities",
+    "internet": "Utilities",
 
     "movie": "Entertainment",
     "cinema": "Entertainment",
@@ -22,15 +22,15 @@ rules = {
     "lunch": "Food",
     "dinner": "Food",
 
-    "uber": "Transport",
-    "grab": "Transport",
-    "taxi": "Transport",
-    "bus": "Transport",
-    "fuel": "Transport",
+    "uber": "Travel",
+    "grab": "Travel",
+    "taxi": "Travel",
+    "bus": "Travel",
+    "fuel": "Travel",
 
-    "hospital": "Healthcare",
-    "clinic": "Healthcare",
-    "medicine": "Healthcare"
+    "hospital": "Health",
+    "clinic": "Health",
+    "medicine": "Health"
 
 }
 
