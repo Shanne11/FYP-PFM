@@ -1,9 +1,13 @@
 """Build the final like-for-like comparison after all six methods are run."""
 
 from pathlib import Path
+import sys
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from utils.metrics import METRIC_COLUMNS
 
 
 MODELS = {
@@ -22,9 +26,13 @@ def main():
         path = Path("outputs") / folder / "overall_metrics.csv"
         if not path.exists():
             raise FileNotFoundError(f"Run {model} first; missing {path}")
-        row = pd.read_csv(path).iloc[0].to_dict(); row["model"] = model; rows.append(row)
+        row = pd.read_csv(path).iloc[0].to_dict()
+        missing = [column for column in METRIC_COLUMNS if column not in row]
+        if missing:
+            raise ValueError(f"Rerun {model}; {path} is missing columns: {missing}")
+        row["model"] = model; rows.append(row)
     comparison = pd.DataFrame(rows)
-    columns = ["model"] + [column for column in comparison if column != "model"]
+    columns = ["model"] + METRIC_COLUMNS
     comparison = comparison[columns]
     output = Path("outputs/comparison"); output.mkdir(parents=True, exist_ok=True)
     comparison.to_csv(output / "baseline_comparison.csv", index=False)

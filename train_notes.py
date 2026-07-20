@@ -22,9 +22,13 @@ test_meta, test_notes, _, y_test = builder.transform_parts(test)
 X_train = hstack([train_meta, train_notes], format="csr")
 X_test = hstack([test_meta, test_notes], format="csr")
 model = build_model(); model.fit(X_train, y_train); predicted = model.predict(X_test)
+probabilities = model.predict_proba(X_test)
 actual_labels = builder.category_encoder.inverse_transform(y_test)
 predicted_labels = builder.category_encoder.inverse_transform(predicted)
-metrics = evaluate(actual_labels, predicted_labels, str(OUTPUT))
+metrics = evaluate(
+    actual_labels, predicted_labels, str(OUTPUT), probabilities,
+    builder.category_encoder.inverse_transform(model.classes_),
+)
 feature_names = list(builder.categorical_encoder.get_feature_names_out()) + builder.numeric + list(builder.note_vectorizer.get_feature_names_out())
 pd.DataFrame({"feature": feature_names, "importance": model.feature_importances_}).sort_values(
     "importance", ascending=False

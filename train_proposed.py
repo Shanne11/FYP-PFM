@@ -19,8 +19,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.metrics import (
-    accuracy_score, brier_score_loss, classification_report, confusion_matrix,
-    f1_score, precision_score, recall_score,
+    classification_report, confusion_matrix,
 )
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -28,6 +27,7 @@ from models.federated.actm import ACTM, ACTMConfig, CrossAccountConflictDetector
 from models.federated.utility import bounded_fedavg, note_utility
 from models.mlp import MLP
 from utils.experiment_data import load_experiment_data, save_split_indices
+from utils.metrics import metric_summary
 from utils.proposed_features import ProposedFeatureBuilder
 
 
@@ -78,28 +78,9 @@ def local_train(model, features, labels, epochs, learning_rate):
     return loss_sum / max(batches, 1)
 
 
-def expected_calibration_error(actual, probs, bins=10):
-    confidence = probs.max(axis=1); predicted = probs.argmax(axis=1)
-    edges = np.linspace(0, 1, bins + 1); ece = 0.0
-    for lower, upper in zip(edges[:-1], edges[1:]):
-        mask = (confidence > lower) & (confidence <= upper)
-        if mask.any():
-            ece += mask.mean() * abs((predicted[mask] == actual[mask]).mean() - confidence[mask].mean())
-    return float(ece)
-
-
 def metric_row(actual, probs):
     predicted = probs.argmax(axis=1)
-    one_hot = np.eye(probs.shape[1])[actual]
-    return {
-        "accuracy": accuracy_score(actual, predicted),
-        "macro_precision": precision_score(actual, predicted, average="macro", zero_division=0),
-        "macro_recall": recall_score(actual, predicted, average="macro", zero_division=0),
-        "macro_f1": f1_score(actual, predicted, average="macro", zero_division=0),
-        "weighted_f1": f1_score(actual, predicted, average="weighted", zero_division=0),
-        "ece": expected_calibration_error(actual, probs),
-        "brier_score": float(np.mean(np.sum((probs - one_hot) ** 2, axis=1))),
-    }
+    return metric_summary(actual, predicted, probs, np.arange(probs.shape[1]))
 
 
 def main(config):
@@ -115,7 +96,6 @@ def main(config):
     actm = ACTM(ACTMConfig(
         config.entropy_threshold, config.margin_threshold, config.prompt_budget
     ))
-    train_parts = features.transform_parts(train)
     input_size = features.metadata_size + features.note_size
     classes = len(features.category_encoder.classes_)
     global_model = MLP(input_size, classes)
