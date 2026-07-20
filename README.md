@@ -435,3 +435,34 @@ Potential future enhancements include:
 ---
 
 
+# Corrected proposed-method experiment
+
+`train_proposed.py` now implements the proposed FYP method as a separate,
+leakage-safe experiment while preserving Baseline 1-5:
+
+- metadata-only probabilities feed ACTM entropy, top-two margin, and
+  cross-context conflict checks;
+- the prompt budget selectively enables Smart Note features;
+- note utility combines uncertainty reduction (0.50), semantic specificity
+  (0.30), and bounded effort (0.20);
+- aggregation starts with FedAvg sample-count weights, applies a utility
+  multiplier clipped to 0.75-1.25, and falls back to 1.0 for missing or
+  insufficient note utility;
+- preprocessing is fitted on the training split only, model selection uses a
+  validation split, and final metrics reload the best checkpoint before using
+  the held-out test split.
+
+The source dataset has no merchant or account columns. The experiment therefore
+uses `location` as the documented merchant-context proxy and `payment_mode` as
+the account/channel proxy for cross-account conflict. Replace these configurable
+columns when richer data becomes available.
+
+Install dependencies and run:
+
+```bash
+pip install -r requirements.txt
+python train_proposed.py
+```
+
+Use `python train_proposed.py --help` for thresholds, prompt budget, seed, and
+training controls. `--max-clients` is intended only for development smoke tests.
