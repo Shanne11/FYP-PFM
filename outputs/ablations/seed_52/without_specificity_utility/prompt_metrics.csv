@@ -1,0 +1,2 @@
+strategy,transactions,eligible,prompts,notes_used,prompts_per_100,prompt_precision,note_acceptance_rate,mean_uncertainty_reduction
+ACTM,2308,2308,693,584,30.025996533795496,0.8383838383838383,0.8427128427128427,9.217450133292004e-05

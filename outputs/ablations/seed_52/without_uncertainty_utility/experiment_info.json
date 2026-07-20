@@ -1,0 +1,48 @@
+{
+  "method": "ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg",
+  "split": {
+    "train": 7494,
+    "validation": 1729,
+    "test": 2308,
+    "seed": 42,
+    "manifest_version": 2
+  },
+  "actm": {
+    "entropy_threshold": 0.65,
+    "margin_threshold": 0.15,
+    "prompt_budget": 0.3
+  },
+  "note_strategy": "selective",
+  "fusion_mode": "semantic_anchor",
+  "utility_weights": [
+    0.0,
+    0.6,
+    0.4
+  ],
+  "utility_weighting_enabled": true,
+  "utility_multiplier_bounds": [
+    0.75,
+    1.25
+  ],
+  "minimum_notes_for_weighting": 1,
+  "cross_account_proxy": {
+    "merchant": "location",
+    "account": "payment_mode"
+  },
+  "rounds": 10,
+  "local_epochs": 3,
+  "training_seed": 52,
+  "best_validation_macro_f1": 0.039238740582806506,
+  "final_test_metrics": {
+    "accuracy": 0.17027729636048528,
+    "macro_precision": 0.025146488339868663,
+    "macro_recall": 0.07632816110927698,
+    "macro_f1": 0.03732831085385219,
+    "weighted_precision": 0.06093226230010117,
+    "weighted_recall": 0.17027729636048528,
+    "weighted_f1": 0.08893514964089691,
+    "ece": 0.07929776799082242,
+    "brier_score": 0.9150363240193019,
+    "calibration_available": true
+  }
+}
