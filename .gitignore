@@ -25,6 +25,9 @@ __pycache__/
 !outputs/comparison/baseline_comparison.csv
 !outputs/repeated/repeated_runs.csv
 !outputs/repeated/repeated_summary.csv
+!outputs/ablations/ablation_runs.csv
+!outputs/ablations/ablation_summary.csv
+!outputs/ablations/ablation_deltas.csv
 
 # Jupyter
 .ipynb_checkpoints/

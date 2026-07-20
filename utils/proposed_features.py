@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 
 
@@ -68,6 +69,18 @@ class ProposedFeatureBuilder:
     def fused(self, metadata, notes, use_note_mask):
         masked = notes.multiply(np.asarray(use_note_mask, dtype=float)[:, None])
         return hstack([metadata, masked], format="csr")
+
+    def semantic_anchor_fused(self, metadata, notes, anchors, use_note_mask):
+        """Gate note features by information added beyond their context anchor."""
+        specificity = np.asarray([
+            1.0 - cosine_similarity(notes[index], anchors[index])[0, 0]
+            if notes[index].nnz and anchors[index].nnz else 0.0
+            for index in range(notes.shape[0])
+        ])
+        # Preserve useful note signal while increasing influence for specific notes.
+        gates = (0.5 + 0.5 * np.clip(specificity, 0.0, 1.0))
+        gates *= np.asarray(use_note_mask, dtype=float)
+        return hstack([metadata, notes.multiply(gates[:, None])], format="csr")
 
     def metadata_only(self, metadata):
         return hstack([metadata, csr_matrix((metadata.shape[0], self.note_size))], format="csr")

@@ -43,6 +43,10 @@ def arguments():
     parser.add_argument("--margin-threshold", type=float, default=0.15)
     parser.add_argument("--prompt-budget", type=float, default=0.30)
     parser.add_argument("--min-notes", type=int, default=1)
+    parser.add_argument("--note-strategy", choices=["selective", "always", "none"], default="selective")
+    parser.add_argument("--fusion-mode", choices=["semantic_anchor", "simple_concat"], default="semantic_anchor")
+    parser.add_argument("--utility-weights", nargs=3, type=float, default=[0.5, 0.3, 0.2])
+    parser.add_argument("--disable-utility-weighting", action="store_true")
     parser.add_argument("--max-clients", type=int, default=None,
                         help="Development/smoke-test limit; omit for the experiment.")
     parser.add_argument("--seed", type=int, default=42)
@@ -83,8 +87,29 @@ def metric_row(actual, probs):
     return metric_summary(actual, predicted, probs, np.arange(probs.shape[1]))
 
 
+def note_mask(frame, decisions, strategy):
+    available = frame["notes"].fillna("").str.strip().ne("").to_numpy()
+    if strategy == "selective":
+        return decisions["triggered"].to_numpy() & available
+    if strategy == "always":
+        return available
+    if strategy == "none":
+        return np.zeros(len(frame), dtype=bool)
+    raise ValueError(f"Unknown note strategy: {strategy}")
+
+
+def fuse(features, metadata, notes, anchors, mask, mode):
+    if mode == "semantic_anchor":
+        return features.semantic_anchor_fused(metadata, notes, anchors, mask)
+    if mode == "simple_concat":
+        return features.fused(metadata, notes, mask)
+    raise ValueError(f"Unknown fusion mode: {mode}")
+
+
 def main(config):
     set_seed(config.seed)
+    if any(weight < 0 for weight in config.utility_weights) or not np.isclose(sum(config.utility_weights), 1.0):
+        raise ValueError("utility_weights must be non-negative and sum to 1.0")
     output = Path(config.output); output.mkdir(parents=True, exist_ok=True)
     train, validation, test, manifest = load_experiment_data(
         config.dataset, config.split_manifest
@@ -114,8 +139,8 @@ def main(config):
             metadata, notes, anchors, labels = features.transform_parts(client_frame)
             before = probabilities(global_model, features.metadata_only(metadata))
             decisions = actm.decide(before, conflict_detector.transform(client_frame))
-            use_notes = decisions["triggered"].to_numpy() & client_frame["notes"].fillna("").str.strip().ne("").to_numpy()
-            fused = features.fused(metadata, notes, use_notes)
+            use_notes = note_mask(client_frame, decisions, config.note_strategy)
+            fused = fuse(features, metadata, notes, anchors, use_notes, config.fusion_mode)
             local_model = copy.deepcopy(global_model)
             local_loss = local_train(local_model, fused, labels, config.local_epochs, config.learning_rate)
             after = probabilities(local_model, fused)
@@ -123,7 +148,7 @@ def main(config):
             if len(selected):
                 utility, reduction, specificity, effort, nonempty = note_utility(
                     before[selected], after[selected], notes[selected], anchors[selected],
-                    client_frame.iloc[selected]["notes"].tolist(),
+                    client_frame.iloc[selected]["notes"].tolist(), weights=tuple(config.utility_weights),
                 )
                 valid_utility = utility[nonempty]
                 mean_utility = float(valid_utility.mean()) if len(valid_utility) else None
@@ -148,16 +173,24 @@ def main(config):
                 "mean_note_utility": mean_utility, "local_loss": local_loss,
             })
 
-        weights, diagnostics = bounded_fedavg(client_results, min_notes=config.min_notes)
+        aggregation_results = client_results
+        if config.disable_utility_weighting:
+            aggregation_results = [
+                {**result, "mean_note_utility": None, "note_count": 0}
+                for result in client_results
+            ]
+        weights, diagnostics = bounded_fedavg(aggregation_results, min_notes=config.min_notes)
         global_model.load_state_dict(weights)
         for result, diagnostic in zip(client_results, diagnostics):
             weight_rows.append({"round": round_number, "client_id": result["client_id"],
                                 "local_loss": result["local_loss"], **diagnostic})
-        val_metadata, val_notes, _, val_labels = features.transform_parts(validation)
+        val_metadata, val_notes, val_anchors, val_labels = features.transform_parts(validation)
         val_before = probabilities(global_model, features.metadata_only(val_metadata))
         val_decisions = actm.decide(val_before, conflict_detector.transform(validation))
-        val_mask = val_decisions["triggered"].to_numpy() & validation["notes"].fillna("").str.strip().ne("").to_numpy()
-        val_probs = probabilities(global_model, features.fused(val_metadata, val_notes, val_mask))
+        val_mask = note_mask(validation, val_decisions, config.note_strategy)
+        val_probs = probabilities(global_model, fuse(
+            features, val_metadata, val_notes, val_anchors, val_mask, config.fusion_mode
+        ))
         metrics = metric_row(val_labels, val_probs)
         round_rows.append({"round": round_number, "clients": len(client_results),
                            "prompts_per_100": 100 * val_decisions["triggered"].mean(), **metrics})
@@ -167,11 +200,13 @@ def main(config):
 
     # Final outputs always represent the validation-selected checkpoint.
     global_model.load_state_dict(torch.load(checkpoint, map_location="cpu", weights_only=True))
-    metadata, notes, _, actual = features.transform_parts(test)
+    metadata, notes, anchors, actual = features.transform_parts(test)
     before = probabilities(global_model, features.metadata_only(metadata))
     decisions = actm.decide(before, conflict_detector.transform(test))
-    note_mask = decisions["triggered"].to_numpy() & test["notes"].fillna("").str.strip().ne("").to_numpy()
-    final_probs = probabilities(global_model, features.fused(metadata, notes, note_mask))
+    test_note_mask = note_mask(test, decisions, config.note_strategy)
+    final_probs = probabilities(global_model, fuse(
+        features, metadata, notes, anchors, test_note_mask, config.fusion_mode
+    ))
     predicted = final_probs.argmax(axis=1); overall = metric_row(actual, final_probs)
     ambiguous = decisions["eligible"].to_numpy()
     ambiguous_metrics = metric_row(actual[ambiguous], final_probs[ambiguous]) if ambiguous.any() else {}
@@ -194,21 +229,21 @@ def main(config):
     pd.DataFrame([{"model": "Proposed", "ambiguous_count": int(ambiguous.sum()), **ambiguous_metrics}]).to_csv(output / "ambiguous_metrics.csv", index=False)
     pd.DataFrame([{
         "strategy": "ACTM", "transactions": len(test), "eligible": int(decisions["eligible"].sum()),
-        "prompts": int(decisions["triggered"].sum()), "notes_used": int(note_mask.sum()),
+        "prompts": int(decisions["triggered"].sum()), "notes_used": int(test_note_mask.sum()),
         "prompts_per_100": 100 * decisions["triggered"].mean(),
         "prompt_precision": float((before.argmax(axis=1)[decisions["triggered"].to_numpy()] != actual[decisions["triggered"].to_numpy()]).mean()) if decisions["triggered"].any() else 0,
-        "note_acceptance_rate": float(note_mask.sum() / max(decisions["triggered"].sum(), 1)),
+        "note_acceptance_rate": float(test_note_mask.sum() / max(decisions["triggered"].sum(), 1)),
         "mean_uncertainty_reduction": float(np.maximum(
             0.0, -(before * np.log(np.clip(before, 1e-12, 1))).sum(axis=1)
             + (final_probs * np.log(np.clip(final_probs, 1e-12, 1))).sum(axis=1)
-        )[note_mask].mean()) if note_mask.any() else 0.0,
+        )[test_note_mask].mean()) if test_note_mask.any() else 0.0,
     }]).to_csv(output / "prompt_metrics.csv", index=False)
     pd.DataFrame({
         "transaction_id": test["transaction_id"].to_numpy(), "actual": actual, "predicted": predicted,
         "actual_label": features.category_encoder.inverse_transform(actual),
         "predicted_label": features.category_encoder.inverse_transform(predicted),
         "confidence": final_probs.max(axis=1), "actm_triggered": decisions["triggered"].to_numpy(),
-        "note_used": note_mask,
+        "note_used": test_note_mask,
     }).to_csv(output / "predictions.csv", index=False)
     pd.DataFrame(final_probs).to_csv(output / "class_probabilities.csv", index=False)
     (output / "classification_report.txt").write_text(
@@ -223,7 +258,9 @@ def main(config):
         "method": "ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg",
         "split": {"train": len(train), "validation": len(validation), "test": len(test),
                   "seed": manifest["seed"], "manifest_version": manifest["version"]},
-        "actm": vars(actm.config), "utility_weights": [0.5, 0.3, 0.2],
+        "actm": vars(actm.config), "note_strategy": config.note_strategy,
+        "fusion_mode": config.fusion_mode, "utility_weights": list(config.utility_weights),
+        "utility_weighting_enabled": not config.disable_utility_weighting,
         "utility_multiplier_bounds": [0.75, 1.25], "minimum_notes_for_weighting": config.min_notes,
         "cross_account_proxy": {"merchant": "location", "account": "payment_mode"},
         "rounds": config.rounds, "local_epochs": config.local_epochs,
