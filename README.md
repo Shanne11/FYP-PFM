@@ -181,6 +181,20 @@ Every held-out transaction satisfies at least one ambiguity condition. Consequen
 
 Prompt precision and note acceptance are high, showing that ACTM can prioritise likely errors within a fixed interaction budget. However, uncertainty reduction after clarification is negligible. ACTM should therefore be reported as evidence for **budgeted prioritisation**, not as a validated ambiguity separator or uncertainty-reduction mechanism. Threshold calibration must be performed on validation data if a genuinely selective ambiguous subset is required.
 
+### Federated class-level diagnosis
+
+The low federated Macro F1 is caused by prediction collapse rather than uniformly weak performance across all categories:
+
+| Method | Best mean class F1 | Categories with zero recall in all seeds | Categories never predicted in all seeds |
+|---|---:|---:|---:|
+| FedAvg | Food: 0.2477 | 9/13 | 8/13 |
+| FedProx | Food: 0.2456 | 9/13 | 8/13 |
+| Proposed | Food: 0.2689 | 9/13 | 9/13 |
+
+For Proposed, the mean prediction shares are approximately 41.3% Food, 42.7% Rent, 14.8% Utilities, and 1.2% Investment. Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings, and Travel have zero recall in every seed. The largest aggregate confusion pairs are Food→Rent (643), Rent→Food (541), and Travel→Food (382).
+
+Although the held-out support ranges from 57 Savings records to 500 Food records, the model’s predictions are substantially more concentrated than the underlying class distribution. Accuracy and Weighted F1 are therefore dominated by a few larger categories and overstate practical 13-category performance. Macro F1 is the appropriate primary metric for the multiclass claim, and the current federated models should be described as suffering from severe class collapse.
+
 ## Single-seed reference results
 
 The following results were generated using the corrected 13-category dataset and shared split with seed 42:
@@ -321,6 +335,24 @@ outputs/actm_evaluation/actm_conclusion.txt
 outputs/actm_evaluation/actm_rates.png
 ```
 
+### Federated class-level analysis
+
+Generate per-class precision, recall, F1, prediction shares, and aggregate confusion pairs from the repeated-seed predictions:
+
+```powershell
+python evaluation/analyze_federated_classes.py
+```
+
+This creates:
+
+```text
+outputs/class_analysis/class_runs.csv
+outputs/class_analysis/class_summary.csv
+outputs/class_analysis/confusion_pairs.csv
+outputs/class_analysis/class_analysis_conclusion.txt
+outputs/class_analysis/class_f1_comparison.png
+```
+
 ## Proposed experiment options
 
 Display available settings:
@@ -457,7 +489,7 @@ Before treating the results as final research evidence:
 1. If utility weighting is revised, define the new mapping and specificity measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
 3. Calibrate ACTM thresholds on validation data if the report requires a genuinely selective ambiguous subset rather than budget-based ranking.
-4. Analyse class imbalance and minority-category performance using class-level reports and confusion matrices.
+4. Investigate class-balanced loss, client sampling, or other training-only remedies for federated class collapse without changing the held-out test set.
 5. Add uncertainty estimates or statistical testing appropriate for the final comparison claims.
 6. Freeze the selected model and preprocessing contract before mobile integration.
 

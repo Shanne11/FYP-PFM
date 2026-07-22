@@ -33,6 +33,9 @@ __pycache__/
 outputs/utility_diagnostics/client_round_diagnostics.csv
 !outputs/actm_evaluation/actm_runs.csv
 !outputs/actm_evaluation/actm_summary.csv
+!outputs/class_analysis/class_runs.csv
+!outputs/class_analysis/class_summary.csv
+!outputs/class_analysis/confusion_pairs.csv
 
 # Jupyter
 .ipynb_checkpoints/
