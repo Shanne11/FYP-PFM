@@ -26,6 +26,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from models.federated.actm import ACTM, ACTMConfig, CrossAccountConflictDetector
 from models.federated.utility import bounded_fedavg, note_utility
 from models.mlp import MLP
+from utils.class_balance import inverse_frequency_weights
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import metric_summary
 from utils.proposed_features import ProposedFeatureBuilder
@@ -47,6 +48,8 @@ def arguments():
     parser.add_argument("--fusion-mode", choices=["semantic_anchor", "simple_concat"], default="semantic_anchor")
     parser.add_argument("--utility-weights", nargs=3, type=float, default=[0.5, 0.3, 0.2])
     parser.add_argument("--disable-utility-weighting", action="store_true")
+    parser.add_argument("--class-weighted-loss", action="store_true",
+                        help="Use inverse-frequency weights fitted on training labels only.")
     parser.add_argument("--max-clients", type=int, default=None,
                         help="Development/smoke-test limit; omit for the experiment.")
     parser.add_argument("--seed", type=int, default=42)
@@ -64,12 +67,12 @@ def probabilities(model, sparse_features):
         return torch.softmax(model(tensor), dim=1).cpu().numpy()
 
 
-def local_train(model, features, labels, epochs, learning_rate):
+def local_train(model, features, labels, epochs, learning_rate, class_weights=None):
     tensor_x = torch.as_tensor(features.toarray(), dtype=torch.float32)
     tensor_y = torch.as_tensor(labels, dtype=torch.long)
     loader = DataLoader(TensorDataset(tensor_x, tensor_y), batch_size=32, shuffle=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
     model.train()
     loss_sum = 0.0
     batches = 0
@@ -123,6 +126,9 @@ def main(config):
     ))
     input_size = features.metadata_size + features.note_size
     classes = len(features.category_encoder.classes_)
+    training_labels = features.category_encoder.transform(train["category"])
+    class_weighted_loss = getattr(config, "class_weighted_loss", False)
+    class_weights = inverse_frequency_weights(training_labels, classes) if class_weighted_loss else None
     global_model = MLP(input_size, classes)
 
     client_ids = sorted(train["user_id"].fillna("Unknown").astype(str).unique())
@@ -142,7 +148,9 @@ def main(config):
             use_notes = note_mask(client_frame, decisions, config.note_strategy)
             fused = fuse(features, metadata, notes, anchors, use_notes, config.fusion_mode)
             local_model = copy.deepcopy(global_model)
-            local_loss = local_train(local_model, fused, labels, config.local_epochs, config.learning_rate)
+            local_loss = local_train(
+                local_model, fused, labels, config.local_epochs, config.learning_rate, class_weights
+            )
             after = probabilities(local_model, fused)
             selected = np.flatnonzero(use_notes)
             if len(selected):
@@ -265,6 +273,8 @@ def main(config):
         "cross_account_proxy": {"merchant": "location", "account": "payment_mode"},
         "rounds": config.rounds, "local_epochs": config.local_epochs,
         "training_seed": config.seed,
+        "class_weighted_loss": class_weighted_loss,
+        "class_weights": class_weights.tolist() if class_weights is not None else None,
         "best_validation_macro_f1": best_f1, "final_test_metrics": overall,
     }
     (output / "experiment_info.json").write_text(json.dumps(experiment, indent=2), encoding="utf-8")
