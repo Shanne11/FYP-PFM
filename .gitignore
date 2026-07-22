@@ -40,6 +40,8 @@ outputs/utility_diagnostics/client_round_diagnostics.csv
 !outputs/class_balance/class_balance_summary.csv
 !outputs/class_balance/class_balance_deltas.csv
 outputs/class_balance_smoke/
+!outputs/statistics/paired_statistics.csv
+!outputs/statistics/macro_f1_paired_statistics.csv
 
 # Jupyter
 .ipynb_checkpoints/
