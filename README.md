@@ -135,7 +135,34 @@ The full method and six ablations were evaluated with the same seeds. Values are
 - Removing utility weighting produces effectively identical results to the full method. The current evidence does not support a claim that utility-weighted aggregation materially improves performance.
 - Federated Macro F1 remains low, showing that minority-category performance is still weak despite the modest aggregate improvement.
 
-The null utility-weighting result is retained as an honest research finding. The next diagnostic step is to inspect note-utility distributions, fallback frequency, client multipliers, and the difference between base and final aggregation weights before deciding whether the utility mapping should be revised.
+The null utility-weighting result is retained as an honest research finding. The diagnostic below explains why the mechanism currently has negligible aggregation impact.
+
+### Utility-weighting diagnosis
+
+The three full-method runs were diagnosed across 4,500 client-round observations and 57,208 selected-note observations:
+
+| Diagnostic | Result |
+|---|---:|
+| Client mean utility | 0.3252–0.3635 |
+| Utility multiplier | 0.9126–0.9317 |
+| Multiplier standard deviation | 0.0026 |
+| Within 0.01 of median multiplier | 100.0% |
+| Fallback to 1.0 | 0.0% |
+| Mean absolute base/final weight change | 0.0000133 |
+| Mean relative base/final weight change | 0.20% |
+
+Utility-component distributions show why the client means are compressed:
+
+| Component | Mean | Standard deviation | Median | Range |
+|---|---:|---:|---:|---:|
+| Uncertainty reduction | 0.0056 | 0.0074 | 0.0027 | 0.0000–0.0641 |
+| Semantic specificity | 0.9199 | 0.2715 | 1.0000 | 0.0000–1.0000 |
+| Bounded effort | 0.1886 | 0.0880 | 0.2500 | 0.0000–0.3750 |
+| Combined transaction utility | 0.3165 | 0.0938 | 0.3500 | 0.0000–0.4012 |
+
+Specificity is saturated at `1.0` for most selected notes, uncertainty reduction is close to zero, and averaging many notes compresses client-level utility further. Consequently, nearly uniform multipliers are removed again by final weight normalisation and have negligible aggregation impact.
+
+**Verdict:** the current utility-weighted aggregation is an unsupported/negative finding. It must not be claimed as a demonstrated performance improvement. A revised mapping or specificity measure may be investigated using development data, but it must then be rerun on frozen evaluation settings and compared across seeds before any positive claim is made.
 
 ## Single-seed reference results
 
@@ -240,6 +267,24 @@ non-reportable smoke test only, use:
 
 ```powershell
 python evaluation/run_repeated_seeds.py --seeds 42 --rounds 1 --local-epochs 1 --max-clients 3
+```
+
+### Utility-weighting diagnostics
+
+After completing the three full ablation runs, audit utility components, client multipliers, fallback frequency, and aggregation-weight changes:
+
+```powershell
+python evaluation/diagnose_utility.py
+```
+
+This creates:
+
+```text
+outputs/utility_diagnostics/client_round_diagnostics.csv
+outputs/utility_diagnostics/utility_diagnostic_summary.csv
+outputs/utility_diagnostics/utility_component_summary.csv
+outputs/utility_diagnostics/diagnostic_conclusion.txt
+outputs/utility_diagnostics/utility_diagnostics.png
 ```
 
 ## Proposed experiment options
@@ -375,7 +420,7 @@ The current checks cover:
 
 Before treating the results as final research evidence:
 
-1. Diagnose why utility weighting is effectively neutral by reporting utility-component distributions, fallback rates, multiplier ranges, and base-versus-final client weights.
+1. If utility weighting is revised, define the new mapping and specificity measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
 3. Report ambiguous-subset Macro F1 and prompt-efficiency metrics.
 4. Analyse class imbalance and minority-category performance using class-level reports and confusion matrices.

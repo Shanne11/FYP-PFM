@@ -1,0 +1,13 @@
+Utility-weighting diagnostic verdict: UNSUPPORTED/NEGATIVE
+
+Client-round observations: 4500
+Client mean utility range: 0.325181 to 0.363474
+Utility multiplier range: 0.912590 to 0.931737
+Multiplier standard deviation: 0.002633
+Near-identical multiplier rate: 100.00%
+Fallback-to-1.0 rate: 0.00%
+Mean absolute base/final weight change: 0.00001334
+Mean relative base/final weight change: 0.20%
+
+Do not claim a utility-weighting benefit unless a revised, development-selected mechanism
+is rerun and improves the frozen evaluation consistently. Otherwise report this negative finding.
