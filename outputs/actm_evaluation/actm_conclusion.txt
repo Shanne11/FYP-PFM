@@ -1,0 +1,15 @@
+ACTM evaluation conclusion
+
+Ambiguity eligibility rate: 100.00%
+Prompts per 100 transactions: 30.03
+Prompt precision: 84.80% +/- 1.06%
+Note acceptance rate: 83.50% +/- 0.68%
+Mean uncertainty reduction: 0.000276
+Ambiguous Macro F1: 0.0432 +/- 0.0058
+
+All held-out transactions were eligible under at least one ambiguity condition.
+Therefore the reported ambiguous-subset metrics equal the overall test metrics and
+do not demonstrate discrimination of a smaller ambiguous subset. The 30% prompt
+budget, rather than the thresholds alone, controls selectivity in these runs.
+Prompt precision and acceptance are high, but uncertainty reduction is negligible.
+Report ACTM as useful for budgeted prioritisation, not as a validated uncertainty-reduction mechanism.
