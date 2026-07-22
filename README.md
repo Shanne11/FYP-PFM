@@ -363,7 +363,7 @@ Run the standard-versus-weighted comparison for FedAvg, FedProx, and Proposed us
 python evaluation/run_class_balance.py
 ```
 
-This performs nine new weighted runs and compares them with the existing standard runs in `outputs/repeated/`. It creates:
+This performs nine new weighted runs. FedAvg and FedProx are compared with `outputs/repeated/`; Proposed is compared with the current semantic-anchor full runs in `outputs/ablations/seed_<seed>/full`. It creates:
 
 ```text
 outputs/class_balance/class_balance_runs.csv
@@ -379,6 +379,29 @@ python evaluation/run_class_balance.py --seeds 42 --rounds 1 --local-epochs 1 --
 ```
 
 Do not use the smoke-test metrics in the report. The remedy is supported only if the complete three-seed experiment improves Macro F1 and minority-class recall without an unacceptable overall trade-off.
+
+To regenerate only the summaries from completed weighted runs without retraining:
+
+```powershell
+python evaluation/run_class_balance.py --reuse-weighted
+```
+
+#### Completed class-weighted results
+
+The complete three-seed experiment shows a consistent class-coverage benefit with an accuracy trade-off:
+
+| Method | Loss | Accuracy | Macro F1 | Weighted F1 | Zero-recall classes | Active predicted classes |
+|---|---|---:|---:|---:|---:|---:|
+| FedAvg | Standard | 0.1805 +/- 0.0094 | 0.0427 +/- 0.0065 | 0.0938 +/- 0.0092 | 10.67 | 2.67 |
+| FedAvg | Class-weighted | 0.1479 +/- 0.0367 | 0.0623 +/- 0.0269 | 0.0859 +/- 0.0489 | 7.67 | 6.00 |
+| FedProx | Standard | 0.1798 +/- 0.0104 | 0.0424 +/- 0.0062 | 0.0933 +/- 0.0099 | 10.67 | 2.67 |
+| FedProx | Class-weighted | 0.1490 +/- 0.0354 | 0.0649 +/- 0.0252 | 0.0877 +/- 0.0474 | 7.67 | 6.33 |
+| Proposed | Standard | 0.1837 +/- 0.0149 | 0.0432 +/- 0.0058 | 0.0951 +/- 0.0149 | 10.67 | 2.33 |
+| Proposed | Class-weighted | 0.1502 +/- 0.0319 | **0.0661 +/- 0.0222** | 0.0872 +/- 0.0452 | 7.67 | **6.33** |
+
+For Proposed, class weighting increases mean Macro F1 by `0.0229` (approximately 53%), increases Macro Recall by `0.0447`, reduces zero-recall categories by `3`, and increases active predicted categories by `4`. It also lowers mean accuracy by `0.0335` and Weighted F1 by `0.0080`. ECE improves by `0.0244`, while Brier score worsens slightly by `0.0027`.
+
+This is a meaningful remedy for category collapse when Macro F1 and minority-category coverage are the primary objectives, but it is not a universal improvement across all metrics. The class-weighted Proposed method is the leading federated candidate for final selection, pending uncertainty/statistical analysis. It still underperforms the centralised Metadata + Notes baseline and still leaves an average of 7.67 categories with zero recall.
 
 ## Proposed experiment options
 
@@ -516,8 +539,8 @@ Before treating the results as final research evidence:
 1. If utility weighting is revised, define the new mapping and specificity measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
 3. Calibrate ACTM thresholds on validation data if the report requires a genuinely selective ambiguous subset rather than budget-based ranking.
-4. Investigate class-balanced loss, client sampling, or other training-only remedies for federated class collapse without changing the held-out test set.
-5. Add uncertainty estimates or statistical testing appropriate for the final comparison claims.
+4. Add paired uncertainty estimates or statistical testing for the standard-versus-class-weighted and baseline-versus-Proposed comparisons.
+5. Consider further training-only remedies only if the remaining zero-recall categories are unacceptable for the final scope.
 6. Freeze the selected model and preprocessing contract before mobile integration.
 
 ## Scope

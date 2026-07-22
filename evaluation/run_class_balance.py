@@ -26,11 +26,15 @@ def arguments():
     parser.add_argument("--seeds", nargs="+", type=int, default=DEFAULT_SEEDS)
     parser.add_argument("--methods", nargs="+", choices=DEFAULT_METHODS, default=DEFAULT_METHODS)
     parser.add_argument("--reference-root", default="outputs/repeated")
+    parser.add_argument("--proposed-reference-root", default="outputs/ablations",
+                        help="Root containing seed_<n>/full for the current full Proposed method.")
     parser.add_argument("--output", default="outputs/class_balance")
     parser.add_argument("--rounds", type=int, default=10)
     parser.add_argument("--local-epochs", type=int, default=3)
     parser.add_argument("--max-clients", type=int, default=None,
                         help="Smoke tests only; omit for reportable experiments.")
+    parser.add_argument("--reuse-weighted", action="store_true",
+                        help="Reuse completed weighted run folders instead of retraining.")
     return parser.parse_args()
 
 
@@ -102,10 +106,15 @@ def deltas(summary):
 
 def main(config):
     root = Path(config.output); root.mkdir(parents=True, exist_ok=True)
-    reference = Path(config.reference_root); rows = []
+    reference = Path(config.reference_root)
+    proposed_reference = Path(config.proposed_reference_root)
+    rows = []
     for seed in config.seeds:
         for method in config.methods:
-            standard = reference / f"seed_{seed}" / method
+            standard = (
+                proposed_reference / f"seed_{seed}" / "full"
+                if method == "proposed" else reference / f"seed_{seed}" / method
+            )
             if not (standard / "overall_metrics.csv").exists() or not (standard / "predictions.csv").exists():
                 raise FileNotFoundError(f"Missing standard reference output in {standard}")
             standard_metrics = pd.read_csv(standard / "overall_metrics.csv").iloc[0].to_dict()
@@ -115,10 +124,15 @@ def main(config):
                 **prediction_diagnostics(standard / "predictions.csv", method, seed),
             })
             weighted = root / f"seed_{seed}" / method
-            print(f"\nRunning class-weighted {method} with seed {seed}")
-            weighted_metrics = run_weighted(
-                method, weighted, seed, config.rounds, config.local_epochs, config.max_clients
-            )
+            if config.reuse_weighted:
+                if not (weighted / "overall_metrics.csv").exists() or not (weighted / "predictions.csv").exists():
+                    raise FileNotFoundError(f"Missing completed weighted output in {weighted}")
+                weighted_metrics = pd.read_csv(weighted / "overall_metrics.csv").iloc[0].to_dict()
+            else:
+                print(f"\nRunning class-weighted {method} with seed {seed}")
+                weighted_metrics = run_weighted(
+                    method, weighted, seed, config.rounds, config.local_epochs, config.max_clients
+                )
             rows.append({
                 "method": method, "seed": seed, "loss": "class_weighted",
                 **{metric: weighted_metrics[metric] for metric in METRIC_COLUMNS},
