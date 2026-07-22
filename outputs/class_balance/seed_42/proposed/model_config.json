@@ -1,0 +1,8 @@
+{
+  "input_features": 105,
+  "output_classes": 13,
+  "hidden_layers": [
+    128,
+    64
+  ]
+}
