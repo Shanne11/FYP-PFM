@@ -164,6 +164,23 @@ Specificity is saturated at `1.0` for most selected notes, uncertainty reduction
 
 **Verdict:** the current utility-weighted aggregation is an unsupported/negative finding. It must not be claimed as a demonstrated performance improvement. A revised mapping or specificity measure may be investigated using development data, but it must then be rerun on frozen evaluation settings and compared across seeds before any positive claim is made.
 
+### ACTM and prompt-efficiency diagnosis
+
+The three full-method runs produce the following ACTM evidence:
+
+| Metric | Three-seed result |
+|---|---:|
+| Ambiguity eligibility rate | 100.0% |
+| Prompts per 100 transactions | 30.03 |
+| Prompt precision | 84.80% +/- 1.06% |
+| Note acceptance rate | 83.50% +/- 0.68% |
+| Mean uncertainty reduction | 0.000276 +/- 0.000268 |
+| Ambiguous-subset Macro F1 | 0.0432 +/- 0.0058 |
+
+Every held-out transaction satisfies at least one ambiguity condition. Consequently, the “ambiguous subset” is the complete test set and its metrics are identical to the overall proposed-method metrics. Selectivity is currently produced by the 30% prompt budget rather than by the entropy, margin, and conflict thresholds separating a smaller ambiguous subset.
+
+Prompt precision and note acceptance are high, showing that ACTM can prioritise likely errors within a fixed interaction budget. However, uncertainty reduction after clarification is negligible. ACTM should therefore be reported as evidence for **budgeted prioritisation**, not as a validated ambiguity separator or uncertainty-reduction mechanism. Threshold calibration must be performed on validation data if a genuinely selective ambiguous subset is required.
+
 ## Single-seed reference results
 
 The following results were generated using the corrected 13-category dataset and shared split with seed 42:
@@ -285,6 +302,23 @@ outputs/utility_diagnostics/utility_diagnostic_summary.csv
 outputs/utility_diagnostics/utility_component_summary.csv
 outputs/utility_diagnostics/diagnostic_conclusion.txt
 outputs/utility_diagnostics/utility_diagnostics.png
+```
+
+### ACTM evaluation summary
+
+Summarize ambiguous-subset and prompt-efficiency evidence across the three full runs:
+
+```powershell
+python evaluation/summarize_actm.py
+```
+
+This creates:
+
+```text
+outputs/actm_evaluation/actm_runs.csv
+outputs/actm_evaluation/actm_summary.csv
+outputs/actm_evaluation/actm_conclusion.txt
+outputs/actm_evaluation/actm_rates.png
 ```
 
 ## Proposed experiment options
@@ -422,7 +456,7 @@ Before treating the results as final research evidence:
 
 1. If utility weighting is revised, define the new mapping and specificity measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
-3. Report ambiguous-subset Macro F1 and prompt-efficiency metrics.
+3. Calibrate ACTM thresholds on validation data if the report requires a genuinely selective ambiguous subset rather than budget-based ranking.
 4. Analyse class imbalance and minority-category performance using class-level reports and confusion matrices.
 5. Add uncertainty estimates or statistical testing appropriate for the final comparison claims.
 6. Freeze the selected model and preprocessing contract before mobile integration.
