@@ -1,0 +1,27 @@
+Federated class-level analysis
+
+fedavg:
+  Best class F1: Food (0.2477)
+  Worst class F1: Bonus (0.0000)
+  Zero recall in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings, Travel
+  Never predicted in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings
+  Largest confusion pairs: Food->Rent (790), Travel->Rent (464), Rent->Food (409)
+
+fedprox:
+  Best class F1: Food (0.2456)
+  Worst class F1: Bonus (0.0000)
+  Zero recall in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings, Travel
+  Never predicted in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings
+  Largest confusion pairs: Food->Rent (792), Travel->Rent (464), Rent->Food (405)
+
+proposed:
+  Best class F1: Food (0.2689)
+  Worst class F1: Bonus (0.0000)
+  Zero recall in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings, Travel
+  Never predicted in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings, Travel
+  Largest confusion pairs: Food->Rent (643), Rent->Food (541), Travel->Food (382)
+
+Low Macro F1 is caused by highly uneven category performance: models concentrate
+predictions in a small number of categories while several minority classes receive
+zero or near-zero recall. Accuracy and Weighted F1 therefore overstate performance
+relative to equal-weighted Macro F1.
