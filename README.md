@@ -353,6 +353,33 @@ outputs/class_analysis/class_analysis_conclusion.txt
 outputs/class_analysis/class_f1_comparison.png
 ```
 
+### Class-weighted federated experiment
+
+The first training-only remedy is inverse-frequency weighted cross-entropy. Class weights are fitted once from the frozen training partition, normalized to mean `1.0`, and reused by every client. Validation still selects the best checkpoint, and the test partition is not used to calculate or select weights.
+
+Run the standard-versus-weighted comparison for FedAvg, FedProx, and Proposed using seeds 42, 52, and 62:
+
+```powershell
+python evaluation/run_class_balance.py
+```
+
+This performs nine new weighted runs and compares them with the existing standard runs in `outputs/repeated/`. It creates:
+
+```text
+outputs/class_balance/class_balance_runs.csv
+outputs/class_balance/class_balance_summary.csv
+outputs/class_balance/class_balance_deltas.csv
+outputs/class_balance/class_balance_macro_f1.png
+```
+
+For a non-reportable pipeline check only:
+
+```powershell
+python evaluation/run_class_balance.py --seeds 42 --rounds 1 --local-epochs 1 --max-clients 3 --output outputs/class_balance_smoke
+```
+
+Do not use the smoke-test metrics in the report. The remedy is supported only if the complete three-seed experiment improves Macro F1 and minority-class recall without an unacceptable overall trade-off.
+
 ## Proposed experiment options
 
 Display available settings:

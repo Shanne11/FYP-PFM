@@ -15,6 +15,7 @@ from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader, TensorDataset
 
 from models.mlp import MLP
+from utils.class_balance import inverse_frequency_weights
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import evaluate
 from utils.proposed_features import ProposedFeatureBuilder
@@ -31,13 +32,14 @@ def _predict_probabilities(model, matrix):
     return torch.softmax(logits, dim=1).numpy()
 
 
-def _local_train(model, matrix, labels, global_weights, mu, epochs, learning_rate):
+def _local_train(model, matrix, labels, global_weights, mu, epochs, learning_rate,
+                 class_weights=None):
     loader = DataLoader(
         TensorDataset(_tensor(matrix), torch.as_tensor(labels, dtype=torch.long)),
         batch_size=32, shuffle=True,
     )
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    criterion = nn.CrossEntropyLoss(); model.train(); losses = []
+    criterion = nn.CrossEntropyLoss(weight=class_weights); model.train(); losses = []
     for _ in range(epochs):
         for features, target in loader:
             optimizer.zero_grad(); loss = criterion(model(features), target)
@@ -60,7 +62,8 @@ def _sample_weighted_average(results):
 
 
 def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
-                           learning_rate=0.001, seed=42, max_clients=None):
+                           learning_rate=0.001, seed=42, max_clients=None,
+                           class_weighted_loss=False):
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     train, validation, test, manifest = load_experiment_data()
@@ -73,6 +76,10 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
 
     validation_x, validation_y = parts(validation); test_x, test_y = parts(test)
     input_size = validation_x.shape[1]; classes = len(builder.category_encoder.classes_)
+    training_labels = builder.category_encoder.transform(train["category"])
+    class_weights = (
+        inverse_frequency_weights(training_labels, classes) if class_weighted_loss else None
+    )
     global_model = MLP(input_size, classes); checkpoint = output / "best_global_model.pt"
     best_macro_f1 = -1.0; round_rows = []; client_rows = []
     client_ids = sorted(train["user_id"].fillna("Unknown").astype(str).unique())
@@ -86,7 +93,8 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
             client_frame = train[train["user_id"].fillna("Unknown").astype(str) == client_id]
             client_x, client_y = parts(client_frame); local_model = copy.deepcopy(global_model)
             weights, loss = _local_train(
-                local_model, client_x, client_y, global_weights, mu, local_epochs, learning_rate
+                local_model, client_x, client_y, global_weights, mu, local_epochs,
+                learning_rate, class_weights
             )
             results.append({"weights": weights, "sample_count": len(client_frame)})
             client_rows.append({"round": round_number, "client_id": client_id,
@@ -119,6 +127,8 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
         "train": len(train), "validation": len(validation), "test": len(test),
         "classes": classes, "clients": len(client_ids), "rounds": rounds,
         "local_epochs": local_epochs, "training_seed": seed,
+        "class_weighted_loss": class_weighted_loss,
+        "class_weights": class_weights.tolist() if class_weights is not None else None,
         "split_manifest_version": manifest["version"], "best_validation_macro_f1": best_macro_f1,
         "test_metrics": metrics,
     }

@@ -37,6 +37,7 @@ def config_for(output, seed, rounds, local_epochs, max_clients, overrides):
         "max_clients": max_clients, "seed": seed, "note_strategy": "selective",
         "fusion_mode": "semantic_anchor", "utility_weights": [0.5, 0.3, 0.2],
         "disable_utility_weighting": False,
+        "class_weighted_loss": False,
     }
     values.update(overrides)
     return SimpleNamespace(**values)
