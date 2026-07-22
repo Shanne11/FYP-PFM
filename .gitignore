@@ -28,6 +28,9 @@ __pycache__/
 !outputs/ablations/ablation_runs.csv
 !outputs/ablations/ablation_summary.csv
 !outputs/ablations/ablation_deltas.csv
+!outputs/utility_diagnostics/utility_diagnostic_summary.csv
+!outputs/utility_diagnostics/utility_component_summary.csv
+outputs/utility_diagnostics/client_round_diagnostics.csv
 
 # Jupyter
 .ipynb_checkpoints/

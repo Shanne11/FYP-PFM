@@ -74,15 +74,22 @@ def bounded_fedavg(client_results, multiplier_bounds=(0.75, 1.25), min_notes=1):
         raise ValueError("Client sample counts must be positive")
     base = counts / counts.sum()
     multipliers = []
+    fallback_reasons = []
     low, high = multiplier_bounds
     for result in client_results:
         utility = result.get("mean_note_utility")
         note_count = int(result.get("note_count", 0))
-        if note_count < min_notes or utility is None or not np.isfinite(utility):
+        if note_count < min_notes:
             multiplier = 1.0
+            fallback_reason = "insufficient_notes"
+        elif utility is None or not np.isfinite(utility):
+            multiplier = 1.0
+            fallback_reason = "invalid_utility"
         else:
             multiplier = float(np.clip(low + (high - low) * utility, low, high))
+            fallback_reason = ""
         multipliers.append(multiplier)
+        fallback_reasons.append(fallback_reason)
     multipliers = np.asarray(multipliers)
     unnormalized = base * multipliers
     final = unnormalized / unnormalized.sum()
@@ -99,5 +106,7 @@ def bounded_fedavg(client_results, multiplier_bounds=(0.75, 1.25), min_notes=1):
         "base_weight": float(base[i]),
         "utility_multiplier": float(multipliers[i]),
         "final_weight": float(final[i]),
+        "utility_fallback": bool(fallback_reasons[i]),
+        "fallback_reason": fallback_reasons[i],
     } for i in range(len(client_results))]
     return averaged, rows

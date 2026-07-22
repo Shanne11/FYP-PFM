@@ -36,5 +36,8 @@ def test_bounded_fedavg_uses_sample_base_weight_and_fallback():
     averaged, rows = bounded_fedavg(clients, min_notes=1)
     assert rows[0]["utility_multiplier"] == 1.25
     assert rows[1]["utility_multiplier"] == 1.0
+    assert rows[0]["utility_fallback"] is False
+    assert rows[1]["utility_fallback"] is True
+    assert rows[1]["fallback_reason"] == "insufficient_notes"
     assert abs(sum(row["final_weight"] for row in rows) - 1.0) < 1e-9
     assert 1.0 < averaged["w"].item() < 3.0
