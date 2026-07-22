@@ -1,0 +1,13 @@
+Class-weighted federated experiment conclusion
+
+Class-weighted loss reduces class collapse across FedAvg, FedProx, and Proposed.
+
+For Proposed, mean Macro F1 increases from 0.043183 to 0.066090, Macro Recall
+increases by 0.044653, zero-recall categories decrease by 3, and active predicted
+categories increase by 4. Mean accuracy decreases by 0.033507 and Weighted F1
+decreases by 0.007956. ECE improves by 0.024351, while Brier score worsens by
+0.002729.
+
+The remedy is supported when balanced category performance and Macro F1 are the
+primary objectives, but it is not a universal improvement. Class-weighted Proposed
+is the leading federated candidate pending paired uncertainty/statistical analysis.
