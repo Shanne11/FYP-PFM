@@ -1,0 +1,42 @@
+[
+  {
+    "fixture_id": "expense_card_mumbai_with_note",
+    "transaction_type": "Expense",
+    "payment_mode": "Card",
+    "location": "Mumbai",
+    "amount": 28.9,
+    "date": "2026-07-18",
+    "notes": "coffee lunch",
+    "use_note": true
+  },
+  {
+    "fixture_id": "expense_upi_delhi_without_note",
+    "transaction_type": "Expense",
+    "payment_mode": "UPI",
+    "location": "Delhi",
+    "amount": 76.5,
+    "date": "2026-01-05",
+    "notes": "ride to office",
+    "use_note": false
+  },
+  {
+    "fixture_id": "income_transfer_bangalore",
+    "transaction_type": "Income",
+    "payment_mode": "Bank Transfer",
+    "location": "Bangalore",
+    "amount": 3500.0,
+    "date": "2026-06-30",
+    "notes": "monthly deposit",
+    "use_note": true
+  },
+  {
+    "fixture_id": "unknown_context",
+    "transaction_type": "Expense",
+    "payment_mode": "Unknown",
+    "location": "Unknown",
+    "amount": 10.0,
+    "date": "2026-02-14",
+    "notes": "unknown note",
+    "use_note": true
+  }
+]

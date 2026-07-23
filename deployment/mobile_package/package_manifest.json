@@ -1,0 +1,12 @@
+{
+  "contract_version": 1,
+  "checkpoint_seed": 42,
+  "onnx_opset": 17,
+  "artifacts": {
+    "model.onnx": "dfb8304503704b4e70480fddd53e8ba90d3b49846f9add3b1c2635f19fbc1178",
+    "preprocessing.json": "4b13172ac3d2dff42e3ebfa236a6d1343dc92cfc537a9a82e8593e07840dd52b",
+    "source_checkpoint": "445b79ea93072a3a12e8c38b0223c06dad491c4fb0931f6a8d649f351cba1bc2",
+    "source_pipeline": "cc74cf028a6f943c950a0016b906c9e8841815689a1be8ed36a28096886f0855"
+  },
+  "parity_passed": true
+}

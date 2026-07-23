@@ -25,3 +25,15 @@ Before Flutter inference begins:
 5. Keep utility-weighted aggregation disabled as a product claim unless a revised method is revalidated.
 
 The fitted categorical vocabulary contains inconsistent capitalization inherited from the research dataset. Cleaning those values changes the input contract and therefore requires retraining; it must not be changed silently during mobile conversion.
+
+## Reproducible ONNX export
+
+After installing `requirements.txt`, generate the portable package from the canonical local artifacts:
+
+```powershell
+python deployment/export_mobile_package.py
+```
+
+The exporter writes `model.onnx`, exact preprocessing parameters, fixed fixture vectors, artifact hashes, and a parity report under `deployment/mobile_package/`. The ONNX binary remains local; the reproducibility metadata is versioned.
+
+The canonical export passed PyTorch-versus-ONNX parity on four non-test fixtures with a maximum absolute logit difference of `0.0` at tolerance `1e-5`.
