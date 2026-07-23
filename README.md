@@ -403,6 +403,40 @@ For Proposed, class weighting increases mean Macro F1 by `0.0229` (approximately
 
 This is a meaningful remedy for category collapse when Macro F1 and minority-category coverage are the primary objectives, but it is not a universal improvement across all metrics. The class-weighted Proposed method is the leading federated candidate for final selection, pending uncertainty/statistical analysis. It still underperforms the centralised Metadata + Notes baseline and still leaves an average of 7.67 categories with zero recall.
 
+#### Paired three-seed uncertainty analysis
+
+Matched-seed comparisons quantify uncertainty around the observed Macro F1 differences:
+
+| Comparison | Mean difference | 95% CI | Seed wins | Exact sign-flip p |
+|---|---:|---:|---:|---:|
+| Class-weighted vs standard FedAvg | +0.0196 | [-0.0311, 0.0703] | 2/3 | 0.50 |
+| Class-weighted vs standard FedProx | +0.0225 | [-0.0248, 0.0698] | 3/3 | 0.25 |
+| Class-weighted vs standard Proposed | +0.0229 | [-0.0193, 0.0651] | 3/3 | 0.25 |
+| Standard Proposed vs FedAvg | +0.0005 | [-0.0033, 0.0042] | 2/3 | 0.75 |
+| Standard Proposed vs FedProx | +0.0008 | [-0.0018, 0.0034] | 2/3 | 0.50 |
+| Class-weighted Proposed vs FedAvg | +0.0038 | [-0.0158, 0.0234] | 2/3 | 0.75 |
+| Class-weighted Proposed vs FedProx | +0.0012 | [-0.0120, 0.0145] | 1/3 | 1.00 |
+
+With only three paired seeds, confidence intervals are wide and the smallest possible non-zero two-sided exact sign-flip p-value is `0.25`. Class weighting has a consistent positive direction for Proposed and FedProx, but no comparison establishes conventional statistical significance. The Proposed method's small mean advantage over FedAvg and FedProx is not consistent enough to support a superiority claim.
+
+These results are exploratory effect estimates. The report may state that class weighting **shows a promising and directionally consistent Macro F1 improvement**, but it must not state that Proposed or class weighting is statistically significantly better.
+
+### Paired statistical analysis
+
+Generate matched-seed differences, 95% confidence intervals, paired effect sizes, win counts, and exact sign-flip p-values:
+
+```powershell
+python evaluation/paired_statistics.py
+```
+
+This creates:
+
+```text
+outputs/statistics/paired_statistics.csv
+outputs/statistics/macro_f1_paired_statistics.csv
+outputs/statistics/statistical_conclusion.txt
+```
+
 ## Proposed experiment options
 
 Display available settings:
@@ -539,7 +573,7 @@ Before treating the results as final research evidence:
 1. If utility weighting is revised, define the new mapping and specificity measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
 3. Calibrate ACTM thresholds on validation data if the report requires a genuinely selective ambiguous subset rather than budget-based ranking.
-4. Add paired uncertainty estimates or statistical testing for the standard-versus-class-weighted and baseline-versus-Proposed comparisons.
+4. Decide whether three-seed exploratory evidence is sufficient for the FYP scope or whether additional seeds are feasible.
 5. Consider further training-only remedies only if the remaining zero-recall categories are unacceptable for the final scope.
 6. Freeze the selected model and preprocessing contract before mobile integration.
 
