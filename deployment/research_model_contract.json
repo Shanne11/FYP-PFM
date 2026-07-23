@@ -1,0 +1,86 @@
+{
+  "contract_version": 1,
+  "status": "frozen_research_candidate",
+  "selected_method": "class_weighted_proposed",
+  "selection_basis": "highest mean federated Macro F1 and improved category coverage",
+  "dataset": {
+    "fingerprint": "23d73c292ef5366e02f9df62e2f5901269c79d7e45ac4b31dd0ceecc2911783b",
+    "split_manifest_version": 2,
+    "train_records": 7494,
+    "validation_records": 1729,
+    "test_records": 2308
+  },
+  "seed_policy": {
+    "research_seeds": [42, 52, 62],
+    "deployment_checkpoint_seed": 42,
+    "reason": "Seed 42 is the predeclared canonical seed, not the best test-performing seed."
+  },
+  "categories": [
+    "Bonus", "Education", "Entertainment", "Food", "Freelance", "Health",
+    "Investment", "Other", "Rent", "Salary", "Savings", "Travel", "Utilities"
+  ],
+  "model": {
+    "type": "MLP",
+    "input_features": 105,
+    "metadata_features": 68,
+    "note_features": 37,
+    "hidden_layers": [128, 64],
+    "output_classes": 13,
+    "dropout": 0.3,
+    "current_format": "PyTorch state_dict",
+    "mobile_format": "pending ONNX or TensorFlow Lite export"
+  },
+  "preprocessing": {
+    "categorical_columns": ["transaction_type", "payment_mode", "location"],
+    "numeric_columns": ["amount", "year", "month", "day", "weekday"],
+    "numeric_transform": "StandardScaler fitted on training partition only",
+    "categorical_transform": "OneHotEncoder fitted on training partition only",
+    "note_transform": "TF-IDF fitted on training partition only",
+    "note_vocabulary": [
+      "asdfgh", "atm", "books", "coffee", "consultation", "course", "deposit",
+      "dinner", "doctor", "electricity", "emi", "fixed", "grocery", "gym",
+      "internet", "lunch", "medicine", "membership", "misc", "monthly", "movie",
+      "note", "online", "payment", "petrol", "rent", "restaurant", "ride",
+      "shopping", "test", "ticket", "tickets", "train", "uber", "unknown",
+      "withdrawal", "xyz123"
+    ],
+    "fusion_mode": "semantic_anchor",
+    "unknown_category_handling": "OneHotEncoder ignores unseen categorical values"
+  },
+  "training": {
+    "rounds": 10,
+    "local_epochs": 3,
+    "learning_rate": 0.001,
+    "class_weighted_loss": true,
+    "class_weights_seed_42": [
+      1.6585751772, 0.7190551162, 0.5459905863, 0.2166469097, 1.5155946016,
+      1.1681659222, 1.5489777327, 1.0075012445, 0.2700598538, 1.6055613756,
+      1.9109671116, 0.3678011894, 0.4651030898
+    ],
+    "checkpoint_selection": "highest validation Macro F1"
+  },
+  "actm": {
+    "entropy_threshold": 0.65,
+    "margin_threshold": 0.15,
+    "prompt_budget": 0.30,
+    "cross_context_proxies": {"merchant": "location", "account": "payment_mode"},
+    "research_limitation": "All held-out records were ambiguity-eligible; prompt budget controls selectivity."
+  },
+  "note_utility": {
+    "component_weights": {"uncertainty_reduction": 0.5, "specificity": 0.3, "effort": 0.2},
+    "multiplier_bounds": [0.75, 1.25],
+    "minimum_notes": 1,
+    "research_status": "unsupported_negative",
+    "deployment_policy": "Do not claim or enable utility weighting as beneficial without revalidation."
+  },
+  "reported_three_seed_result": {
+    "accuracy_mean": 0.150202,
+    "accuracy_std": 0.031858,
+    "macro_f1_mean": 0.066090,
+    "macro_f1_std": 0.022240,
+    "weighted_f1_mean": 0.087163,
+    "weighted_f1_std": 0.045226,
+    "active_prediction_classes_mean": 6.333333,
+    "zero_recall_classes_mean": 7.666667
+  }
+}

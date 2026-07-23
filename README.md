@@ -575,7 +575,19 @@ Before treating the results as final research evidence:
 3. Calibrate ACTM thresholds on validation data if the report requires a genuinely selective ambiguous subset rather than budget-based ranking.
 4. Decide whether three-seed exploratory evidence is sufficient for the FYP scope or whether additional seeds are feasible.
 5. Consider further training-only remedies only if the remaining zero-recall categories are unacceptable for the final scope.
-6. Freeze the selected model and preprocessing contract before mobile integration.
+6. Export the frozen research contract to a portable preprocessing package and mobile model, then verify inference parity before Flutter integration.
+
+## Frozen research model candidate
+
+The selected federated candidate is **class-weighted Proposed**, based on mean Macro F1 and category coverage rather than accuracy alone. Its exact categories, dimensions, ACTM settings, training settings, limitations, and seed policy are frozen in [`deployment/research_model_contract.json`](deployment/research_model_contract.json).
+
+Seed 42 is the canonical deployment checkpoint because it was the predeclared default—not because it achieved the best test score. Validate the contract with:
+
+```powershell
+python evaluation/validate_model_contract.py
+```
+
+This freezes the research interface, not a production-ready mobile artifact. Portable preprocessing export, ONNX/TensorFlow Lite conversion, and Python/mobile inference-parity testing remain required. The current utility-weighted aggregation remains an unsupported negative finding and must not be presented as a proven deployment benefit.
 
 ## Scope
 
