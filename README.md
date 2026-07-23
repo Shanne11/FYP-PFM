@@ -589,6 +589,14 @@ python evaluation/validate_model_contract.py
 
 This freezes the research interface, not a production-ready mobile artifact. Portable preprocessing export, ONNX/TensorFlow Lite conversion, and Python/mobile inference-parity testing remain required. The current utility-weighted aggregation remains an unsupported negative finding and must not be presented as a proven deployment benefit.
 
+The canonical seed-42 checkpoint has now been exported to ONNX with exact fitted preprocessing parameters. Four fixed non-test fixtures produced identical PyTorch and ONNX logits (`max absolute difference = 0.0`, tolerance `1e-5`). Run the reproducible export with:
+
+```powershell
+python deployment/export_mobile_package.py
+```
+
+The ONNX binary remains local and is identified by SHA-256 in `deployment/mobile_package/package_manifest.json`. The next gate is implementing the same preprocessing contract and ONNX inference in the mobile application, then repeating parity tests on-device.
+
 ## Scope
 
 This repository is the research and model-development environment. It is not the complete Flutter Personal Finance Management application. The selected final model, category mapping, ACTM configuration, and preprocessing pipeline will later be integrated into the mobile system.

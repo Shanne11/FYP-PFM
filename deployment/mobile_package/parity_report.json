@@ -1,0 +1,20 @@
+{
+  "fixture_count": 4,
+  "output_values": 52,
+  "max_absolute_logit_difference": 0.0,
+  "mean_absolute_logit_difference": 0.0,
+  "tolerance": 1e-05,
+  "passed": true,
+  "torch_predicted_indices": [
+    11,
+    11,
+    11,
+    8
+  ],
+  "onnx_predicted_indices": [
+    11,
+    11,
+    11,
+    8
+  ]
+}
