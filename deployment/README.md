@@ -26,14 +26,16 @@ The generated package fixes:
 - output tensor `logits` as `float32 [batch, 13]`; and
 - softmax followed by category-order lookup as output postprocessing.
 
-## Mobile integration gates
+## Mobile integration status and remaining gates
 
-The ONNX export and PyTorch-versus-ONNX parity gate are complete. Before the trained model replaces the Flutter demo categoriser:
+The ONNX export, PyTorch-versus-ONNX parity gate, Flutter preprocessing implementation, ONNX Runtime integration, and 13-label-to-app-category adapter are complete. The mobile application deploys the frozen seed-42 model directly as ONNX; TensorFlow Lite conversion is not part of the implemented architecture.
 
-1. Convert the frozen ONNX model to TensorFlow Lite without changing tensor semantics.
-2. Verify Python-versus-TFLite and Python-versus-Flutter logits on the fixed non-test fixtures.
-3. Define the mapping from the 13 research labels to PocketIQ's wider user-facing category catalogue.
-4. Decide how new merchants, accounts, payment modes, and locations map to the frozen inputs.
+Remaining release gates are:
+
+1. Verify Python-versus-Flutter logits on the fixed non-test fixtures on a physical Android device.
+2. Measure physical-device latency, memory and energy use.
+3. Validate the handling of new merchants, accounts, payment modes and locations with representative statements.
+4. Complete release signing, security review and device acceptance testing.
 5. Keep utility-weighted aggregation disabled as a product claim unless a revised method is revalidated.
 
 The fitted categorical vocabulary contains inconsistent capitalization inherited from the research dataset. Cleaning those values changes the input contract and therefore requires retraining; it must not be changed silently during mobile conversion.

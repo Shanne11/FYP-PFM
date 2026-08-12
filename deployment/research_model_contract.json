@@ -30,9 +30,9 @@
     "dropout": 0.3,
     "source_checkpoint": "outputs/class_balance/seed_42/proposed/best_global_model.pt",
     "source_pipeline": "outputs/class_balance/seed_42/proposed/feature_pipeline.pkl",
-    "current_format": "PyTorch state_dict",
+    "current_format": "PyTorch state_dict with ONNX export",
     "portable_export": "deployment/mobile_package/model.onnx",
-    "mobile_runtime_format": "TensorFlow Lite pending conversion",
+    "mobile_runtime_format": "ONNX Runtime (model.onnx)",
     "tensor_contract": {
       "input_name": "features",
       "input_dtype": "float32",

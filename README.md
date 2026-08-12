@@ -587,7 +587,7 @@ Seed 42 is the canonical deployment checkpoint because it was the predeclared de
 python evaluation/validate_model_contract.py
 ```
 
-This freezes the research interface, not a production-ready mobile artifact. Portable preprocessing export, ONNX/TensorFlow Lite conversion, and Python/mobile inference-parity testing remain required. The current utility-weighted aggregation remains an unsupported negative finding and must not be presented as a proven deployment benefit.
+This freezes the research interface and identifies the candidate used by the PocketIQ prototype. The current utility-weighted aggregation remains an unsupported negative finding and must not be presented as a proven deployment benefit. Production release signing, physical-device latency/energy measurement, secure aggregation, and broader device validation remain required.
 
 The canonical seed-42 checkpoint has now been exported to ONNX with exact fitted preprocessing parameters. Four fixed non-test fixtures produced identical PyTorch and ONNX logits (`max absolute difference = 0.0`, tolerance `1e-5`). Run the reproducible export with:
 
@@ -595,7 +595,7 @@ The canonical seed-42 checkpoint has now been exported to ONNX with exact fitted
 python deployment/export_mobile_package.py
 ```
 
-The ONNX binary remains local and is identified by SHA-256 in `deployment/mobile_package/package_manifest.json`. The next gate is implementing the same preprocessing contract and ONNX inference in the mobile application, then repeating parity tests on-device.
+The ONNX binary remains local and is identified by SHA-256 in `deployment/mobile_package/package_manifest.json`. PocketIQ now implements the same frozen preprocessing order and runs this checkpoint with ONNX Runtime. The model SHA-256 and fixed parity fixtures match the research package. Physical-device Python-versus-Flutter logit parity and performance testing remain release gates.
 
 ## Merchant-aware v2 retraining path
 
