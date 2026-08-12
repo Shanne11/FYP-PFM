@@ -1,5 +1,7 @@
 """Baseline 2: leakage-safe metadata-only Random Forest."""
 
+import argparse
+
 from pathlib import Path
 
 import joblib
@@ -8,13 +10,27 @@ import pandas as pd
 from models.metadata_model import build_model
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import evaluate
-from utils.proposed_features import ProposedFeatureBuilder
+from utils.text_feature_options import (
+    add_transaction_text_arguments,
+    feature_builder_from_config,
+    text_feature_manifest,
+)
 
 
-OUTPUT = Path("outputs/baseline2"); OUTPUT.mkdir(parents=True, exist_ok=True)
-train, validation, test, manifest = load_experiment_data()
+def arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", default="dataset/clean_budgetwise.csv")
+    parser.add_argument("--split-manifest", default="data/experiment_split.json")
+    parser.add_argument("--output", default="outputs/baseline2")
+    add_transaction_text_arguments(parser)
+    return parser.parse_args()
+
+
+config = arguments()
+OUTPUT = Path(config.output); OUTPUT.mkdir(parents=True, exist_ok=True)
+train, validation, test, manifest = load_experiment_data(config.dataset, config.split_manifest)
 save_split_indices(OUTPUT, {"train": train, "validation": validation, "test": test})
-builder = ProposedFeatureBuilder().fit(train)
+builder = feature_builder_from_config(config).fit(train)
 X_train, _, _, y_train = builder.transform_parts(train)
 X_test, _, _, y_test = builder.transform_parts(test)
 model = build_model(); model.fit(X_train, y_train); predicted = model.predict(X_test)
@@ -26,7 +42,7 @@ metrics = evaluate(
     builder.category_encoder.inverse_transform(model.classes_),
 )
 
-feature_names = list(builder.categorical_encoder.get_feature_names_out()) + builder.numeric
+feature_names = builder.metadata_feature_names
 pd.DataFrame({"feature": feature_names, "importance": model.feature_importances_}).sort_values(
     "importance", ascending=False
 ).to_csv(OUTPUT / "feature_importance.csv", index=False)
@@ -41,7 +57,8 @@ joblib.dump(model, OUTPUT / "metadata_model.pkl"); joblib.dump(builder, OUTPUT /
 (OUTPUT / "experiment_info.txt").write_text(
     f"Baseline: Metadata-only Random Forest\nTrain: {len(train)}\nValidation: {len(validation)}\n"
     f"Test: {len(test)}\nClasses: {len(builder.category_encoder.classes_)}\n"
-    f"Split manifest version: {manifest['version']}\nMetrics: {metrics}\n",
+    f"Split manifest version: {manifest['version']}\n"
+    f"Transaction text features: {text_feature_manifest(builder)}\nMetrics: {metrics}\n",
     encoding="utf-8",
 )
 print(metrics)

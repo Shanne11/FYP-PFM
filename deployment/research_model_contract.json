@@ -1,6 +1,7 @@
 {
   "contract_version": 1,
-  "status": "frozen_research_candidate",
+  "status": "final_frozen_python_contract",
+  "contract_id": "pocketiq-class-weighted-proposed-seed42-v1",
   "selected_method": "class_weighted_proposed",
   "selection_basis": "highest mean federated Macro F1 and improved category coverage",
   "dataset": {
@@ -27,8 +28,20 @@
     "hidden_layers": [128, 64],
     "output_classes": 13,
     "dropout": 0.3,
+    "source_checkpoint": "outputs/class_balance/seed_42/proposed/best_global_model.pt",
+    "source_pipeline": "outputs/class_balance/seed_42/proposed/feature_pipeline.pkl",
     "current_format": "PyTorch state_dict",
-    "mobile_format": "pending ONNX or TensorFlow Lite export"
+    "portable_export": "deployment/mobile_package/model.onnx",
+    "mobile_runtime_format": "TensorFlow Lite pending conversion",
+    "tensor_contract": {
+      "input_name": "features",
+      "input_dtype": "float32",
+      "input_shape": ["batch", 105],
+      "output_name": "logits",
+      "output_dtype": "float32",
+      "output_shape": ["batch", 13],
+      "postprocessing": "softmax logits, then argmax using categories order"
+    }
   },
   "preprocessing": {
     "categorical_columns": ["transaction_type", "payment_mode", "location"],

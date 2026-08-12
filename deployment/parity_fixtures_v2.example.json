@@ -1,0 +1,26 @@
+[
+  {
+    "fixture_id": "merchant_food_with_note",
+    "transaction_type": "Expense",
+    "payment_mode": "Card",
+    "location": "Kuala Lumpur",
+    "merchant": "Mamak Corner",
+    "description": "restaurant dinner",
+    "amount": 20.0,
+    "date": "2026-08-09",
+    "notes": "personal meal",
+    "use_note": true
+  },
+  {
+    "fixture_id": "merchant_shopping_without_note",
+    "transaction_type": "Expense",
+    "payment_mode": "E-Wallet",
+    "location": "Petaling Jaya",
+    "merchant": "AEON",
+    "description": "household purchase",
+    "amount": 50.0,
+    "date": "2026-08-10",
+    "notes": "",
+    "use_note": false
+  }
+]

@@ -42,15 +42,41 @@ def portable_preprocessing(pipeline):
         for column, values in zip(pipeline.categorical, pipeline.categorical_encoder.categories_)
     }
     vocabulary = sorted(pipeline.note_vectorizer.vocabulary_.items(), key=lambda item: item[1])
+    categorical_feature_order = pipeline.categorical_encoder.get_feature_names_out().tolist()
+    note_feature_order = [f"note_tfidf__{token}" for token, _ in vocabulary]
+    transaction_text_vectorizer = getattr(pipeline, "transaction_text_vectorizer", None)
+    transaction_text_vocabulary = (
+        sorted(transaction_text_vectorizer.vocabulary_.items(), key=lambda item: item[1])
+        if transaction_text_vectorizer is not None
+        else []
+    )
+    transaction_text_feature_order = [
+        f"transaction_text_tfidf__{token}"
+        for token, _ in transaction_text_vocabulary
+    ]
+    feature_order = (
+        categorical_feature_order
+        + [f"numeric_scaled__{column}" for column in pipeline.numeric]
+        + transaction_text_feature_order
+        + note_feature_order
+    )
     return {
         "schema_version": 1,
         "categorical_columns": pipeline.categorical,
         "categorical_values": categorical_values,
-        "categorical_feature_order": pipeline.categorical_encoder.get_feature_names_out().tolist(),
+        "categorical_feature_order": categorical_feature_order,
         "numeric_columns": pipeline.numeric,
         "numeric_scaler_mean": pipeline.numeric_scaler.mean_.tolist(),
         "numeric_scaler_scale": pipeline.numeric_scaler.scale_.tolist(),
         "date_derivation": {"year": "year", "month": "month", "day": "day", "weekday": "Monday=0"},
+        "input_rules": {
+            "amount": "major currency unit as float before StandardScaler",
+            "invalid_amount": 0.0,
+            "invalid_date_parts": 0,
+            "missing_categorical": "Unknown",
+            "missing_note": "",
+            "unseen_categorical": "all-zero one-hot block",
+        },
         "note": {
             "vocabulary": {token: int(index) for token, index in vocabulary},
             "idf": pipeline.note_vectorizer.idf_.tolist(),
@@ -72,7 +98,46 @@ def portable_preprocessing(pipeline):
             "note": pipeline.note_size,
             "total": pipeline.metadata_size + pipeline.note_size,
         },
+        "transaction_text": {
+            "enabled": transaction_text_vectorizer is not None,
+            "columns": getattr(pipeline, "transaction_text_columns", []),
+            "vocabulary": {
+                token: int(index) for token, index in transaction_text_vocabulary
+            },
+            "idf": (
+                transaction_text_vectorizer.idf_.tolist()
+                if transaction_text_vectorizer is not None
+                else []
+            ),
+            "lowercase": True,
+            "token_pattern": (
+                transaction_text_vectorizer.token_pattern
+                if transaction_text_vectorizer is not None
+                else None
+            ),
+            "english_stop_words": (
+                sorted(ENGLISH_STOP_WORDS)
+                if transaction_text_vectorizer is not None
+                else []
+            ),
+            "norm": (
+                transaction_text_vectorizer.norm
+                if transaction_text_vectorizer is not None
+                else None
+            ),
+            "fit_scope": "training split only" if transaction_text_vectorizer is not None else None,
+        },
+        "feature_order": feature_order,
         "category_order": pipeline.category_encoder.classes_.tolist(),
+        "tensor_contract": {
+            "input_name": "features",
+            "input_dtype": "float32",
+            "input_shape": ["batch", pipeline.metadata_size + pipeline.note_size],
+            "output_name": "logits",
+            "output_dtype": "float32",
+            "output_shape": ["batch", len(pipeline.category_encoder.classes_)],
+            "postprocessing": "softmax logits, then argmax using category_order",
+        },
     }
 
 
@@ -155,6 +220,9 @@ def main(config):
         "artifacts": {
             "model.onnx": sha256(onnx_path),
             "preprocessing.json": sha256(output / "preprocessing.json"),
+            "parity_fixtures.json": sha256(output / "parity_fixtures.json"),
+            "parity_report.json": sha256(output / "parity_report.json"),
+            "research_model_contract.json": sha256(config.contract),
             "source_checkpoint": sha256(config.checkpoint),
             "source_pipeline": sha256(config.pipeline),
         },

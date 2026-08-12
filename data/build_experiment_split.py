@@ -1,5 +1,6 @@
 """Build the reviewed, frozen 65/15/20 transaction-ID manifest."""
 
+import argparse
 import json
 import random
 import sys
@@ -14,6 +15,15 @@ from utils.experiment_data import canonicalize_categories, dataset_fingerprint
 SEED = 42
 DATASET = "dataset/clean_budgetwise.csv"
 OUTPUT = "data/experiment_split.json"
+
+
+def arguments():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--dataset", default=DATASET)
+    parser.add_argument("--output", default=OUTPUT)
+    parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--version", type=int, default=2)
+    return parser.parse_args()
 
 
 def allocate(frame, seed=SEED):
@@ -32,16 +42,19 @@ def allocate(frame, seed=SEED):
 
 
 if __name__ == "__main__":
-    data = canonicalize_categories(pd.read_csv(DATASET))
-    split = allocate(data)
+    config = arguments()
+    data = canonicalize_categories(pd.read_csv(config.dataset))
+    split = allocate(data, config.seed)
     manifest = {
-        "version": 2,
-        "seed": SEED,
+        "version": config.version,
+        "seed": config.seed,
         "strategy": "category-stratified 65/15/20 split",
         "dataset_fingerprint": dataset_fingerprint(data),
         "category_mapping": "utils.experiment_data.CATEGORY_ALIASES",
         "counts": {name: len(ids) for name, ids in split.items()},
         **split,
     }
-    Path(OUTPUT).write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    destination = Path(config.output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(manifest["counts"])

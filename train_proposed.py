@@ -29,7 +29,11 @@ from models.mlp import MLP
 from utils.class_balance import inverse_frequency_weights
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import metric_summary
-from utils.proposed_features import ProposedFeatureBuilder
+from utils.text_feature_options import (
+    add_transaction_text_arguments,
+    feature_builder_from_config,
+    text_feature_manifest,
+)
 
 
 def arguments():
@@ -52,7 +56,12 @@ def arguments():
                         help="Use inverse-frequency weights fitted on training labels only.")
     parser.add_argument("--max-clients", type=int, default=None,
                         help="Development/smoke-test limit; omit for the experiment.")
+    parser.add_argument("--conflict-merchant-column", default=None,
+                        help="ACTM merchant identity column; defaults to merchant for v2 or location for v1.")
+    parser.add_argument("--conflict-account-column", default="payment_mode",
+                        help="ACTM account/channel context column.")
     parser.add_argument("--seed", type=int, default=42)
+    add_transaction_text_arguments(parser)
     return parser.parse_args()
 
 
@@ -119,8 +128,15 @@ def main(config):
     )
     save_split_indices(output, {"train": train, "validation": validation, "test": test})
 
-    features = ProposedFeatureBuilder().fit(train)
-    conflict_detector = CrossAccountConflictDetector().fit(train)
+    features = feature_builder_from_config(config).fit(train)
+    conflict_merchant_column = getattr(config, "conflict_merchant_column", None) or (
+        "merchant" if "merchant" in features.transaction_text_columns else "location"
+    )
+    conflict_account_column = getattr(config, "conflict_account_column", "payment_mode")
+    conflict_detector = CrossAccountConflictDetector(
+        merchant_col=conflict_merchant_column,
+        account_col=conflict_account_column,
+    ).fit(train)
     actm = ACTM(ACTMConfig(
         config.entropy_threshold, config.margin_threshold, config.prompt_budget
     ))
@@ -276,6 +292,11 @@ def main(config):
         "class_weighted_loss": class_weighted_loss,
         "class_weights": class_weights.tolist() if class_weights is not None else None,
         "best_validation_macro_f1": best_f1, "final_test_metrics": overall,
+        "transaction_text_features": text_feature_manifest(features),
+        "actm_conflict_columns": {
+            "merchant": conflict_merchant_column,
+            "account": conflict_account_column,
+        },
     }
     (output / "experiment_info.json").write_text(json.dumps(experiment, indent=2), encoding="utf-8")
 

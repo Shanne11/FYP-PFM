@@ -43,6 +43,8 @@ outputs/class_balance_smoke/
 !outputs/statistics/paired_statistics.csv
 !outputs/statistics/macro_f1_paired_statistics.csv
 deployment/mobile_package/model.onnx
+.research-token
+server/state/
 
 # Jupyter
 .ipynb_checkpoints/

@@ -18,6 +18,7 @@ from models.mlp import MLP
 from utils.class_balance import inverse_frequency_weights
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import evaluate
+from utils.text_feature_options import text_feature_manifest
 from utils.proposed_features import ProposedFeatureBuilder
 
 
@@ -63,12 +64,18 @@ def _sample_weighted_average(results):
 
 def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
                            learning_rate=0.001, seed=42, max_clients=None,
-                           class_weighted_loss=False):
+                           class_weighted_loss=False, dataset="dataset/clean_budgetwise.csv",
+                           split_manifest="data/experiment_split.json",
+                           transaction_text_columns=None,
+                           max_transaction_text_features=0):
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
-    train, validation, test, manifest = load_experiment_data()
+    train, validation, test, manifest = load_experiment_data(dataset, split_manifest)
     save_split_indices(output, {"train": train, "validation": validation, "test": test})
-    builder = ProposedFeatureBuilder().fit(train)
+    builder = ProposedFeatureBuilder(
+        transaction_text_columns=transaction_text_columns,
+        max_transaction_text_features=max_transaction_text_features,
+    ).fit(train)
 
     def parts(frame):
         metadata, notes, _, labels = builder.transform_parts(frame)
@@ -130,6 +137,7 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
         "class_weighted_loss": class_weighted_loss,
         "class_weights": class_weights.tolist() if class_weights is not None else None,
         "split_manifest_version": manifest["version"], "best_validation_macro_f1": best_macro_f1,
+        "transaction_text_features": text_feature_manifest(builder),
         "test_metrics": metrics,
     }
     (output / "experiment_info.json").write_text(json.dumps(information, indent=2), encoding="utf-8")

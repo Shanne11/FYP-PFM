@@ -597,6 +597,71 @@ python deployment/export_mobile_package.py
 
 The ONNX binary remains local and is identified by SHA-256 in `deployment/mobile_package/package_manifest.json`. The next gate is implementing the same preprocessing contract and ONNX inference in the mobile application, then repeating parity tests on-device.
 
+## Merchant-aware v2 retraining path
+
+The current Tier A dataset does **not** contain genuine `merchant` or `description` columns. Therefore, the frozen 105-feature v1 checkpoint has not been relabelled or falsely described as merchant-aware. A v2 feature path is implemented but deliberately refuses to train when the requested columns are missing or contain no usable text.
+
+For a genuinely labelled enriched dataset, the v2 pipeline:
+
+- fits the merchant/description TF-IDF vocabulary on the training partition only;
+- applies the same frozen vocabulary to validation and test records;
+- adds the text block to metadata for Metadata-only, Metadata + Notes, FedAvg, FedProx and Proposed runs;
+- preserves Smart Notes as a separate feature channel;
+- can use a real merchant identity column for ACTM cross-account conflict;
+- writes transaction-text configuration and vocabulary size into experiment evidence;
+- exports the fitted text vocabulary, IDF values, exact feature order and tensor dimensions.
+
+Create a separate split manifest without overwriting v1:
+
+```powershell
+python data/build_experiment_split.py `
+  --dataset dataset/budgetwise_merchant_v2.csv `
+  --output data/experiment_split_merchant_v2.json `
+  --version 3
+```
+
+Run every applicable comparison with the same text columns, vocabulary cap and split:
+
+```powershell
+python train_metadata.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/baseline2 --transaction-text-columns merchant description --max-transaction-text-features 500
+python train_notes.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/baseline3 --transaction-text-columns merchant description --max-transaction-text-features 500
+python train_fedavg.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/fedavg_seed42 --seed 42 --class-weighted-loss --transaction-text-columns merchant description --max-transaction-text-features 500
+python train_fedprox.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/fedprox_seed42 --seed 42 --class-weighted-loss --transaction-text-columns merchant description --max-transaction-text-features 500
+python train_proposed.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/proposed_seed42 --seed 42 --class-weighted-loss --transaction-text-columns merchant description --max-transaction-text-features 500 --conflict-merchant-column merchant --conflict-account-column payment_mode
+```
+
+Repeat the federated methods with the predeclared seeds `42`, `52` and `62`, then select the deployment candidate using validation evidence rather than final-test performance. Once selected, freeze a new contract and export it to a new package directory:
+
+```powershell
+python deployment/freeze_model_contract.py --pipeline outputs/merchant_v2/proposed_seed42/feature_pipeline.pkl --checkpoint outputs/merchant_v2/proposed_seed42/best_global_model.pt --split-manifest data/experiment_split_merchant_v2.json --output deployment/research_model_contract_v2.json --contract-id pocketiq-merchant-aware-seed42-v2
+python deployment/export_mobile_package.py --checkpoint outputs/merchant_v2/proposed_seed42/best_global_model.pt --pipeline outputs/merchant_v2/proposed_seed42/feature_pipeline.pkl --contract deployment/research_model_contract_v2.json --fixtures deployment/parity_fixtures_v2.example.json --output deployment/mobile_package_v2
+```
+
+The mobile model must only be replaced after PyTorch/ONNX parity passes and the Flutter preprocessor has been updated and tested against the exported v2 feature order. The existing mobile package remains active until those gates pass.
+
+## Mobile optional-learning calibration experiment
+
+PocketIQ keeps the frozen 105-feature ONNX MLP unchanged and can train a small 13-class output-calibration layer on the device. This deployment layer has 182 parameters (13 x 13 weights plus 13 biases) and uses only confirmed or manually corrected transactions with a stored 13-probability ONNX output. It is not the full-MLP federated training procedure evaluated in Chapter 5 and must not be reported as such.
+
+The reference server in `server/optional_learning_server.py`:
+
+- binds only to `127.0.0.1`;
+- requires a bearer token loaded from a private file;
+- validates the frozen model contract and exact 182-parameter payload;
+- rejects non-finite values and clips the submitted update norm;
+- retains sample-count base weighting;
+- applies a bounded 0.75-1.25 utility multiplier, with a 1.0 fallback when useful-note evidence is absent;
+- stores and returns the aggregated calibration parameters; and
+- never accepts raw transaction, Smart Note, merchant or account fields.
+
+Create a private token of at least 24 characters, keep it outside version control, and run:
+
+```powershell
+python server/optional_learning_server.py --token-file .research-token --min-clients 1
+```
+
+The Flutter emulator connects through `http://10.0.2.2:8765` using the same token supplied with `POCKETIQ_LEARNING_TOKEN`. The server is a controlled localhost research harness, not a production or physical-device deployment.
+
 ## Scope
 
 This repository is the research and model-development environment. It is not the complete Flutter Personal Finance Management application. The selected final model, category mapping, ACTM configuration, and preprocessing pipeline will later be integrated into the mobile system.

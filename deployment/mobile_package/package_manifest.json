@@ -4,7 +4,10 @@
   "onnx_opset": 17,
   "artifacts": {
     "model.onnx": "dfb8304503704b4e70480fddd53e8ba90d3b49846f9add3b1c2635f19fbc1178",
-    "preprocessing.json": "4b13172ac3d2dff42e3ebfa236a6d1343dc92cfc537a9a82e8593e07840dd52b",
+    "preprocessing.json": "1fa687a0dd792f0cd76fafc3c991411d4402d782dc1656b92ae5fbafaa1adfb8",
+    "parity_fixtures.json": "1022f7543f83639b0e627bcd59b83753e8c7eca858ef751f3e6d12d07389829d",
+    "parity_report.json": "5175f5eae916c290dd79c8cc5d8438c40563e76820d42ba489d9b3a22e77cc0d",
+    "research_model_contract.json": "821fb8e3c13c23d5ff9c081dfd35cdfd0ba90309968c05c51a7aae4a335f2bee",
     "source_checkpoint": "445b79ea93072a3a12e8c38b0223c06dad491c4fb0931f6a8d649f351cba1bc2",
     "source_pipeline": "cc74cf028a6f943c950a0016b906c9e8841815689a1be8ed36a28096886f0855"
   },
