@@ -21,9 +21,9 @@ VARIANTS = {
     "without_actm": {"note_strategy": "always"},
     "without_notes": {"note_strategy": "none"},
     "simple_concatenation": {"fusion_mode": "simple_concat"},
-    "without_uncertainty_utility": {"utility_weights": [0.0, 0.6, 0.4]},
-    "without_specificity_utility": {"utility_weights": [5 / 7, 0.0, 2 / 7]},
-    "without_utility_weighting": {"disable_utility_weighting": True},
+    "without_uncertainty_component": {"heuristic_weights": [0.0, 0.6, 0.4]},
+    "without_lexical_novelty_component": {"heuristic_weights": [5 / 7, 0.0, 2 / 7]},
+    "without_heuristic_adjustment": {"disable_signal_adjustment": True},
 }
 
 
@@ -35,8 +35,8 @@ def config_for(output, seed, rounds, local_epochs, max_clients, overrides):
         "learning_rate": 0.001, "entropy_threshold": 0.65,
         "margin_threshold": 0.15, "prompt_budget": 0.30, "min_notes": 1,
         "max_clients": max_clients, "seed": seed, "note_strategy": "selective",
-        "fusion_mode": "semantic_anchor", "utility_weights": [0.5, 0.3, 0.2],
-        "disable_utility_weighting": False,
+        "fusion_mode": "semantic_anchor", "heuristic_weights": [0.5, 0.3, 0.2],
+        "disable_signal_adjustment": False,
         "class_weighted_loss": False,
     }
     values.update(overrides)

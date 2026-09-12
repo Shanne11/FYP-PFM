@@ -12,50 +12,13 @@ class ProposedFeatureBuilder:
     categorical = ["transaction_type", "payment_mode", "location"]
     numeric = ["amount", "year", "month", "day", "weekday"]
 
-    def __init__(
-        self,
-        max_note_features=500,
-        transaction_text_columns=None,
-        max_transaction_text_features=0,
-    ):
-        self.transaction_text_columns = list(transaction_text_columns or [])
-        self.max_transaction_text_features = int(max_transaction_text_features)
-        if self.max_transaction_text_features < 0:
-            raise ValueError("max_transaction_text_features cannot be negative")
-        if bool(self.transaction_text_columns) != bool(self.max_transaction_text_features):
-            raise ValueError(
-                "transaction_text_columns and max_transaction_text_features must be enabled together"
-            )
+    def __init__(self, max_note_features=500):
         self.category_encoder = LabelEncoder()
         self.categorical_encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=True)
         self.numeric_scaler = StandardScaler()
         self.note_vectorizer = TfidfVectorizer(
             max_features=max_note_features, lowercase=True, stop_words="english"
         )
-        self.transaction_text_vectorizer = (
-            TfidfVectorizer(
-                max_features=self.max_transaction_text_features,
-                lowercase=True,
-                stop_words="english",
-            )
-            if self.transaction_text_columns
-            else None
-        )
-
-    def _transaction_text(self, frame):
-        if not self.transaction_text_columns:
-            return None
-        missing = [column for column in self.transaction_text_columns if column not in frame]
-        if missing:
-            raise ValueError(
-                "Merchant-aware features require genuine labelled columns; missing: "
-                + ", ".join(missing)
-            )
-        values = frame[self.transaction_text_columns].fillna("").astype(str)
-        combined = values.agg(" ".join, axis=1).str.strip()
-        if not combined.ne("").any():
-            raise ValueError("Merchant-aware text columns contain no usable training text")
-        return combined
 
     @staticmethod
     def _prepared(frame):
@@ -79,27 +42,13 @@ class ProposedFeatureBuilder:
         notes = frame["notes"]
         # Ensure a vocabulary exists even if a tiny development split has no notes.
         self.note_vectorizer.fit(pd.concat([notes, pd.Series(["unknown note"])], ignore_index=True))
-        transaction_text = self._transaction_text(train_frame)
-        if transaction_text is not None:
-            # Fitted on the training split only. Validation and test text can
-            # transform through this frozen vocabulary but never influence it.
-            self.transaction_text_vectorizer.fit(
-                pd.concat(
-                    [transaction_text, pd.Series(["unknown merchant description"])],
-                    ignore_index=True,
-                )
-            )
         return self
 
     def transform_parts(self, frame):
         prepared = self._prepared(frame)
         categorical = self.categorical_encoder.transform(prepared[self.categorical])
         numeric = csr_matrix(self.numeric_scaler.transform(prepared[self.numeric]))
-        metadata_parts = [categorical, numeric]
-        transaction_text = self._transaction_text(frame)
-        if transaction_text is not None:
-            metadata_parts.append(self.transaction_text_vectorizer.transform(transaction_text))
-        metadata = hstack(metadata_parts, format="csr")
+        metadata = hstack([categorical, numeric], format="csr")
         notes = self.note_vectorizer.transform(prepared["notes"])
         anchors = self.note_vectorizer.transform(
             prepared[["transaction_type", "payment_mode", "location"]].agg(" ".join, axis=1)
@@ -111,24 +60,13 @@ class ProposedFeatureBuilder:
 
     @property
     def metadata_size(self):
-        text_size = (
-            len(self.transaction_text_vectorizer.get_feature_names_out())
-            if self.transaction_text_vectorizer is not None
-            and hasattr(self.transaction_text_vectorizer, "vocabulary_")
-            else 0
-        )
-        return len(self.categorical_encoder.get_feature_names_out()) + len(self.numeric) + text_size
+        return len(self.categorical_encoder.get_feature_names_out()) + len(self.numeric)
 
     @property
     def metadata_feature_names(self):
         names = list(self.categorical_encoder.get_feature_names_out()) + [
             f"numeric_scaled__{column}" for column in self.numeric
         ]
-        if self.transaction_text_vectorizer is not None:
-            names.extend(
-                f"transaction_text_tfidf__{token}"
-                for token in self.transaction_text_vectorizer.get_feature_names_out()
-            )
         return names
 
     @property

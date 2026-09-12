@@ -35,8 +35,8 @@ def validate(contract, manifest):
         errors.append("Dataset fingerprint differs from frozen split manifest")
     if contract["dataset"]["split_manifest_version"] != manifest["version"]:
         errors.append("Split manifest version differs from contract")
-    if contract["seed_policy"]["deployment_checkpoint_seed"] not in contract["seed_policy"]["research_seeds"]:
-        errors.append("Deployment seed is not one of the evaluated research seeds")
+    if contract["seed_policy"]["research_checkpoint_seed"] not in contract["seed_policy"]["research_seeds"]:
+        errors.append("Research checkpoint seed is not one of the evaluated research seeds")
     if errors:
         raise ValueError("; ".join(errors))
     return True

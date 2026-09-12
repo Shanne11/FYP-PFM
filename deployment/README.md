@@ -1,53 +1,36 @@
-# Frozen Research Model Contract
+# Research Export and PocketIQ Deployment Training
 
-`research_model_contract.json` freezes the selected experimental configuration before mobile inference development. The selection is based on mean federated Macro F1 and category coverage across seeds 42, 52, and 62. The final Python contract ID is `pocketiq-class-weighted-proposed-seed42-v1`.
+This directory contains two separate model paths. They share the clarification-aware research concept, but they do not share a dataset, feature contract, category space, or checkpoint.
 
-The contract does **not** claim that Proposed is statistically superior to FedAvg or FedProx. It also preserves the negative finding that the current utility-weighted aggregation has negligible effect.
+## Tier A research export
 
-## Canonical checkpoint policy
+`research_model_contract.json` freezes the selected controlled Tier A configuration. It uses the BudgetWise research data, 105 features, 13 categories, and the full MLP evaluated across 150 simulated clients. The selected checkpoint is based on validation Macro F1 and category coverage across seeds 42, 52, and 62. The contract does not establish superiority over FedAvg or FedProx, and the current bounded heuristic adjustment remains an unsupported/negative experimental finding.
 
-Seed 42 is the canonical checkpoint because it was the predeclared default seed. It is not selected using the best held-out test score. The local artifact is expected at:
+`export_mobile_package.py` is retained to reproduce and verify a portable ONNX form of this research checkpoint. Its output under `deployment/mobile_package/` is a research artefact only. It is **not** the model loaded by PocketIQ Flutter.
 
-```text
-outputs/class_balance/seed_42/proposed/best_global_model.pt
-```
+## PocketIQ deployment model
 
-The checkpoint and `feature_pipeline.pkl` remain local because binary model and preprocessing artifacts are excluded from Git. Their hashes must be recorded during export.
+`train_deployment_model.py` trains the separate PocketIQ deployment model from a downloaded US Bank Transaction Categories v2 CSV. The pipeline:
 
-## Frozen contract contents
+- requires labelled transaction descriptions;
+- maps the 17 source categories to 14 PocketIQ categories;
+- removes duplicate description-and-category pairs;
+- creates a fixed seed-42 70/15/15 train, validation, and held-out split;
+- fits a lowercase 4,096-feature word-and-bigram TF-IDF representation on training descriptions only;
+- trains a linear classifier and selects temperature calibration on validation data;
+- evaluates the held-out deployment partition after the contract is fixed; and
+- exports the ONNX model, feature schema, category labels, mapping, metadata, parity fixtures, parity report, and SHA-256 manifest.
 
-The generated package fixes:
-
-- the canonical checkpoint and fitted preprocessing pipeline by SHA-256 hash;
-- the 13-category output order;
-- the exact ordered 105-feature input vector;
-- fitted one-hot categories, scaler parameters, TF-IDF vocabulary and IDF values;
-- input tensor `features` as `float32 [batch, 105]`;
-- output tensor `logits` as `float32 [batch, 13]`; and
-- softmax followed by category-order lookup as output postprocessing.
-
-## Mobile integration status and remaining gates
-
-The ONNX export, PyTorch-versus-ONNX parity gate, Flutter preprocessing implementation, ONNX Runtime integration, and 13-label-to-app-category adapter are complete. The mobile application deploys the frozen seed-42 model directly as ONNX; TensorFlow Lite conversion is not part of the implemented architecture.
-
-Remaining release gates are:
-
-1. Verify Python-versus-Flutter logits on the fixed non-test fixtures on a physical Android device.
-2. Measure physical-device latency, memory and energy use.
-3. Validate the handling of new merchants, accounts, payment modes and locations with representative statements.
-4. Complete release signing, security review and device acceptance testing.
-5. Keep utility-weighted aggregation disabled as a product claim unless a revised method is revalidated.
-
-The fitted categorical vocabulary contains inconsistent capitalization inherited from the research dataset. Cleaning those values changes the input contract and therefore requires retraining; it must not be changed silently during mobile conversion.
-
-## Reproducible ONNX export
-
-After installing `requirements.txt`, generate the portable package from the canonical local artifacts:
+Run it after installing `requirements.txt`:
 
 ```powershell
-python deployment/export_mobile_package.py
+python deployment/train_deployment_model.py --dataset path\to\transactions.csv
 ```
 
-The exporter writes `model.onnx`, exact preprocessing parameters, fixed fixture vectors, artifact hashes, and a parity report under `deployment/mobile_package/`. The ONNX binary remains local and is ignored by Git; its SHA-256 hash and the reproducibility metadata are versioned.
+The default output directory is `deployment/pocketiq_deployment_package/`. Copy a package into Flutter only after its Python-to-ONNX parity check passes and its 14-category schema matches the application assets.
 
-The canonical export passed PyTorch-versus-ONNX parity on four non-test fixtures with a maximum absolute logit difference of `0.0` at tolerance `1e-5`.
+At runtime, Flutter composes transaction direction, merchant, description, and an optional Smart Note using the frozen deployment text contract. Transparent local rules run first; unresolved records use the frozen 14-category ONNX model. PocketIQ ACTM Review operates per transaction. When the user submits a non-empty Smart Note, the application reruns the same frozen ONNX model and then checks the transparent Smart Note rule before presenting the recommendation for confirmation or correction.
+
+## Evidence boundary
+
+The deployment corpus is synthetic and US-oriented. It supports deployment preparation, parity, and functional verification, not Malaysian real-world accuracy claims. A separately labelled Malaysian held-out set is required for those claims. Full federated training and bounded signal-adjusted aggregation are evaluated only in Python Tier A and are not executed by Flutter.

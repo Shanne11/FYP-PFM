@@ -12,11 +12,7 @@ from scipy.sparse import hstack
 from models.note_model import build_model
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import evaluate
-from utils.text_feature_options import (
-    add_transaction_text_arguments,
-    feature_builder_from_config,
-    text_feature_manifest,
-)
+from utils.proposed_features import ProposedFeatureBuilder
 
 
 def arguments():
@@ -24,7 +20,6 @@ def arguments():
     parser.add_argument("--dataset", default="dataset/clean_budgetwise.csv")
     parser.add_argument("--split-manifest", default="data/experiment_split.json")
     parser.add_argument("--output", default="outputs/baseline3")
-    add_transaction_text_arguments(parser)
     return parser.parse_args()
 
 
@@ -32,11 +27,13 @@ config = arguments()
 OUTPUT = Path(config.output); OUTPUT.mkdir(parents=True, exist_ok=True)
 train, validation, test, manifest = load_experiment_data(config.dataset, config.split_manifest)
 save_split_indices(OUTPUT, {"train": train, "validation": validation, "test": test})
-builder = feature_builder_from_config(config).fit(train)
+builder = ProposedFeatureBuilder().fit(train)
 train_meta, train_notes, _, y_train = builder.transform_parts(train)
 test_meta, test_notes, _, y_test = builder.transform_parts(test)
 X_train = hstack([train_meta, train_notes], format="csr")
 X_test = hstack([test_meta, test_notes], format="csr")
+if X_train.shape[1] != 105 or len(builder.category_encoder.classes_) != 13:
+    raise ValueError("B2 requires the fixed 105-feature, 13-category Tier A note-aware contract")
 model = build_model(); model.fit(X_train, y_train); predicted = model.predict(X_test)
 probabilities = model.predict_proba(X_test)
 actual_labels = builder.category_encoder.inverse_transform(y_test)
@@ -59,8 +56,7 @@ joblib.dump(model, OUTPUT / "note_model.pkl"); joblib.dump(builder, OUTPUT / "fe
 (OUTPUT / "experiment_info.txt").write_text(
     f"Baseline: Metadata + Notes Random Forest\nTrain: {len(train)}\nValidation: {len(validation)}\n"
     f"Test: {len(test)}\nClasses: {len(builder.category_encoder.classes_)}\n"
-    f"Split manifest version: {manifest['version']}\n"
-    f"Transaction text features: {text_feature_manifest(builder)}\nMetrics: {metrics}\n",
+    f"Split manifest version: {manifest['version']}\nMetrics: {metrics}\n",
     encoding="utf-8",
 )
 print(metrics)

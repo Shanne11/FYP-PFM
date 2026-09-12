@@ -3,7 +3,7 @@ import pandas as pd
 import torch
 
 from models.federated.actm import ACTM, ACTMConfig, CrossAccountConflictDetector
-from models.federated.utility import bounded_fedavg
+from models.federated.heuristic import bounded_signal_adjusted_average
 
 
 def test_actm_obeys_prompt_budget_and_records_reasons():
@@ -13,7 +13,7 @@ def test_actm_obeys_prompt_budget_and_records_reasons():
     )
     assert result["triggered"].sum() <= 2
     assert result.loc[2, "conflict_triggered"]
-    assert {"entropy_triggered", "margin_triggered", "conflict_triggered"}.issubset(result)
+    assert {"entropy_triggered", "margin_triggered", "conflict_triggered", "priority"}.issubset(result)
 
 
 def test_conflicts_are_learned_from_training_context_only():
@@ -26,18 +26,34 @@ def test_conflicts_are_learned_from_training_context_only():
     assert detector.transform(pd.DataFrame({"location": ["Shop", "Cafe"]})).tolist() == [True, False]
 
 
-def test_bounded_fedavg_uses_sample_base_weight_and_fallback():
+def test_bounded_signal_uses_sample_base_weight_and_neutral_fallback():
     clients = [
         {"weights": {"w": torch.tensor([1.0])}, "sample_count": 3,
-         "mean_note_utility": 1.0, "note_count": 2},
+         "mean_clarification_heuristic": 1.0, "note_count": 2},
         {"weights": {"w": torch.tensor([3.0])}, "sample_count": 1,
-         "mean_note_utility": None, "note_count": 0},
+         "mean_clarification_heuristic": None, "note_count": 0},
     ]
-    averaged, rows = bounded_fedavg(clients, min_notes=1)
-    assert rows[0]["utility_multiplier"] == 1.25
-    assert rows[1]["utility_multiplier"] == 1.0
-    assert rows[0]["utility_fallback"] is False
-    assert rows[1]["utility_fallback"] is True
+    averaged, rows = bounded_signal_adjusted_average(clients, min_notes=1)
+    assert rows[0]["signal_multiplier"] == 1.25
+    assert rows[1]["signal_multiplier"] == 1.0
+    assert rows[0]["heuristic_fallback"] is False
+    assert rows[1]["heuristic_fallback"] is True
     assert rows[1]["fallback_reason"] == "insufficient_notes"
-    assert abs(sum(row["final_weight"] for row in rows) - 1.0) < 1e-9
+    assert abs(sum(row["final_coefficient"] for row in rows) - 1.0) < 1e-9
     assert 1.0 < averaged["w"].item() < 3.0
+
+
+def test_invalid_client_update_is_excluded_before_normalisation():
+    clients = [
+        {"client_id": "valid", "weights": {"w": torch.tensor([1.0])},
+         "sample_count": 2, "mean_clarification_heuristic": .5,
+         "note_count": 1, "local_loss": .2},
+        {"client_id": "invalid", "weights": {"w": torch.tensor([float("nan")])},
+         "sample_count": 2, "mean_clarification_heuristic": .5,
+         "note_count": 1, "local_loss": .2},
+    ]
+    averaged, rows = bounded_signal_adjusted_average(clients)
+    assert averaged["w"].item() == 1.0
+    assert rows[0]["final_coefficient"] == 1.0
+    assert rows[1]["included"] is False
+    assert rows[1]["exclusion_reason"] == "non_finite_parameters"

@@ -10,11 +10,7 @@ import pandas as pd
 from models.metadata_model import build_model
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import evaluate
-from utils.text_feature_options import (
-    add_transaction_text_arguments,
-    feature_builder_from_config,
-    text_feature_manifest,
-)
+from utils.proposed_features import ProposedFeatureBuilder
 
 
 def arguments():
@@ -22,7 +18,6 @@ def arguments():
     parser.add_argument("--dataset", default="dataset/clean_budgetwise.csv")
     parser.add_argument("--split-manifest", default="data/experiment_split.json")
     parser.add_argument("--output", default="outputs/baseline2")
-    add_transaction_text_arguments(parser)
     return parser.parse_args()
 
 
@@ -30,9 +25,11 @@ config = arguments()
 OUTPUT = Path(config.output); OUTPUT.mkdir(parents=True, exist_ok=True)
 train, validation, test, manifest = load_experiment_data(config.dataset, config.split_manifest)
 save_split_indices(OUTPUT, {"train": train, "validation": validation, "test": test})
-builder = feature_builder_from_config(config).fit(train)
+builder = ProposedFeatureBuilder().fit(train)
 X_train, _, _, y_train = builder.transform_parts(train)
 X_test, _, _, y_test = builder.transform_parts(test)
+if builder.metadata_size != 68 or len(builder.category_encoder.classes_) != 13:
+    raise ValueError("B1 requires the fixed 68-feature, 13-category Tier A metadata contract")
 model = build_model(); model.fit(X_train, y_train); predicted = model.predict(X_test)
 probabilities = model.predict_proba(X_test)
 actual_labels = builder.category_encoder.inverse_transform(y_test)
@@ -57,8 +54,7 @@ joblib.dump(model, OUTPUT / "metadata_model.pkl"); joblib.dump(builder, OUTPUT /
 (OUTPUT / "experiment_info.txt").write_text(
     f"Baseline: Metadata-only Random Forest\nTrain: {len(train)}\nValidation: {len(validation)}\n"
     f"Test: {len(test)}\nClasses: {len(builder.category_encoder.classes_)}\n"
-    f"Split manifest version: {manifest['version']}\n"
-    f"Transaction text features: {text_feature_manifest(builder)}\nMetrics: {metrics}\n",
+    f"Split manifest version: {manifest['version']}\nMetrics: {metrics}\n",
     encoding="utf-8",
 )
 print(metrics)

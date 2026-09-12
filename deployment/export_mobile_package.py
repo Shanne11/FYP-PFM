@@ -1,4 +1,4 @@
-"""Export frozen preprocessing and MLP to a portable ONNX package with parity evidence."""
+"""Export the frozen Tier A MLP as a portable research ONNX package."""
 
 import argparse
 import hashlib
@@ -44,20 +44,9 @@ def portable_preprocessing(pipeline):
     vocabulary = sorted(pipeline.note_vectorizer.vocabulary_.items(), key=lambda item: item[1])
     categorical_feature_order = pipeline.categorical_encoder.get_feature_names_out().tolist()
     note_feature_order = [f"note_tfidf__{token}" for token, _ in vocabulary]
-    transaction_text_vectorizer = getattr(pipeline, "transaction_text_vectorizer", None)
-    transaction_text_vocabulary = (
-        sorted(transaction_text_vectorizer.vocabulary_.items(), key=lambda item: item[1])
-        if transaction_text_vectorizer is not None
-        else []
-    )
-    transaction_text_feature_order = [
-        f"transaction_text_tfidf__{token}"
-        for token, _ in transaction_text_vocabulary
-    ]
     feature_order = (
         categorical_feature_order
         + [f"numeric_scaled__{column}" for column in pipeline.numeric]
-        + transaction_text_feature_order
         + note_feature_order
     )
     return {
@@ -97,35 +86,6 @@ def portable_preprocessing(pipeline):
             "metadata": pipeline.metadata_size,
             "note": pipeline.note_size,
             "total": pipeline.metadata_size + pipeline.note_size,
-        },
-        "transaction_text": {
-            "enabled": transaction_text_vectorizer is not None,
-            "columns": getattr(pipeline, "transaction_text_columns", []),
-            "vocabulary": {
-                token: int(index) for token, index in transaction_text_vocabulary
-            },
-            "idf": (
-                transaction_text_vectorizer.idf_.tolist()
-                if transaction_text_vectorizer is not None
-                else []
-            ),
-            "lowercase": True,
-            "token_pattern": (
-                transaction_text_vectorizer.token_pattern
-                if transaction_text_vectorizer is not None
-                else None
-            ),
-            "english_stop_words": (
-                sorted(ENGLISH_STOP_WORDS)
-                if transaction_text_vectorizer is not None
-                else []
-            ),
-            "norm": (
-                transaction_text_vectorizer.norm
-                if transaction_text_vectorizer is not None
-                else None
-            ),
-            "fit_scope": "training split only" if transaction_text_vectorizer is not None else None,
         },
         "feature_order": feature_order,
         "category_order": pipeline.category_encoder.classes_.tolist(),
@@ -186,6 +146,12 @@ def main(config):
     contract = json.loads(Path(config.contract).read_text(encoding="utf-8"))
     pipeline = joblib.load(config.pipeline)
     preprocessing = portable_preprocessing(pipeline)
+    if preprocessing["feature_dimensions"] != {
+        "metadata": 68, "note": 37, "total": 105
+    }:
+        raise ValueError("Research ONNX export requires the fixed 68 + 37 = 105 Tier A contract")
+    if len(preprocessing["category_order"]) != 13:
+        raise ValueError("Research ONNX export requires the fixed 13-category Tier A contract")
     if preprocessing["feature_dimensions"]["total"] != contract["model"]["input_features"]:
         raise ValueError("Fitted pipeline dimensions differ from frozen contract")
     if preprocessing["category_order"] != contract["categories"]:
@@ -215,7 +181,7 @@ def main(config):
     (output / "parity_report.json").write_text(json.dumps(parity, indent=2), encoding="utf-8")
     manifest = {
         "contract_version": contract["contract_version"],
-        "checkpoint_seed": contract["seed_policy"]["deployment_checkpoint_seed"],
+        "checkpoint_seed": contract["seed_policy"]["research_checkpoint_seed"],
         "onnx_opset": 17,
         "artifacts": {
             "model.onnx": sha256(onnx_path),

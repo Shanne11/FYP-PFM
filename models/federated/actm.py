@@ -79,14 +79,21 @@ class ACTM:
         probabilities: np.ndarray,
         conflicts: Iterable[bool],
     ) -> pd.DataFrame:
+        probabilities = np.asarray(probabilities, dtype=float)
+        if probabilities.ndim != 2 or probabilities.shape[0] == 0:
+            raise ValueError("probabilities must be a non-empty 2-D array")
+        if not np.isfinite(probabilities).all():
+            raise ValueError("probabilities must be finite")
         entropy = predictive_entropy(probabilities)
         # Normalisation makes alpha comparable when the class count changes.
         normalizer = np.log(max(probabilities.shape[1], 2))
         normalized_entropy = entropy / normalizer
         margin = top_two_margin(probabilities)
         conflicts = np.asarray(list(conflicts), dtype=bool)
-        entropy_hit = normalized_entropy > self.config.entropy_threshold
-        margin_hit = margin < self.config.margin_threshold
+        if conflicts.shape != (probabilities.shape[0],):
+            raise ValueError("conflicts must contain one value per transaction")
+        entropy_hit = normalized_entropy >= self.config.entropy_threshold
+        margin_hit = margin <= self.config.margin_threshold
         eligible = entropy_hit | margin_hit | conflicts
 
         budget = self.config.prompt_budget
@@ -106,6 +113,7 @@ class ACTM:
             "margin_triggered": margin_hit,
             "conflict_triggered": conflicts,
             "eligible": eligible,
+            "priority": priority,
             "triggered": selected,
         })
 

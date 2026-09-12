@@ -13,7 +13,7 @@
   },
   "seed_policy": {
     "research_seeds": [42, 52, 62],
-    "deployment_checkpoint_seed": 42,
+    "research_checkpoint_seed": 42,
     "reason": "Seed 42 is the predeclared canonical seed, not the best test-performing seed."
   },
   "categories": [
@@ -30,9 +30,10 @@
     "dropout": 0.3,
     "source_checkpoint": "outputs/class_balance/seed_42/proposed/best_global_model.pt",
     "source_pipeline": "outputs/class_balance/seed_42/proposed/feature_pipeline.pkl",
-    "current_format": "PyTorch state_dict with ONNX export",
+    "current_format": "PyTorch state_dict with optional ONNX research export",
     "portable_export": "deployment/mobile_package/model.onnx",
-    "mobile_runtime_format": "ONNX Runtime (model.onnx)",
+    "portable_runtime_format": "ONNX Runtime (model.onnx)",
+    "deployment_use": false,
     "tensor_contract": {
       "input_name": "features",
       "input_dtype": "float32",
@@ -79,12 +80,13 @@
     "cross_context_proxies": {"merchant": "location", "account": "payment_mode"},
     "research_limitation": "All held-out records were ambiguity-eligible; prompt budget controls selectivity."
   },
-  "note_utility": {
+  "clarification_heuristic": {
     "component_weights": {"uncertainty_reduction": 0.5, "specificity": 0.3, "effort": 0.2},
     "multiplier_bounds": [0.75, 1.25],
     "minimum_notes": 1,
     "research_status": "unsupported_negative",
-    "deployment_policy": "Do not claim or enable utility weighting as beneficial without revalidation."
+    "legacy_variable_name": "clarification_utility",
+    "deployment_policy": "Do not claim or enable heuristic-adjusted aggregation as beneficial without revalidation."
   },
   "reported_three_seed_result": {
     "accuracy_mean": 0.150202,

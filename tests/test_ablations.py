@@ -16,8 +16,8 @@ def metric_row(variant, seed, value):
 def test_required_ablation_variants_are_explicit():
     assert set(VARIANTS) == {
         "full", "without_actm", "without_notes", "simple_concatenation",
-        "without_uncertainty_utility", "without_specificity_utility",
-        "without_utility_weighting",
+        "without_uncertainty_component", "without_lexical_novelty_component",
+        "without_heuristic_adjustment",
     }
 
 
@@ -31,8 +31,8 @@ def test_ablation_deltas_use_full_method_as_reference():
     assert abs(deltas.loc["without_notes", "accuracy_delta_vs_full"] + 0.2) < 1e-12
 
 
-def test_remaining_utility_weights_are_renormalized():
-    no_uncertainty = VARIANTS["without_uncertainty_utility"]["utility_weights"]
-    no_specificity = VARIANTS["without_specificity_utility"]["utility_weights"]
+def test_remaining_heuristic_weights_are_renormalized():
+    no_uncertainty = VARIANTS["without_uncertainty_component"]["heuristic_weights"]
+    no_specificity = VARIANTS["without_lexical_novelty_component"]["heuristic_weights"]
     assert abs(sum(no_uncertainty) - 1.0) < 1e-12
     assert abs(sum(no_specificity) - 1.0) < 1e-12

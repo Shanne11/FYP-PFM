@@ -1,7 +1,8 @@
 """Train and evaluate the complete proposed FYP method.
 
 Pipeline: leakage-safe split -> metadata prediction -> ACTM -> selective Smart
-Notes -> note utility -> bounded utility-weighted FedAvg -> held-out evaluation.
+Notes -> clarification-derived heuristic -> bounded signal-adjusted FedAvg ->
+held-out evaluation.
 Run ``python train_proposed.py --help`` for reproducible experiment controls.
 """
 
@@ -24,16 +25,15 @@ from sklearn.metrics import (
 from torch.utils.data import DataLoader, TensorDataset
 
 from models.federated.actm import ACTM, ACTMConfig, CrossAccountConflictDetector
-from models.federated.utility import bounded_fedavg, note_utility
+from models.federated.heuristic import (
+    bounded_signal_adjusted_average,
+    clarification_heuristic,
+)
 from models.mlp import MLP
 from utils.class_balance import inverse_frequency_weights
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import metric_summary
-from utils.text_feature_options import (
-    add_transaction_text_arguments,
-    feature_builder_from_config,
-    text_feature_manifest,
-)
+from utils.proposed_features import ProposedFeatureBuilder
 
 
 def arguments():
@@ -50,18 +50,25 @@ def arguments():
     parser.add_argument("--min-notes", type=int, default=1)
     parser.add_argument("--note-strategy", choices=["selective", "always", "none"], default="selective")
     parser.add_argument("--fusion-mode", choices=["semantic_anchor", "simple_concat"], default="semantic_anchor")
-    parser.add_argument("--utility-weights", nargs=3, type=float, default=[0.5, 0.3, 0.2])
-    parser.add_argument("--disable-utility-weighting", action="store_true")
+    parser.add_argument(
+        "--heuristic-weights", "--utility-weights", dest="heuristic_weights",
+        nargs=3, type=float, default=[0.5, 0.3, 0.2],
+        help="Weights for uncertainty change, lexical novelty and bounded note length.",
+    )
+    parser.add_argument(
+        "--disable-signal-adjustment", "--disable-utility-weighting",
+        dest="disable_signal_adjustment", action="store_true",
+        help="Use ordinary sample-count FedAvg without the bounded heuristic signal.",
+    )
     parser.add_argument("--class-weighted-loss", action="store_true",
                         help="Use inverse-frequency weights fitted on training labels only.")
     parser.add_argument("--max-clients", type=int, default=None,
                         help="Development/smoke-test limit; omit for the experiment.")
-    parser.add_argument("--conflict-merchant-column", default=None,
-                        help="ACTM merchant identity column; defaults to merchant for v2 or location for v1.")
+    parser.add_argument("--conflict-merchant-column", default="location",
+                        help="Tier A merchant-context proxy column (default: location).")
     parser.add_argument("--conflict-account-column", default="payment_mode",
                         help="ACTM account/channel context column.")
     parser.add_argument("--seed", type=int, default=42)
-    add_transaction_text_arguments(parser)
     return parser.parse_args()
 
 
@@ -120,18 +127,22 @@ def fuse(features, metadata, notes, anchors, mask, mode):
 
 def main(config):
     set_seed(config.seed)
-    if any(weight < 0 for weight in config.utility_weights) or not np.isclose(sum(config.utility_weights), 1.0):
-        raise ValueError("utility_weights must be non-negative and sum to 1.0")
+    heuristic_weights = getattr(
+        config, "heuristic_weights", getattr(config, "utility_weights", [0.5, 0.3, 0.2])
+    )
+    disable_signal_adjustment = getattr(
+        config, "disable_signal_adjustment", getattr(config, "disable_utility_weighting", False)
+    )
+    if any(weight < 0 for weight in heuristic_weights) or not np.isclose(sum(heuristic_weights), 1.0):
+        raise ValueError("heuristic_weights must be non-negative and sum to 1.0")
     output = Path(config.output); output.mkdir(parents=True, exist_ok=True)
     train, validation, test, manifest = load_experiment_data(
         config.dataset, config.split_manifest
     )
     save_split_indices(output, {"train": train, "validation": validation, "test": test})
 
-    features = feature_builder_from_config(config).fit(train)
-    conflict_merchant_column = getattr(config, "conflict_merchant_column", None) or (
-        "merchant" if "merchant" in features.transaction_text_columns else "location"
-    )
+    features = ProposedFeatureBuilder().fit(train)
+    conflict_merchant_column = getattr(config, "conflict_merchant_column", "location")
     conflict_account_column = getattr(config, "conflict_account_column", "payment_mode")
     conflict_detector = CrossAccountConflictDetector(
         merchant_col=conflict_merchant_column,
@@ -142,16 +153,25 @@ def main(config):
     ))
     input_size = features.metadata_size + features.note_size
     classes = len(features.category_encoder.classes_)
+    if features.metadata_size != 68 or features.note_size != 37 or input_size != 105:
+        raise ValueError(
+            "Tier A contract mismatch: expected 68 metadata + 37 Smart Note = 105 features; "
+            f"received {features.metadata_size} + {features.note_size} = {input_size}"
+        )
+    if classes != 13:
+        raise ValueError(f"Tier A contract requires 13 categories; received {classes}")
     training_labels = features.category_encoder.transform(train["category"])
     class_weighted_loss = getattr(config, "class_weighted_loss", False)
     class_weights = inverse_frequency_weights(training_labels, classes) if class_weighted_loss else None
     global_model = MLP(input_size, classes)
 
     client_ids = sorted(train["user_id"].fillna("Unknown").astype(str).unique())
+    if config.max_clients is None and len(client_ids) != 150:
+        raise ValueError(f"Tier A contract requires 150 training clients; received {len(client_ids)}")
     if config.max_clients:
         client_ids = client_ids[:config.max_clients]
         train = train[train["user_id"].fillna("Unknown").astype(str).isin(client_ids)]
-    round_rows, weight_rows, utility_rows, trigger_rows = [], [], [], []
+    round_rows, weight_rows, heuristic_rows, trigger_rows = [], [], [], []
     best_f1 = -1.0; checkpoint = output / "best_global_model.pt"
 
     for round_number in range(1, config.rounds + 1):
@@ -170,22 +190,28 @@ def main(config):
             after = probabilities(local_model, fused)
             selected = np.flatnonzero(use_notes)
             if len(selected):
-                utility, reduction, specificity, effort, nonempty = note_utility(
+                heuristic, reduction, novelty, note_length, nonempty = clarification_heuristic(
                     before[selected], after[selected], notes[selected], anchors[selected],
-                    client_frame.iloc[selected]["notes"].tolist(), weights=tuple(config.utility_weights),
+                    client_frame.iloc[selected]["notes"].tolist(), weights=tuple(heuristic_weights),
                 )
-                valid_utility = utility[nonempty]
-                mean_utility = float(valid_utility.mean()) if len(valid_utility) else None
+                valid_heuristic = heuristic[nonempty]
+                mean_heuristic = float(valid_heuristic.mean()) if len(valid_heuristic) else None
                 for position, row_index in enumerate(selected):
-                    utility_rows.append({
+                    heuristic_rows.append({
                         "round": round_number, "client_id": client_id,
                         "transaction_id": client_frame.iloc[row_index]["transaction_id"],
+                        "uncertainty_change": reduction[position],
+                        "lexical_context_novelty": novelty[position],
+                        "bounded_note_length": note_length[position],
+                        "clarification_heuristic": heuristic[position],
+                        # Legacy aliases retained for existing diagnostic scripts.
                         "uncertainty_reduction": reduction[position],
-                        "semantic_specificity": specificity[position],
-                        "bounded_effort": effort[position], "utility": utility[position],
+                        "semantic_specificity": novelty[position],
+                        "bounded_effort": note_length[position],
+                        "utility": heuristic[position],
                     })
             else:
-                mean_utility = None
+                mean_heuristic = None
             decisions = decisions.assign(
                 round=round_number, client_id=client_id,
                 transaction_id=client_frame["transaction_id"].to_numpy(), note_used=use_notes,
@@ -194,20 +220,30 @@ def main(config):
             client_results.append({
                 "client_id": client_id, "weights": copy.deepcopy(local_model.state_dict()),
                 "sample_count": len(client_frame), "note_count": int(use_notes.sum()),
-                "mean_note_utility": mean_utility, "local_loss": local_loss,
+                "mean_clarification_heuristic": mean_heuristic,
+                "local_loss": local_loss,
             })
 
         aggregation_results = client_results
-        if config.disable_utility_weighting:
+        if disable_signal_adjustment:
             aggregation_results = [
-                {**result, "mean_note_utility": None, "note_count": 0}
+                {**result, "mean_clarification_heuristic": None, "note_count": 0}
                 for result in client_results
             ]
-        weights, diagnostics = bounded_fedavg(aggregation_results, min_notes=config.min_notes)
-        global_model.load_state_dict(weights)
-        for result, diagnostic in zip(client_results, diagnostics):
-            weight_rows.append({"round": round_number, "client_id": result["client_id"],
-                                "local_loss": result["local_loss"], **diagnostic})
+        weights, diagnostics = bounded_signal_adjusted_average(
+            aggregation_results, min_notes=config.min_notes
+        )
+        if weights is not None:
+            global_model.load_state_dict(weights)
+        result_by_client = {result["client_id"]: result for result in client_results}
+        for diagnostic in diagnostics:
+            result = result_by_client.get(diagnostic.get("client_id"), {})
+            weight_rows.append({
+                "round": round_number,
+                "client_id": diagnostic.get("client_id"),
+                "local_loss": result.get("local_loss"),
+                **diagnostic,
+            })
         val_metadata, val_notes, val_anchors, val_labels = features.transform_parts(validation)
         val_before = probabilities(global_model, features.metadata_only(val_metadata))
         val_decisions = actm.decide(val_before, conflict_detector.transform(validation))
@@ -216,7 +252,9 @@ def main(config):
             features, val_metadata, val_notes, val_anchors, val_mask, config.fusion_mode
         ))
         metrics = metric_row(val_labels, val_probs)
-        round_rows.append({"round": round_number, "clients": len(client_results),
+        valid_clients = sum(row.get("included", True) for row in diagnostics)
+        round_rows.append({"round": round_number, "clients": valid_clients,
+                           "invalid_client_updates": len(diagnostics) - valid_clients,
                            "prompts_per_100": 100 * val_decisions["triggered"].mean(), **metrics})
         if metrics["macro_f1"] > best_f1:
             best_f1 = metrics["macro_f1"]; torch.save(global_model.state_dict(), checkpoint)
@@ -237,7 +275,9 @@ def main(config):
 
     pd.DataFrame(round_rows).to_csv(output / "round_metrics.csv", index=False)
     pd.DataFrame(weight_rows).to_csv(output / "aggregation_weights.csv", index=False)
-    pd.DataFrame(utility_rows).to_csv(output / "utility_scores.csv", index=False)
+    heuristic_frame = pd.DataFrame(heuristic_rows)
+    heuristic_frame.to_csv(output / "clarification_heuristic_scores.csv", index=False)
+    heuristic_frame.to_csv(output / "utility_scores.csv", index=False)
     pd.DataFrame(trigger_rows).to_csv(output / "actm_triggers.csv", index=False)
     confidence = final_probs.max(axis=1); correct = predicted == actual
     calibration_rows = []
@@ -279,20 +319,33 @@ def main(config):
     model_config = {"input_features": input_size, "output_classes": classes, "hidden_layers": [128, 64]}
     (output / "model_config.json").write_text(json.dumps(model_config, indent=2), encoding="utf-8")
     experiment = {
-        "method": "ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg",
+        "method": "ACTM + selective Smart Notes + clarification-derived heuristic + bounded signal-adjusted FedAvg",
         "split": {"train": len(train), "validation": len(validation), "test": len(test),
                   "seed": manifest["seed"], "manifest_version": manifest["version"]},
         "actm": vars(actm.config), "note_strategy": config.note_strategy,
-        "fusion_mode": config.fusion_mode, "utility_weights": list(config.utility_weights),
-        "utility_weighting_enabled": not config.disable_utility_weighting,
-        "utility_multiplier_bounds": [0.75, 1.25], "minimum_notes_for_weighting": config.min_notes,
-        "cross_account_proxy": {"merchant": "location", "account": "payment_mode"},
+        "ablation_interpretation": (
+            "A1 matched note-feature-block-off total-effect comparison; downstream heuristic evidence and aggregation may also change"
+            if config.note_strategy == "none" else None
+        ),
+        "fusion_mode": config.fusion_mode,
+        "heuristic_weights": list(heuristic_weights),
+        "signal_adjustment_enabled": not disable_signal_adjustment,
+        "signal_multiplier": {"neutral_reference": 0.5, "gamma": 0.5, "bounds": [0.75, 1.25]},
+        "minimum_notes_for_signal": config.min_notes,
+        "legacy_names": {
+            "clarification_utility": "clarification_heuristic",
+            "utility_weights": list(heuristic_weights),
+            "utility_weighting_enabled": not disable_signal_adjustment,
+        },
+        "cross_account_proxy": {
+            "merchant": conflict_merchant_column,
+            "account": conflict_account_column,
+        },
         "rounds": config.rounds, "local_epochs": config.local_epochs,
         "training_seed": config.seed,
         "class_weighted_loss": class_weighted_loss,
         "class_weights": class_weights.tolist() if class_weights is not None else None,
         "best_validation_macro_f1": best_f1, "final_test_metrics": overall,
-        "transaction_text_features": text_feature_manifest(features),
         "actm_conflict_columns": {
             "merchant": conflict_merchant_column,
             "account": conflict_account_column,
@@ -313,10 +366,15 @@ def main(config):
     plt.plot(calibration["mean_confidence"], calibration["accuracy"], marker="o")
     plt.xlabel("Mean confidence"); plt.ylabel("Observed accuracy"); plt.tight_layout()
     plt.savefig(output / "reliability_diagram.png", dpi=160); plt.close()
-    if utility_rows:
-        plt.figure(figsize=(7, 5)); plt.hist(pd.DataFrame(utility_rows)["utility"], bins=20)
-        plt.xlabel("Smart Note utility"); plt.ylabel("Count"); plt.tight_layout()
-        plt.savefig(output / "utility_distribution.png", dpi=160); plt.close()
+    if heuristic_rows:
+        plt.figure(figsize=(7, 5))
+        plt.hist(heuristic_frame["clarification_heuristic"], bins=20)
+        plt.xlabel("Clarification-derived heuristic")
+        plt.ylabel("Count")
+        plt.tight_layout()
+        plt.savefig(output / "heuristic_distribution.png", dpi=160)
+        plt.savefig(output / "utility_distribution.png", dpi=160)
+        plt.close()
     print(f"Final held-out test macro-F1={overall['macro_f1']:.4f}; outputs: {output}")
 
 

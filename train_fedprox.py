@@ -3,7 +3,6 @@
 import argparse
 
 from utils.federated_baseline import run_federated_baseline
-from utils.text_feature_options import add_transaction_text_arguments
 
 
 def arguments():
@@ -16,7 +15,6 @@ def arguments():
     parser.add_argument("--local-epochs", type=int, default=3)
     parser.add_argument("--learning-rate", type=float, default=0.001)
     parser.add_argument("--class-weighted-loss", action="store_true")
-    add_transaction_text_arguments(parser)
     return parser.parse_args()
 
 
@@ -28,6 +26,4 @@ if __name__ == "__main__":
         seed=config.seed, rounds=config.rounds, local_epochs=config.local_epochs,
         learning_rate=config.learning_rate,
         class_weighted_loss=config.class_weighted_loss,
-        transaction_text_columns=config.transaction_text_columns,
-        max_transaction_text_features=config.max_transaction_text_features,
     )

@@ -10,11 +10,11 @@ The repository contains six executable methods:
 
 | ID | Method | Learning setting | Status |
 |---|---|---|---|
-| B1 | Rules-only | Centralised heuristic | Implemented and rerun |
-| B2 | Metadata-only Random Forest | Centralised | Implemented and rerun |
-| B3 | Metadata + Notes Random Forest | Centralised | Implemented and rerun |
-| B4 | FedAvg MLP | Federated | Implemented and rerun |
-| B5 | FedProx MLP | Federated | Implemented and rerun |
+| B0 | Rules-only | Centralised heuristic | Implemented and rerun |
+| B1 | Metadata-only Random Forest | Centralised | Implemented and rerun |
+| B2 | Metadata + Notes Random Forest | Centralised | Implemented and rerun |
+| B3 | FedAvg MLP | Federated | Implemented and rerun |
+| B4 | FedProx MLP | Federated | Implemented and rerun |
 | P | ACTM + selective Smart Notes + clarification-derived heuristic + bounded heuristic-adjusted FedAvg | Federated, human-in-the-loop | Implemented and rerun |
 
 The corrected implementation, three-seed federated evaluation, and proposed-method ablation study have been completed. The results support ACTM as the clearest contribution, but they do **not** show a material benefit from the current bounded heuristic-adjusted aggregation. Ambiguous-subset and prompt-efficiency analysis remain necessary before final Chapter 5 reporting.
@@ -93,7 +93,19 @@ Normalised global aggregation
 
 The transaction-level score is an engineering heuristic, not a validated measure of human clarification value. Its uncertainty-change component compares different model states and may include representation, local-adaptation, and in-sample fitting effects. If a client has missing, invalid, or insufficient heuristic evidence, its multiplier returns to `1.0`. The final model is selected using validation Macro F1, reloaded from the best checkpoint, and evaluated once on the held-out test set.
 
-Legacy source-code, CLI, CSV, and output-directory identifiers may still use `utility` for reproducibility and backward compatibility. In research interpretation, those identifiers refer to the clarification-derived heuristic described above.
+Active source-code, CLI, and new outputs use `heuristic` or `signal`. Legacy `utility` aliases and duplicate CSV names remain only for reproducibility and backward compatibility; they refer to the same author-defined clarification-derived heuristic.
+
+### Separate PocketIQ deployment package
+
+The documented deployment trainer is implemented at [`deployment/train_deployment_model.py`](deployment/train_deployment_model.py). Download the `DoDataThings/us-bank-transaction-categories-v2` CSV, then run:
+
+```powershell
+python deployment/train_deployment_model.py `
+  --dataset path/to/transactions-synthetic.csv `
+  --output deployment/pocketiq_deployment_package
+```
+
+The script maps the 17 source categories to 14 PocketIQ categories, removes duplicate description/label pairs, creates a seed-42 stratified 70/15/15 split, fits the 4,096-feature word/bigram TF-IDF vocabulary on training rows only, calibrates temperature on validation rows, evaluates the held-out split, exports the linear ONNX model, runs ONNX parity checks, and writes the schema, labels, mapping, metadata, metrics, parity files, and SHA-256 manifest. It does not train or export the Tier A research MLP.
 
 ### Dataset limitation
 
@@ -306,7 +318,7 @@ python evaluation/run_repeated_seeds.py --seeds 42 --rounds 1 --local-epochs 1 -
 
 ### Heuristic-adjustment diagnostics
 
-After completing the three full ablation runs, audit heuristic components, client multipliers, fallback frequency, and aggregation-weight changes. The executable and generated paths retain their legacy `utility` names:
+After completing the three full ablation runs, audit heuristic components, client multipliers, fallback frequency, and aggregation-weight changes. The existing diagnostic executable retains its legacy `utility` name for compatibility:
 
 ```powershell
 python evaluation/diagnose_utility.py
@@ -520,7 +532,7 @@ Depending on the method, artifacts include:
 - `round_metrics.csv`
 - `client_metrics.csv`
 - `aggregation_weights.csv`
-- `utility_scores.csv`
+- `clarification_heuristic_scores.csv` (`utility_scores.csv` compatibility copy)
 - `prompt_metrics.csv`
 - `calibration_metrics.csv`
 - `predictions.csv`
@@ -537,6 +549,8 @@ FYP-PFM/
 |   |-- build_experiment_split.py
 |   `-- experiment_split.json
 |-- dataset/
+|-- deployment/
+|   `-- train_deployment_model.py
 |-- evaluation/
 |   `-- compare_all_models.py
 |-- models/

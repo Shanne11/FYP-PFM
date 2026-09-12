@@ -18,7 +18,6 @@ from models.mlp import MLP
 from utils.class_balance import inverse_frequency_weights
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import evaluate
-from utils.text_feature_options import text_feature_manifest
 from utils.proposed_features import ProposedFeatureBuilder
 
 
@@ -65,17 +64,12 @@ def _sample_weighted_average(results):
 def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
                            learning_rate=0.001, seed=42, max_clients=None,
                            class_weighted_loss=False, dataset="dataset/clean_budgetwise.csv",
-                           split_manifest="data/experiment_split.json",
-                           transaction_text_columns=None,
-                           max_transaction_text_features=0):
+                           split_manifest="data/experiment_split.json"):
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     train, validation, test, manifest = load_experiment_data(dataset, split_manifest)
     save_split_indices(output, {"train": train, "validation": validation, "test": test})
-    builder = ProposedFeatureBuilder(
-        transaction_text_columns=transaction_text_columns,
-        max_transaction_text_features=max_transaction_text_features,
-    ).fit(train)
+    builder = ProposedFeatureBuilder().fit(train)
 
     def parts(frame):
         metadata, notes, _, labels = builder.transform_parts(frame)
@@ -83,6 +77,12 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
 
     validation_x, validation_y = parts(validation); test_x, test_y = parts(test)
     input_size = validation_x.shape[1]; classes = len(builder.category_encoder.classes_)
+    if builder.metadata_size != 68 or builder.note_size != 37 or input_size != 105:
+        raise ValueError(
+            "Tier A baseline contract requires 68 metadata + 37 Smart Note = 105 features"
+        )
+    if classes != 13:
+        raise ValueError(f"Tier A baseline contract requires 13 categories; received {classes}")
     training_labels = builder.category_encoder.transform(train["category"])
     class_weights = (
         inverse_frequency_weights(training_labels, classes) if class_weighted_loss else None
@@ -90,6 +90,10 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
     global_model = MLP(input_size, classes); checkpoint = output / "best_global_model.pt"
     best_macro_f1 = -1.0; round_rows = []; client_rows = []
     client_ids = sorted(train["user_id"].fillna("Unknown").astype(str).unique())
+    if max_clients is None and len(client_ids) != 150:
+        raise ValueError(
+            f"Tier A baseline contract requires 150 training clients; received {len(client_ids)}"
+        )
     if max_clients is not None:
         client_ids = client_ids[:max_clients]
         train = train[train["user_id"].fillna("Unknown").astype(str).isin(client_ids)]
@@ -137,7 +141,6 @@ def run_federated_baseline(name, output, mu=0.0, rounds=10, local_epochs=3,
         "class_weighted_loss": class_weighted_loss,
         "class_weights": class_weights.tolist() if class_weights is not None else None,
         "split_manifest_version": manifest["version"], "best_validation_macro_f1": best_macro_f1,
-        "transaction_text_features": text_feature_manifest(builder),
         "test_metrics": metrics,
     }
     (output / "experiment_info.json").write_text(json.dumps(information, indent=2), encoding="utf-8")
