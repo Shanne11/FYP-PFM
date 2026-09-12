@@ -1,6 +1,8 @@
 # Personal Finance Management AI Framework
 
-This repository implements and evaluates a privacy-aware transaction categorisation framework for a multi-account Personal Finance Management system. It compares rules, centralised machine learning, federated learning, and a proposed human-in-the-loop method based on ACTM, selective Smart Notes, note utility, and bounded utility-weighted aggregation.
+This repository implements the controlled Tier A research evaluation for a clarification-aware federated transaction-categorisation framework. It compares rules, centralised machine learning, federated learning, and a proposed human-in-the-loop method based on ACTM, selective Smart Notes, an author-defined clarification-derived heuristic, and bounded heuristic-adjusted aggregation.
+
+This research path is deliberately separate from the PocketIQ Flutter deployment model. Tier A uses the controlled BudgetWise data contract with 105 features and 13 categories; PocketIQ uses a separately trained frozen 4,096-feature, 14-category ONNX deployment package. The Tier A research checkpoint is not deployed in the mobile application.
 
 ## Current research status
 
@@ -13,9 +15,9 @@ The repository contains six executable methods:
 | B3 | Metadata + Notes Random Forest | Centralised | Implemented and rerun |
 | B4 | FedAvg MLP | Federated | Implemented and rerun |
 | B5 | FedProx MLP | Federated | Implemented and rerun |
-| P | ACTM + selective Smart Notes + note utility + bounded utility-weighted FedAvg | Federated, human-in-the-loop | Implemented and rerun |
+| P | ACTM + selective Smart Notes + clarification-derived heuristic + bounded heuristic-adjusted FedAvg | Federated, human-in-the-loop | Implemented and rerun |
 
-The corrected implementation, three-seed federated evaluation, and proposed-method ablation study have been completed. The results support ACTM as the clearest contribution, but they do **not** show a material benefit from the current utility-weighted aggregation. Ambiguous-subset and prompt-efficiency analysis remain necessary before final Chapter 5 reporting.
+The corrected implementation, three-seed federated evaluation, and proposed-method ablation study have been completed. The results support ACTM as the clearest contribution, but they do **not** show a material benefit from the current bounded heuristic-adjusted aggregation. Ambiguous-subset and prompt-efficiency analysis remain necessary before final Chapter 5 reporting.
 
 ## Corrected experiment contract
 
@@ -73,23 +75,25 @@ ACTM uncertainty decision
 Selective Smart Note fusion
         |
         v
-Smart Note utility
+Clarification-derived heuristic U_i
   - uncertainty reduction: 0.50
-  - semantic specificity: 0.30
-  - bounded effort: 0.20
+  - lexical context novelty: 0.30
+  - bounded note length: 0.20
         |
         v
 Local client training
         |
         v
-Sample-count FedAvg weight
-  x utility multiplier [0.75, 1.25]
+Sample-count FedAvg contribution
+  x bounded heuristic multiplier [0.75, 1.25]
         |
         v
 Normalised global aggregation
 ```
 
-If a client has missing, invalid, or insufficient note utility, its multiplier returns to `1.0`. The final model is selected using validation Macro F1, reloaded from the best checkpoint, and evaluated once on the held-out test set.
+The transaction-level score is an engineering heuristic, not a validated measure of human clarification value. Its uncertainty-change component compares different model states and may include representation, local-adaptation, and in-sample fitting effects. If a client has missing, invalid, or insufficient heuristic evidence, its multiplier returns to `1.0`. The final model is selected using validation Macro F1, reloaded from the best checkpoint, and evaluated once on the held-out test set.
+
+Legacy source-code, CLI, CSV, and output-directory identifiers may still use `utility` for reproducibility and backward compatibility. In research interpretation, those identifiers refer to the clarification-derived heuristic described above.
 
 ### Dataset limitation
 
@@ -122,47 +126,47 @@ The full method and six ablations were evaluated with the same seeds. Values are
 | Without ACTM | 0.1804 +/- 0.0096 | 0.0426 +/- 0.0060 | 0.0930 +/- 0.0108 | 0.0856 +/- 0.0062 | 0.9115 +/- 0.0064 |
 | Without notes | 0.1826 +/- 0.0111 | **0.0438 +/- 0.0073** | 0.0944 +/- 0.0131 | **0.0836 +/- 0.0088** | **0.9097 +/- 0.0097** |
 | Simple concatenation | 0.1830 +/- 0.0141 | 0.0430 +/- 0.0066 | 0.0951 +/- 0.0127 | 0.0839 +/- 0.0088 | 0.9097 +/- 0.0096 |
-| Without uncertainty utility | 0.1836 +/- 0.0147 | 0.0432 +/- 0.0058 | 0.0950 +/- 0.0148 | 0.0846 +/- 0.0062 | 0.9097 +/- 0.0097 |
-| Without specificity utility | 0.1836 +/- 0.0147 | 0.0432 +/- 0.0058 | 0.0950 +/- 0.0148 | 0.0846 +/- 0.0062 | 0.9097 +/- 0.0097 |
-| Without utility weighting | 0.1837 +/- 0.0149 | 0.0432 +/- 0.0058 | 0.0951 +/- 0.0149 | 0.0847 +/- 0.0061 | 0.9097 +/- 0.0097 |
+| Without uncertainty-change component | 0.1836 +/- 0.0147 | 0.0432 +/- 0.0058 | 0.0950 +/- 0.0148 | 0.0846 +/- 0.0062 | 0.9097 +/- 0.0097 |
+| Without lexical-novelty component | 0.1836 +/- 0.0147 | 0.0432 +/- 0.0058 | 0.0950 +/- 0.0148 | 0.0846 +/- 0.0062 | 0.9097 +/- 0.0097 |
+| Without heuristic adjustment | 0.1837 +/- 0.0149 | 0.0432 +/- 0.0058 | 0.0951 +/- 0.0149 | 0.0847 +/- 0.0061 | 0.9097 +/- 0.0097 |
 
 ### Findings supported by the ablation study
 
 - ACTM provides the clearest positive contribution: removing it reduces mean accuracy by 0.0033, Weighted F1 by 0.0021, and worsens Brier score by 0.0018.
 - Selective note use gives small accuracy and Weighted F1 gains, but the no-notes variant has slightly higher Macro F1 and better ECE. The note effect is therefore mixed.
 - Semantic-anchor-gated fusion gives only a very small classification improvement over simple concatenation and does not improve calibration in these runs.
-- Removing either uncertainty-reduction utility or semantic-specificity utility changes the results only negligibly.
-- Removing utility weighting produces effectively identical results to the full method. The current evidence does not support a claim that utility-weighted aggregation materially improves performance.
+- Removing either the uncertainty-change or lexical-novelty component changes the results only negligibly.
+- Removing the bounded heuristic adjustment produces effectively identical results to the full method. The current evidence does not support a claim that heuristic-adjusted aggregation materially improves performance.
 - Federated Macro F1 remains low, showing that minority-category performance is still weak despite the modest aggregate improvement.
 
-The null utility-weighting result is retained as an honest research finding. The diagnostic below explains why the mechanism currently has negligible aggregation impact.
+The null heuristic-adjustment result is retained as an honest research finding. The diagnostic below explains why the mechanism currently has negligible aggregation impact.
 
-### Utility-weighting diagnosis
+### Heuristic-adjustment diagnosis
 
 The three full-method runs were diagnosed across 4,500 client-round observations and 57,208 selected-note observations:
 
 | Diagnostic | Result |
 |---|---:|
-| Client mean utility | 0.3252–0.3635 |
-| Utility multiplier | 0.9126–0.9317 |
+| Client mean heuristic | 0.3252–0.3635 |
+| Heuristic multiplier | 0.9126–0.9317 |
 | Multiplier standard deviation | 0.0026 |
 | Within 0.01 of median multiplier | 100.0% |
 | Fallback to 1.0 | 0.0% |
 | Mean absolute base/final weight change | 0.0000133 |
 | Mean relative base/final weight change | 0.20% |
 
-Utility-component distributions show why the client means are compressed:
+Heuristic-component distributions show why the client means are compressed:
 
 | Component | Mean | Standard deviation | Median | Range |
 |---|---:|---:|---:|---:|
 | Uncertainty reduction | 0.0056 | 0.0074 | 0.0027 | 0.0000–0.0641 |
-| Semantic specificity | 0.9199 | 0.2715 | 1.0000 | 0.0000–1.0000 |
-| Bounded effort | 0.1886 | 0.0880 | 0.2500 | 0.0000–0.3750 |
-| Combined transaction utility | 0.3165 | 0.0938 | 0.3500 | 0.0000–0.4012 |
+| Lexical context novelty | 0.9199 | 0.2715 | 1.0000 | 0.0000–1.0000 |
+| Bounded note-length contribution | 0.1886 | 0.0880 | 0.2500 | 0.0000–0.3750 |
+| Combined transaction heuristic | 0.3165 | 0.0938 | 0.3500 | 0.0000–0.4012 |
 
-Specificity is saturated at `1.0` for most selected notes, uncertainty reduction is close to zero, and averaging many notes compresses client-level utility further. Consequently, nearly uniform multipliers are removed again by final weight normalisation and have negligible aggregation impact.
+Lexical novelty is saturated at `1.0` for most selected notes, uncertainty reduction is close to zero, and averaging many notes compresses the client-level heuristic further. Consequently, nearly uniform multipliers are removed again by final weight normalisation and have negligible aggregation impact.
 
-**Verdict:** the current utility-weighted aggregation is an unsupported/negative finding. It must not be claimed as a demonstrated performance improvement. A revised mapping or specificity measure may be investigated using development data, but it must then be rerun on frozen evaluation settings and compared across seeds before any positive claim is made.
+**Verdict:** the current bounded heuristic-adjusted aggregation is an unsupported/negative finding. It must not be claimed as a demonstrated performance improvement. A revised mapping or novelty measure may be investigated using development data, but it must then be rerun on frozen evaluation settings and compared across seeds before any positive claim is made.
 
 ### ACTM and prompt-efficiency diagnosis
 
@@ -300,9 +304,9 @@ non-reportable smoke test only, use:
 python evaluation/run_repeated_seeds.py --seeds 42 --rounds 1 --local-epochs 1 --max-clients 3
 ```
 
-### Utility-weighting diagnostics
+### Heuristic-adjustment diagnostics
 
-After completing the three full ablation runs, audit utility components, client multipliers, fallback frequency, and aggregation-weight changes:
+After completing the three full ablation runs, audit heuristic components, client multipliers, fallback frequency, and aggregation-weight changes. The executable and generated paths retain their legacy `utility` names:
 
 ```powershell
 python evaluation/diagnose_utility.py
@@ -454,7 +458,7 @@ Important defaults:
 | Entropy threshold | 0.65 |
 | Top-two margin threshold | 0.15 |
 | Prompt budget | 0.30 |
-| Utility multiplier range | 0.75-1.25 |
+| Heuristic multiplier range | 0.75-1.25 |
 | Random seed | 42 |
 
 `--max-clients` is intended only for development smoke tests. Do not use it for final experimental results.
@@ -473,9 +477,9 @@ The study evaluates:
 - without ACTM (notes always available);
 - without Smart Notes;
 - simple note concatenation instead of semantic-anchor-gated fusion;
-- without uncertainty-reduction utility;
-- without semantic-specificity utility;
-- without utility-weighted aggregation.
+- without the uncertainty-change heuristic component;
+- without the lexical-novelty heuristic component;
+- without bounded heuristic-adjusted aggregation.
 
 This performs 21 full federated runs. Outputs include raw runs, mean plus sample
 standard deviation, deltas from the full method, and error-bar charts:
@@ -563,85 +567,60 @@ The current checks cover:
 - presence of all categories in every partition;
 - ACTM trigger reasons and prompt-budget enforcement;
 - training-only cross-context conflict learning;
-- sample-based aggregation weights, bounded utility multipliers, and fallback behaviour;
+- sample-based aggregation weights, bounded heuristic multipliers, and fallback behaviour;
 - syntax compilation and end-to-end federated smoke execution.
 
 ## Required next evaluation work
 
 Before treating the results as final research evidence:
 
-1. If utility weighting is revised, define the new mapping and specificity measure using development data only, then rerun the frozen three-seed evaluation and ablations.
+1. If the heuristic adjustment is revised, define the new mapping and novelty measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
 3. Calibrate ACTM thresholds on validation data if the report requires a genuinely selective ambiguous subset rather than budget-based ranking.
 4. Decide whether three-seed exploratory evidence is sufficient for the FYP scope or whether additional seeds are feasible.
 5. Consider further training-only remedies only if the remaining zero-recall categories are unacceptable for the final scope.
-6. Export the frozen research contract to a portable preprocessing package and mobile model, then verify inference parity before Flutter integration.
+6. Keep the Tier A checkpoint and the separate PocketIQ deployment package explicitly separated in code, documentation, and reported evidence.
 
-## Frozen research model candidate
+## Frozen Tier A research contract
 
-The selected federated candidate is **class-weighted Proposed**, based on mean Macro F1 and category coverage rather than accuracy alone. Its exact categories, dimensions, ACTM settings, training settings, limitations, and seed policy are frozen in [`deployment/research_model_contract.json`](deployment/research_model_contract.json).
+The selected Tier A federated candidate is **class-weighted Proposed**, based on mean Macro F1 and category coverage rather than accuracy alone. Its exact categories, dimensions, ACTM settings, training settings, limitations, and seed policy are frozen in [`deployment/research_model_contract.json`](deployment/research_model_contract.json).
 
-Seed 42 is the canonical deployment checkpoint because it was the predeclared default—not because it achieved the best test score. Validate the contract with:
+Seed 42 is the canonical Tier A reference checkpoint because it was the predeclared default—not because it achieved the best test score. Validate the contract with:
 
 ```powershell
 python evaluation/validate_model_contract.py
 ```
 
-This freezes the research interface and identifies the candidate used by the PocketIQ prototype. The current utility-weighted aggregation remains an unsupported negative finding and must not be presented as a proven deployment benefit. Production release signing, physical-device latency/energy measurement, secure aggregation, and broader device validation remain required.
+This freezes the research interface for reproducibility. It does **not** identify the model deployed by PocketIQ. The current bounded heuristic adjustment remains an unsupported negative finding and must not be presented as a proven deployment benefit.
 
-The canonical seed-42 checkpoint has now been exported to ONNX with exact fitted preprocessing parameters. Four fixed non-test fixtures produced identical PyTorch and ONNX logits (`max absolute difference = 0.0`, tolerance `1e-5`). Run the reproducible export with:
+The canonical seed-42 Tier A checkpoint can be exported to ONNX for research parity checks. Four fixed non-test fixtures produced identical PyTorch and ONNX logits (`max absolute difference = 0.0`, tolerance `1e-5`). Run the reproducible export with:
 
 ```powershell
 python deployment/export_mobile_package.py
 ```
 
-The ONNX binary remains local and is identified by SHA-256 in `deployment/mobile_package/package_manifest.json`. PocketIQ now implements the same frozen preprocessing order and runs this checkpoint with ONNX Runtime. The model SHA-256 and fixed parity fixtures match the research package. Physical-device Python-versus-Flutter logit parity and performance testing remain release gates.
+The exported Tier A ONNX binary remains a research artefact identified by SHA-256 in `deployment/mobile_package/package_manifest.json`. It is **not** the active PocketIQ deployment model.
 
-## Merchant-aware v2 retraining path
+## Separate PocketIQ deployment path
 
-The current Tier A dataset does **not** contain genuine `merchant` or `description` columns. Therefore, the frozen 105-feature v1 checkpoint has not been relabelled or falsely described as merchant-aware. A v2 feature path is implemented but deliberately refuses to train when the requested columns are missing or contain no usable text.
+The Tier A BudgetWise dataset does **not** contain genuine `merchant` or transaction-description fields suitable for the mobile categorisation task. The PocketIQ model is therefore trained through a separate deployment pathway using labelled transaction descriptions rather than by relabelling or deploying the Tier A checkpoint.
 
-For a genuinely labelled enriched dataset, the v2 pipeline:
+The deployment contract used by the [Flutter repository](https://github.com/Shanne11/FYP-personal-finance-management-system) is:
 
-- fits the merchant/description TF-IDF vocabulary on the training partition only;
-- applies the same frozen vocabulary to validation and test records;
-- adds the text block to metadata for Metadata-only, Metadata + Notes, FedAvg, FedProx and Proposed runs;
-- preserves Smart Notes as a separate feature channel;
-- can use a real merchant identity column for ACTM cross-account conflict;
-- writes transaction-text configuration and vocabulary size into experiment evidence;
-- exports the fitted text vocabulary, IDF values, exact feature order and tensor dimensions.
+- a separate labelled transaction-description corpus;
+- category mapping into 14 PocketIQ categories;
+- a fixed train/validation/held-out split before data-dependent fitting;
+- a training-fitted 4,096-feature word/bigram TF-IDF representation;
+- runtime text composed from direction, merchant, description, and an optional Smart Note; and
+- a frozen ONNX model, feature schema, category labels, metadata, mapping, manifest/checksums, and parity artefacts.
 
-Create a separate split manifest without overwriting v1:
+The initial corpus is the MIT-licensed synthetic [US Bank Transaction Categories v2](https://huggingface.co/datasets/DoDataThings/us-bank-transaction-categories-v2) dataset. Its 68,000 source rows and 17 source categories are mapped and deduplicated into 45,702 records across 14 PocketIQ categories, then separated using a fixed 70/15/15 training, validation, and held-out split.
 
-```powershell
-python data/build_experiment_split.py `
-  --dataset dataset/budgetwise_merchant_v2.csv `
-  --output data/experiment_split_merchant_v2.json `
-  --version 3
-```
+The active package is versioned as `pocketiq-deployment-text-v1` in the Flutter repository. The research and deployment paths share the clarification-aware design concept, but they have different datasets, feature contracts, category spaces, model artefacts, and evidence roles.
 
-Run every applicable comparison with the same text columns, vocabulary cap and split:
+## Legacy optional-learning calibration harness
 
-```powershell
-python train_metadata.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/baseline2 --transaction-text-columns merchant description --max-transaction-text-features 500
-python train_notes.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/baseline3 --transaction-text-columns merchant description --max-transaction-text-features 500
-python train_fedavg.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/fedavg_seed42 --seed 42 --class-weighted-loss --transaction-text-columns merchant description --max-transaction-text-features 500
-python train_fedprox.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/fedprox_seed42 --seed 42 --class-weighted-loss --transaction-text-columns merchant description --max-transaction-text-features 500
-python train_proposed.py --dataset dataset/budgetwise_merchant_v2.csv --split-manifest data/experiment_split_merchant_v2.json --output outputs/merchant_v2/proposed_seed42 --seed 42 --class-weighted-loss --transaction-text-columns merchant description --max-transaction-text-features 500 --conflict-merchant-column merchant --conflict-account-column payment_mode
-```
-
-Repeat the federated methods with the predeclared seeds `42`, `52` and `62`, then select the deployment candidate using validation evidence rather than final-test performance. Once selected, freeze a new contract and export it to a new package directory:
-
-```powershell
-python deployment/freeze_model_contract.py --pipeline outputs/merchant_v2/proposed_seed42/feature_pipeline.pkl --checkpoint outputs/merchant_v2/proposed_seed42/best_global_model.pt --split-manifest data/experiment_split_merchant_v2.json --output deployment/research_model_contract_v2.json --contract-id pocketiq-merchant-aware-seed42-v2
-python deployment/export_mobile_package.py --checkpoint outputs/merchant_v2/proposed_seed42/best_global_model.pt --pipeline outputs/merchant_v2/proposed_seed42/feature_pipeline.pkl --contract deployment/research_model_contract_v2.json --fixtures deployment/parity_fixtures_v2.example.json --output deployment/mobile_package_v2
-```
-
-The mobile model must only be replaced after PyTorch/ONNX parity passes and the Flutter preprocessor has been updated and tested against the exported v2 feature order. The existing mobile package remains active until those gates pass.
-
-## Mobile optional-learning calibration experiment
-
-PocketIQ keeps the frozen 105-feature ONNX MLP unchanged and can train a small 13-class output-calibration layer on the device. This deployment layer has 182 parameters (13 x 13 weights plus 13 biases) and uses only confirmed or manually corrected transactions with a stored 13-probability ONNX output. It is not the full-MLP federated training procedure evaluated in Chapter 5 and must not be reported as such.
+The localhost server in this repository was built for the legacy 13-class calibration experiment. Its 182-parameter contract is not the Tier A full-MLP federated procedure and is not compatible with the current 14-class PocketIQ deployment package without a coordinated contract update.
 
 The reference server in `server/optional_learning_server.py`:
 
@@ -650,7 +629,7 @@ The reference server in `server/optional_learning_server.py`:
 - validates the frozen model contract and exact 182-parameter payload;
 - rejects non-finite values and clips the submitted update norm;
 - retains sample-count base weighting;
-- applies a bounded 0.75-1.25 utility multiplier, with a 1.0 fallback when useful-note evidence is absent;
+- applies a bounded 0.75-1.25 heuristic multiplier, with a 1.0 fallback when usable evidence is absent;
 - stores and returns the aggregated calibration parameters; and
 - never accepts raw transaction, Smart Note, merchant or account fields.
 
@@ -660,8 +639,8 @@ Create a private token of at least 24 characters, keep it outside version contro
 python server/optional_learning_server.py --token-file .research-token --min-clients 1
 ```
 
-The Flutter emulator connects through `http://10.0.2.2:8765` using the same token supplied with `POCKETIQ_LEARNING_TOKEN`. The server is a controlled localhost research harness, not a production or physical-device deployment.
+The server is retained as a controlled localhost research harness, not a production or physical-device deployment. Do not connect the current 14-class Flutter calibration client until the server contract has been updated and parity-tested for 210 parameters.
 
 ## Scope
 
-This repository is the research and model-development environment. It is not the complete Flutter Personal Finance Management application. The selected final model, category mapping, ACTM configuration, and preprocessing pipeline will later be integrated into the mobile system.
+This repository is the controlled Python Tier A research environment. It provides algorithmic evidence for the proposed method; it is not the complete Flutter application and its 105-feature, 13-category checkpoint is not the PocketIQ deployment model. PocketIQ operationalises the user-facing clarification workflow using its own separately trained frozen deployment package.
