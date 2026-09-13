@@ -12,6 +12,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -77,11 +78,19 @@ def prepare_dataset(path):
 
 
 def fixed_split(frame, seed):
+    validation_size = math.ceil(len(frame) * 0.15)
+    held_out_size = math.ceil(len(frame) * 0.15)
+    remainder_size = validation_size + held_out_size
     train, remainder = train_test_split(
-        frame, test_size=0.30, random_state=seed, stratify=frame["category"]
+        frame,
+        test_size=remainder_size,
+        random_state=seed,
+        stratify=frame["category"],
     )
     validation, held_out = train_test_split(
-        remainder, test_size=0.50, random_state=seed,
+        remainder,
+        test_size=held_out_size,
+        random_state=seed,
         stratify=remainder["category"],
     )
     return tuple(part.reset_index(drop=True) for part in (train, validation, held_out))
@@ -165,22 +174,59 @@ def sha256(path):
 
 def build_parity(vectorizer, classifier, temperature, model_path, tolerance):
     fixtures = [
-        ("restaurant_without_note", "debit Starbucks STARBUCKS #1234"),
-        ("transfer_without_note", "debit DuitNow WIRE TRANSFER TO NAME"),
-        ("salary_without_note", "credit Employer ACME CORP PAYROLL"),
-        ("ambiguous_with_note", "debit Grab GRAB PAYMENT food delivery"),
+        {
+            "fixture_id": "restaurant_without_note",
+            "transaction_type": "Expense",
+            "merchant": "Starbucks",
+            "description": "STARBUCKS #1234",
+            "smart_note": "",
+        },
+        {
+            "fixture_id": "transfer_without_note",
+            "transaction_type": "Expense",
+            "merchant": "DuitNow",
+            "description": "WIRE TRANSFER TO NAME",
+            "smart_note": "",
+        },
+        {
+            "fixture_id": "salary_without_note",
+            "transaction_type": "Income",
+            "merchant": "Employer",
+            "description": "ACME CORP PAYROLL",
+            "smart_note": "",
+        },
+        {
+            "fixture_id": "ambiguous_with_note",
+            "transaction_type": "Expense",
+            "merchant": "Grab",
+            "description": "GRAB PAYMENT",
+            "smart_note": "food delivery",
+        },
     ]
-    features = vectorizer.transform([text for _, text in fixtures]).astype(np.float32)
+    for fixture in fixtures:
+        direction = "credit" if fixture["transaction_type"] == "Income" else "debit"
+        fixture["composed_text"] = " ".join(
+            value
+            for value in (
+                direction,
+                fixture["merchant"],
+                fixture["description"],
+                fixture["smart_note"],
+            )
+            if value
+        )
+    features = vectorizer.transform(
+        [fixture["composed_text"] for fixture in fixtures]
+    ).astype(np.float32)
     expected = classifier.decision_function(features) / temperature
     session = ort.InferenceSession(str(model_path), providers=["CPUExecutionProvider"])
     actual = session.run(["logits"], {"features": features.toarray()})[0]
     differences = np.abs(expected - actual)
     rows = []
     probabilities = softmax(actual)
-    for index, (fixture_id, text) in enumerate(fixtures):
+    for index, fixture in enumerate(fixtures):
         rows.append({
-            "fixture_id": fixture_id,
-            "composed_text": text,
+            **fixture,
             "feature_vector": features[index].toarray().ravel().tolist(),
             "predicted_index": int(probabilities[index].argmax()),
             "predicted_category": CATEGORY_ORDER[int(probabilities[index].argmax())],
@@ -295,6 +341,10 @@ def main(config):
         "postprocessing": "softmax calibrated logits, then argmax using category_order",
         "confidenceThreshold": config.confidence_threshold,
         "entropyThreshold": 0.65, "marginThreshold": 0.15,
+        "mobileClarificationPolicy": (
+            "per-transaction ACTM review with a user-configurable daily limit; "
+            "no Tier A batch budget"
+        ),
         "isProductionEnabled": True,
         "researchBoundary": "Separate from the BudgetWise Tier A research checkpoint",
     })

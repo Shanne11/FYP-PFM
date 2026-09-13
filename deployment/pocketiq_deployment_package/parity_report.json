@@ -1,0 +1,7 @@
+{
+  "rows": 4,
+  "max_absolute_logit_difference": 1.6509832381217393e-06,
+  "mean_absolute_logit_difference": 4.203224827636909e-07,
+  "tolerance": 1e-05,
+  "passed": true
+}

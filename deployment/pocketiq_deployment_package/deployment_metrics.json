@@ -1,0 +1,67 @@
+{
+  "dataset": {
+    "source": "DoDataThings/us-bank-transaction-categories-v2",
+    "licence": "MIT",
+    "synthetic": true,
+    "rows_after_deduplication": 45702,
+    "train_rows": 31990,
+    "validation_rows": 6856,
+    "held_out_rows": 6856,
+    "source_categories": [
+      "Education",
+      "Entertainment",
+      "Fees",
+      "Groceries",
+      "Healthcare",
+      "Income",
+      "Insurance",
+      "Mortgage",
+      "Personal Care",
+      "Rent",
+      "Restaurants",
+      "Shopping",
+      "Subscription",
+      "Transfer",
+      "Transportation",
+      "Travel",
+      "Utilities"
+    ],
+    "pocketiq_categories": [
+      "Bills & Utilities",
+      "Education",
+      "Entertainment",
+      "Fees & Charges",
+      "Food & Dining",
+      "Health & Medical",
+      "Housing",
+      "Insurance",
+      "Other Income",
+      "Personal Care",
+      "Shopping",
+      "Transfers",
+      "Transportation",
+      "Travel"
+    ]
+  },
+  "validation": {
+    "accuracy": 0.992852975495916,
+    "macro_f1": 0.9946237198472533,
+    "weighted_f1": 0.9928391137949042,
+    "negative_log_likelihood": 0.03481787332913875,
+    "ece_10_equal_width": 0.0033457578383690105
+  },
+  "held_out": {
+    "accuracy": 0.9921236872812136,
+    "macro_f1": 0.9940177900733722,
+    "weighted_f1": 0.9921180219353875,
+    "negative_log_likelihood": 0.039346906384979036,
+    "ece_10_equal_width": 0.0028596558982642156
+  },
+  "confidence_policy": {
+    "threshold": 0.35,
+    "coverage": 0.9982497082847142,
+    "accepted_accuracy": 0.994155464640561
+  },
+  "temperature": 0.625,
+  "boundary": "Synthetic US descriptions initialise the deployment model; independent Malaysian held-out evaluation is required before real-world claims."
+}

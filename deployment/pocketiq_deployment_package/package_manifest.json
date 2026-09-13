@@ -1,0 +1,15 @@
+{
+  "package": "pocketiq-deployment-text-v1",
+  "created_by": "deployment/train_deployment_model.py",
+  "artifacts": {
+    "model.onnx": "d5228fe4f1d029351dd3e484441de2af74d2c1cfc164794ea3efc69746b446d4",
+    "feature_schema.json": "54e6fe573072aa9f689b7f611194d27e775488b27788d1ced282043c0b1cc4de",
+    "category_labels.json": "21a1016e702e700ef981f643008cbb21d8d61f22a7db04f4c106c3a6a464522f",
+    "model_metadata.json": "5b864107d2d2ba13651b8eb4e68178c9fc58fbe542d1ad24e37156f2d0cfb7c9",
+    "deployment_metrics.json": "38ce23a203cb63fdff62ce4ee264cd535926a159c02c8803022d48e79f6d252b",
+    "parity_fixtures.json": "8794c555862192ebf27076b4070a994f235cc1540f4975c5cf36a1ae1b6e9052",
+    "parity_report.json": "8b0d7cf0f2c5470d7245eb169daae0b88cb7647682aa2329a43d5ddc0b09978b",
+    "category_mapping.csv": "40cd15a13d1e918e867df34eb1a26c69e5a9363e696210267323da501bf017ef"
+  },
+  "parity_passed": true
+}

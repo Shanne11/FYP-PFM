@@ -17,7 +17,7 @@ The repository contains six executable methods:
 | B4 | FedProx MLP | Federated | Implemented and rerun |
 | P | ACTM + selective Smart Notes + clarification-derived heuristic + bounded heuristic-adjusted FedAvg | Federated, human-in-the-loop | Implemented and rerun |
 
-The corrected implementation, three-seed federated evaluation, and proposed-method ablation study have been completed. The results support ACTM as the clearest contribution, but they do **not** show a material benefit from the current bounded heuristic-adjusted aggregation. Ambiguous-subset and prompt-efficiency analysis remain necessary before final Chapter 5 reporting.
+The corrected implementation, three-seed federated evaluation, proposed-method ablations, ACTM/prompt analysis, class-level diagnosis, class-weighted remedy and paired uncertainty analysis have been completed and rerun. ACTM currently supports budgeted prioritisation, but its frozen thresholds mark every held-out record as eligible. The results do **not** show a material benefit from the current bounded heuristic-adjusted aggregation.
 
 ## Corrected experiment contract
 
@@ -124,9 +124,9 @@ FedAvg, FedProx, and Proposed were evaluated using training seeds 42, 52, and 62
 |---|---:|---:|---:|---:|---:|
 | FedAvg | 0.1805 +/- 0.0094 | 0.0427 +/- 0.0065 | 0.0938 +/- 0.0092 | 0.0852 +/- 0.0081 | 0.9114 +/- 0.0064 |
 | FedProx | 0.1798 +/- 0.0104 | 0.0424 +/- 0.0062 | 0.0933 +/- 0.0099 | 0.0847 +/- 0.0081 | 0.9114 +/- 0.0064 |
-| Proposed | **0.1830 +/- 0.0141** | **0.0430 +/- 0.0066** | **0.0951 +/- 0.0127** | **0.0839 +/- 0.0088** | **0.9097 +/- 0.0096** |
+| Proposed | **0.1837 +/- 0.0149** | **0.0432 +/- 0.0058** | **0.0951 +/- 0.0149** | 0.0847 +/- 0.0061 | **0.9097 +/- 0.0097** |
 
-The proposed method has the strongest mean federated accuracy, Macro F1, Weighted F1, ECE, and Brier score. However, the differences are small relative to the between-seed variation. These results should be described as modest improvements, not proof of a large or statistically established advantage.
+The proposed method has the strongest mean federated accuracy, Macro F1, Weighted F1 and Brier score. Its mean ECE is effectively tied with, but marginally higher than, FedProx. All differences are small relative to the between-seed variation, and the paired analysis does not establish a statistically significant advantage.
 
 ## Proposed-method ablation results
 
@@ -417,7 +417,7 @@ The complete three-seed experiment shows a consistent class-coverage benefit wit
 
 For Proposed, class weighting increases mean Macro F1 by `0.0229` (approximately 53%), increases Macro Recall by `0.0447`, reduces zero-recall categories by `3`, and increases active predicted categories by `4`. It also lowers mean accuracy by `0.0335` and Weighted F1 by `0.0080`. ECE improves by `0.0244`, while Brier score worsens slightly by `0.0027`.
 
-This is a meaningful remedy for category collapse when Macro F1 and minority-category coverage are the primary objectives, but it is not a universal improvement across all metrics. The class-weighted Proposed method is the leading federated candidate for final selection, pending uncertainty/statistical analysis. It still underperforms the centralised Metadata + Notes baseline and still leaves an average of 7.67 categories with zero recall.
+This is a meaningful remedy for category collapse when Macro F1 and minority-category coverage are the primary objectives, but it is not a universal improvement across all metrics. The class-weighted Proposed method is the leading federated candidate by mean Macro F1 and category coverage; however, the completed paired analysis does not establish statistical significance. It still underperforms the centralised Metadata + Notes baseline and still leaves an average of 7.67 categories with zero recall.
 
 #### Paired three-seed uncertainty analysis
 
@@ -584,6 +584,8 @@ The current checks cover:
 - sample-based aggregation weights, bounded heuristic multipliers, and fallback behaviour;
 - syntax compilation and end-to-end federated smoke execution.
 
+The latest full verification completed on 13 September 2026: all 29 Python tests passed, all reportable summary artefacts were present, 21 ablation runs, nine repeated-seed runs and nine class-balance runs were available, and the active output set contained no invalid JSON or zero-byte files. The previous output set is retained outside the repository as a recoverable archive rather than being mixed with the current evidence.
+
 ## Required next evaluation work
 
 Before treating the results as final research evidence:
@@ -628,7 +630,9 @@ The deployment contract used by the [Flutter repository](https://github.com/Shan
 - runtime text composed from direction, merchant, description, and an optional Smart Note; and
 - a frozen ONNX model, feature schema, category labels, metadata, mapping, manifest/checksums, and parity artefacts.
 
-The initial corpus is the MIT-licensed synthetic [US Bank Transaction Categories v2](https://huggingface.co/datasets/DoDataThings/us-bank-transaction-categories-v2) dataset. Its 68,000 source rows and 17 source categories are mapped and deduplicated into 45,702 records across 14 PocketIQ categories, then separated using a fixed 70/15/15 training, validation, and held-out split.
+The initial corpus is the MIT-licensed synthetic [US Bank Transaction Categories v2](https://huggingface.co/datasets/DoDataThings/us-bank-transaction-categories-v2) dataset. Its 68,000 source rows and 17 source categories are mapped and deduplicated into 45,702 records across 14 PocketIQ categories, then separated into 31,990 training, 6,856 validation and 6,856 held-out records before TF-IDF fitting.
+
+The regenerated package reports held-out accuracy `0.9921`, Macro F1 `0.9940`, weighted F1 `0.9921`, negative log-likelihood `0.03935` and 10-bin ECE `0.00286`. Python-to-ONNX parity passed across four fixed fixtures with maximum absolute logit difference `1.65e-6`, below the predefined `1e-5` tolerance. These are synthetic US-corpus results and do not establish Malaysian real-world generalisation.
 
 The active package is versioned as `pocketiq-deployment-text-v1` in the Flutter repository. The research and deployment paths share the clarification-aware design concept, but they have different datasets, feature contracts, category spaces, model artefacts, and evidence roles.
 

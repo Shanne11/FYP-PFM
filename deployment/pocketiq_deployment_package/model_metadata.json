@@ -1,0 +1,29 @@
+{
+  "runtimeStatus": "trained_deployment_inference",
+  "modelFamily": "description_based_linear_tfidf",
+  "contractStatus": "deployment_candidate_v1",
+  "contractId": "pocketiq-deployment-text-v1",
+  "contractVersion": 1,
+  "modelVersion": "pocketiq-deployment-text-v1",
+  "runtimeFormat": "ONNX Runtime",
+  "inputShape": [
+    1,
+    4096
+  ],
+  "inputName": "features",
+  "inputDtype": "float32",
+  "outputClasses": 14,
+  "outputShape": [
+    1,
+    14
+  ],
+  "outputName": "logits",
+  "outputDtype": "float32",
+  "postprocessing": "softmax calibrated logits, then argmax using category_order",
+  "confidenceThreshold": 0.35,
+  "entropyThreshold": 0.65,
+  "marginThreshold": 0.15,
+  "mobileClarificationPolicy": "per-transaction ACTM review with a user-configurable daily limit; no Tier A batch budget",
+  "isProductionEnabled": true,
+  "researchBoundary": "Separate from the BudgetWise Tier A research checkpoint"
+}
