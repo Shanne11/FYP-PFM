@@ -541,6 +541,24 @@ Depending on the method, artifacts include:
 
 Model files, prediction-level CSV files, and datasets are ignored by default where appropriate. Aggregate evaluation files are allowed so results can be reviewed without committing large or sensitive artifacts.
 
+## Local results dashboard
+
+Use the included dependency-free dashboard to inspect the current CSV, JSON, text, and chart outputs from one local page:
+
+```powershell
+py results_dashboard.py
+```
+
+Then open `http://127.0.0.1:8765`. The dashboard separates the Tier A 105-feature, 13-category research evidence from the separately trained 4,096-feature, 14-category PocketIQ ONNX deployment evidence. It reads the files on each page refresh and sends no experiment data to an external service.
+
+Useful options:
+
+```powershell
+py results_dashboard.py --no-browser
+py results_dashboard.py --port 9000
+py results_dashboard.py --outputs C:\path\to\outputs
+```
+
 ## Repository structure
 
 ```text
@@ -568,6 +586,7 @@ FYP-PFM/
 |-- train_fedavg.py
 |-- train_fedprox.py
 |-- train_proposed.py
+|-- results_dashboard.py
 |-- requirements.txt
 `-- README.md
 ```
