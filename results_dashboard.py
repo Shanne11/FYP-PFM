@@ -56,6 +56,21 @@ def percent(value: object, digits: int = 1) -> str:
         return "—"
 
 
+def as_float(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def difference(value: object, reference: object) -> str:
+    left, right = as_float(value), as_float(reference)
+    if left is None or right is None:
+        return "—"
+    delta = left - right
+    return f"{delta:+.4f}"
+
+
 def mean_sd(row: dict[str, str], stem: str) -> str:
     return f"{number(row.get(stem + '_mean'))} ± {number(row.get(stem + '_std'))}"
 
@@ -109,6 +124,7 @@ def build_page(outputs: Path, deployment: Path) -> str:
     parity = read_json(deployment / "parity_report.json")
 
     proposed = next((r for r in repeated if r.get("method", "").lower() == "proposed"), {})
+    fedavg = next((r for r in repeated if r.get("method", "").lower() == "fedavg"), {})
     actm = actm_rows[-1] if actm_rows else {}
     heuristic_all = next((r for r in heuristic_rows if r.get("run", "").upper() == "ALL"), {})
     if not heuristic_all and heuristic_rows:
@@ -131,17 +147,60 @@ def build_page(outputs: Path, deployment: Path) -> str:
         ]
     )
 
+    baseline_purpose = {
+        "Rules-only": ("Transparent non-ML reference", "Checks whether simple Smart Note keywords are sufficient.", "Coverage is very poor; rules alone are not an adequate research classifier."),
+        "Metadata-only": ("Non-federated classifier baseline", "Measures categorisation using transaction metadata without Smart Notes.", "Provides the reference for measuring the added note representation."),
+        "Metadata + Notes": ("Smart Note representation baseline", "Adds note features without ACTM or federated aggregation.", "Higher Macro F1 than metadata-only in this single fixed split."),
+        "FedAvg": ("Primary federated baseline", "Aggregates client models using local sample counts.", "Reference for judging whether the proposed federated changes help."),
+        "FedProx": ("Heterogeneity-control baseline", "Adds a proximal constraint during client-local training.", "Performance is almost the same as FedAvg in this run."),
+        "Proposed": ("Complete proposed Tier A method", "Uses ACTM, Smart Note fusion, and bounded heuristic-adjusted aggregation.", "Best of the three federated methods in this seed, but only by a small margin."),
+    }
     baseline_table = table(
-        ["Model", "Accuracy", "Macro F1", "Weighted F1", "ECE", "Brier"],
-        [[html.escape(r.get("model", "")), number(r.get("accuracy")), number(r.get("macro_f1")), number(r.get("weighted_f1")), number(r.get("ece")), number(r.get("brier_score"))] for r in baseline],
+        ["Method", "Evaluation role", "Purpose", "Accuracy", "Macro F1", "Plain-language reading"],
+        [[
+            html.escape(r.get("model", "")),
+            html.escape(baseline_purpose.get(r.get("model", ""), ("—", "—", "—"))[0]),
+            html.escape(baseline_purpose.get(r.get("model", ""), ("—", "—", "—"))[1]),
+            number(r.get("accuracy")),
+            number(r.get("macro_f1")),
+            html.escape(baseline_purpose.get(r.get("model", ""), ("—", "—", "—"))[2]),
+        ] for r in baseline],
     )
+    repeated_meanings = {
+        "fedavg": "Sample-count reference.",
+        "fedprox": "No clear improvement over FedAvg.",
+        "proposed": "Slightly higher mean than FedAvg, but the three-seed evidence does not establish a reliable advantage.",
+    }
     repeated_table = table(
-        ["Method", "Runs", "Accuracy (mean ± SD)", "Macro F1 (mean ± SD)", "Weighted F1 (mean ± SD)", "ECE (mean ± SD)"],
-        [[html.escape(r.get("method", "").title()), html.escape(r.get("runs", "")), mean_sd(r, "accuracy"), mean_sd(r, "macro_f1"), mean_sd(r, "weighted_f1"), mean_sd(r, "ece")] for r in repeated],
+        ["Method", "Purpose", "Runs", "Macro F1 (mean ± SD)", "Difference from FedAvg", "Plain-language reading"],
+        [[
+            html.escape(r.get("method", "").title()),
+            html.escape({"fedavg": "Sample-weighted comparator", "fedprox": "Heterogeneity comparator", "proposed": "Complete proposed method"}.get(r.get("method", "").lower(), "—")),
+            html.escape(r.get("runs", "")),
+            mean_sd(r, "macro_f1"),
+            difference(r.get("macro_f1_mean"), fedavg.get("macro_f1_mean")),
+            html.escape(repeated_meanings.get(r.get("method", "").lower(), "—")),
+        ] for r in repeated],
     )
+    full_ablation = next((r for r in ablations if r.get("variant") == "full"), {})
+    ablation_purpose = {
+        "full": ("Reference", "Complete method used as the comparison point."),
+        "without_actm": ("Tests ACTM contribution", "Small decrease; ACTM has a limited positive association in these runs."),
+        "without_notes": ("Tests Smart Note representation", "Macro F1 is slightly higher without notes, so this setting does not demonstrate a note benefit."),
+        "simple_concatenation": ("Tests gated fusion", "Very close to full; the gated fusion advantage is not established."),
+        "without_uncertainty_component": ("Tests uncertainty component", "Near-identical to full; no material contribution is visible."),
+        "without_lexical_novelty_component": ("Tests lexical-novelty component", "Near-identical to full; no material contribution is visible."),
+        "without_heuristic_adjustment": ("Tests aggregation adjustment", "Identical mean Macro F1; the bounded adjustment shows no observed performance effect."),
+    }
     ablation_table = table(
-        ["Variant", "Accuracy", "Macro F1", "Weighted F1", "ECE", "Brier"],
-        [[html.escape(r.get("variant", "").replace("_", " ").title()), mean_sd(r, "accuracy"), mean_sd(r, "macro_f1"), mean_sd(r, "weighted_f1"), mean_sd(r, "ece"), mean_sd(r, "brier_score")] for r in ablations],
+        ["Variant", "Purpose", "Macro F1 (mean ± SD)", "Difference from full", "Plain-language reading"],
+        [[
+            html.escape(r.get("variant", "").replace("_", " ").title()),
+            html.escape(ablation_purpose.get(r.get("variant", ""), ("—", "—"))[0]),
+            mean_sd(r, "macro_f1"),
+            difference(r.get("macro_f1_mean"), full_ablation.get("macro_f1_mean")),
+            html.escape(ablation_purpose.get(r.get("variant", ""), ("—", "—"))[1]),
+        ] for r in ablations],
     )
     actm_table = table(
         ["Runs", "Eligible", "Prompts per 100", "Prompt precision", "Note acceptance", "Mean uncertainty reduction"],
@@ -166,8 +225,16 @@ def build_page(outputs: Path, deployment: Path) -> str:
         [[html.escape(r.get("component", "").replace("_", " ").title()), number(r.get("value_mean")), number(r.get("value_std")), number(r.get("value_median")), f"{number(r.get('value_min'))}–{number(r.get('value_max'))}"] for r in component_all],
     )
     balance_table = table(
-        ["Method", "Loss", "Macro F1", "Weighted F1", "Zero-recall classes", "Active predicted classes"],
-        [[html.escape(r.get("method", "").title()), html.escape(r.get("loss", "").replace("_", " ").title()), mean_sd(r, "macro_f1"), mean_sd(r, "weighted_f1"), mean_sd(r, "zero_recall_classes"), mean_sd(r, "active_prediction_classes")] for r in balance],
+        ["Method", "Training choice", "Purpose", "Accuracy", "Macro F1", "Active classes", "Plain-language reading"],
+        [[
+            html.escape(r.get("method", "").title()),
+            html.escape(r.get("loss", "").replace("_", " ").title()),
+            "Original objective" if r.get("loss") == "standard" else "Reduce majority-class dominance",
+            mean_sd(r, "accuracy"),
+            mean_sd(r, "macro_f1"),
+            mean_sd(r, "active_prediction_classes"),
+            "Higher accuracy but predictions collapse into few categories." if r.get("loss") == "standard" else "Better category coverage and Macro F1, with lower overall accuracy.",
+        ] for r in balance],
     )
     macro_stats = [r for r in statistics if r.get("metric") == "macro_f1"]
     stats_table = table(
@@ -189,6 +256,19 @@ def build_page(outputs: Path, deployment: Path) -> str:
         ["Rows", "Maximum absolute difference", "Mean absolute difference", "Tolerance", "Status"],
         [[html.escape(str(parity.get("rows", parity.get("fixture_count", "")))), number(parity.get("max_absolute_logit_difference", parity.get("max_abs_difference")), 9), number(parity.get("mean_absolute_logit_difference", parity.get("mean_abs_difference")), 9), number(parity.get("tolerance"), 7), "Passed" if parity_passed else "Failed"]] if parity else [],
     )
+
+    proposed_delta = difference(proposed.get("macro_f1_mean"), fedavg.get("macro_f1_mean"))
+    no_adjustment = next((r for r in ablations if r.get("variant") == "without_heuristic_adjustment"), {})
+    adjustment_delta = difference(full_ablation.get("macro_f1_mean"), no_adjustment.get("macro_f1_mean"))
+    findings = f"""
+    <div class="insights">
+      <article class="insight"><strong>Smart Note representation</strong><p>The single-split Metadata + Notes model improves Macro F1 over Metadata-only, but the federated without-notes ablation is slightly higher than the full method. The evidence is therefore mixed, not proof of a general Smart Note benefit.</p></article>
+      <article class="insight"><strong>Proposed versus FedAvg</strong><p>The repeated-seed Macro F1 difference is <b>{proposed_delta}</b>. This is small, and the paired confidence interval crosses zero, so superiority is not established.</p></article>
+      <article class="insight"><strong>ACTM behaviour</strong><p>All evaluated records were eligible and the fixed budget prompted about 30 per 100. ACTM currently behaves mainly as a budgeted ranking mechanism, not a selective ambiguity filter.</p></article>
+      <article class="insight"><strong>Aggregation heuristic</strong><p>The full-versus-no-adjustment Macro F1 difference is <b>{adjustment_delta}</b>, while all client weights are near-identical. The implemented bounded adjustment had no observable performance effect.</p></article>
+      <article class="insight"><strong>Class imbalance</strong><p>Class weighting increases Macro F1 and the number of actively predicted categories, but reduces overall accuracy. This is a trade-off, not an across-the-board improvement.</p></article>
+      <article class="insight"><strong>Deployment model</strong><p>The high ONNX held-out score is from a separate synthetic US-oriented deployment corpus. It verifies that package on its source domain; it is not evidence of Malaysian real-world accuracy.</p></article>
+    </div>"""
 
     chart_candidates = [
         ("comparison/baseline_comparison.png", "Single-seed baseline comparison"),
@@ -222,18 +302,20 @@ def build_page(outputs: Path, deployment: Path) -> str:
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}}
 header{{background:linear-gradient(135deg,#13213a,#234f95);color:#fff;padding:34px max(24px,calc((100vw - 1240px)/2)) 28px}}h1{{margin:0;font-size:clamp(28px,4vw,44px)}}header p{{max-width:850px;margin:8px 0 0;color:#dbeafe}}
 nav{{position:sticky;top:0;z-index:5;display:flex;gap:8px;overflow:auto;padding:10px max(18px,calc((100vw - 1240px)/2));background:#fffffff2;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}}nav a{{white-space:nowrap;text-decoration:none;color:#334155;padding:7px 10px;border-radius:8px}}nav a:hover{{background:#eaf1ff;color:var(--blue)}}main{{max-width:1240px;margin:auto;padding:24px}}section{{scroll-margin-top:68px;margin:0 0 26px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 7px 22px #1720330a}}h2{{margin:0 0 6px;font-size:23px}}h3{{margin:22px 0 8px;font-size:17px}}.sub{{margin:0 0 16px;color:var(--muted)}}
-.cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:18px}}.card{{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fbfdff}}.card span,.card small{{display:block;color:var(--muted)}}.card strong{{display:block;font-size:25px;margin:3px 0}}.notice{{padding:14px 16px;border-left:4px solid #d69e2e;background:var(--warn);border-radius:8px}}
-.table-wrap{{overflow:auto;border:1px solid var(--line);border-radius:10px}}table{{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}}th,td{{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}}th{{position:sticky;top:0;background:#edf3fb;font-size:13px}}tbody tr:hover{{background:#f8fbff}}.empty{{color:var(--muted);font-style:italic}}.gallery{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}}figure{{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}}figure img{{display:block;width:100%;aspect-ratio:16/10;object-fit:contain;background:#f8fafc}}figcaption{{padding:10px 12px;font-weight:600}}#catalog .table-wrap{{max-height:560px}}footer{{max-width:1240px;margin:0 auto 30px;padding:0 24px;color:var(--muted)}}
+.cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:18px}}.card{{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fbfdff}}.card span,.card small{{display:block;color:var(--muted)}}.card strong{{display:block;font-size:25px;margin:3px 0}}.notice{{padding:14px 16px;border-left:4px solid #d69e2e;background:var(--warn);border-radius:8px}}.insights{{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:13px}}.insight{{border:1px solid var(--line);border-radius:12px;padding:15px;background:#fbfdff}}.insight strong{{font-size:16px;color:#173d75}}.insight p{{margin:6px 0 0;color:#475569}}.guide{{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}}.guide article{{border-left:3px solid var(--blue);background:#f8fbff;padding:12px 14px;border-radius:7px}}.guide strong{{display:block}}.guide p{{margin:4px 0 0;color:var(--muted)}}
+.table-wrap{{overflow:auto;border:1px solid var(--line);border-radius:10px}}table{{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}}th,td{{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}}th{{position:sticky;top:0;background:#edf3fb;font-size:13px;white-space:nowrap}}td{{min-width:105px}}td:nth-child(2),td:nth-child(3),td:last-child{{min-width:190px;max-width:370px}}tbody tr:hover{{background:#f8fbff}}.empty{{color:var(--muted);font-style:italic}}.explain{{margin:10px 0 16px;padding:12px 14px;background:#eef7ff;border-radius:9px;color:#334155}}.gallery{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}}figure{{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}}figure img{{display:block;width:100%;aspect-ratio:16/10;object-fit:contain;background:#f8fafc}}figcaption{{padding:10px 12px;font-weight:600}}#catalog .table-wrap{{max-height:560px}}footer{{max-width:1240px;margin:0 auto 30px;padding:0 24px;color:var(--muted)}}
 @media(max-width:650px){{main{{padding:14px}}section{{padding:15px}}th,td{{padding:8px;font-size:13px}}}}
 </style></head><body>
 <header><h1>PocketIQ Results Dashboard</h1><p>Local view of regenerated Tier A research evidence and the separate PocketIQ ONNX deployment package. Refresh the page after rerunning experiments.</p></header>
-<nav><a href="#overview">Overview</a><a href="#tier-a">Tier A</a><a href="#actm">ACTM & heuristic</a><a href="#class-balance">Class balance</a><a href="#deployment">Deployment</a><a href="#charts">Charts</a><a href="#catalog">Files</a></nav>
+<nav><a href="#overview">Overview</a><a href="#guide">How to read</a><a href="#findings">Main findings</a><a href="#tier-a">Comparisons</a><a href="#actm">ACTM & heuristic</a><a href="#class-balance">Class balance</a><a href="#deployment">Deployment</a><a href="#charts">Charts</a><a href="#catalog">Files</a></nav>
 <main>
 <section id="overview"><h2>Overview</h2><p class="sub">Generated directly from the current local CSV and JSON files.</p><div class="cards">{cards}</div><div class="notice"><strong>Evidence boundary:</strong> Tier A evaluates the 105-feature, 13-category federated research method. PocketIQ uses a separately trained 4,096-feature, 14-category frozen ONNX model. The dashboard keeps these results separate.</div></section>
-<section id="tier-a"><h2>Tier A research results</h2><p class="sub">Controlled BudgetWise evaluation. Three-seed summaries are stronger evidence than a single run, but three seeds remain exploratory.</p><h3>Single comparison</h3>{baseline_table}<h3>Repeated seeds</h3>{repeated_table}<h3>Claim-dependent ablations</h3>{ablation_table}<h3>Paired Macro F1 comparisons</h3>{stats_table}</section>
-<section id="actm"><h2>ACTM and combined heuristic</h2><p class="sub">The Tier A heuristic includes local-adaptation effects and must not be interpreted as an isolated causal Smart Note benefit.</p>{actm_table}<h3>Aggregation-effect diagnosis</h3>{heuristic_table}<h3>Heuristic components</h3>{component_table}</section>
-<section id="class-balance"><h2>Class-balance analysis</h2><p class="sub">Class weighting improves category coverage and Macro F1 while reducing overall accuracy in these runs.</p>{balance_table}</section>
-<section id="deployment"><h2>PocketIQ deployment model</h2><p class="sub">Separate 14-category TF-IDF/linear ONNX model used by Flutter; not the Tier A checkpoint.</p>{deploy_table}<h3>ONNX parity</h3>{parity_table}</section>
+<section id="guide"><h2>How to read the results</h2><p class="sub">The most important metric for this imbalanced 13-category research task is Macro F1, because it gives every category equal importance.</p><div class="guide"><article><strong>Accuracy</strong><p>Share of all transactions classified correctly. It can look good even when minority categories are ignored.</p></article><article><strong>Macro F1</strong><p>Average category-level F1 with every category weighted equally. Higher is better.</p></article><article><strong>Weighted F1</strong><p>F1 weighted by category frequency, so common categories influence it more.</p></article><article><strong>ECE and Brier</strong><p>Calibration errors. Lower is better; they indicate how well probability confidence matches outcomes.</p></article><article><strong>Mean ± SD</strong><p>Average across three seeds and its variability. Three seeds provide exploratory, not definitive, evidence.</p></article><article><strong>95% CI and p-value</strong><p>If the difference interval crosses zero, the current evidence does not establish a reliable advantage.</p></article></div></section>
+<section id="findings"><h2>Main findings in simple language</h2><p class="sub">These statements are generated from the current output files and preserve the report's evidence limitations.</p>{findings}</section>
+<section id="tier-a"><h2>Tier A research comparisons</h2><p class="sub">Controlled BudgetWise evaluation. Each table now states why the comparison exists and what can reasonably be concluded.</p><h3>1. Baseline comparison: what each method tests</h3><p class="explain">Use this table to understand the role of every method. The non-federated metadata models and federated models answer different component questions, so do not rank all rows as if they were identical training settings.</p>{baseline_table}<h3>2. Repeated-seed federated comparison</h3><p class="explain">This is the fairest direct comparison of FedAvg, FedProx, and the proposed federated method because they use the same seeds and evaluation contract.</p>{repeated_table}<h3>3. Ablations: which proposed component matters?</h3><p class="explain">Each row removes or changes one component. A negative difference means the variant is worse than the full method; a positive difference means the variant is better.</p>{ablation_table}<h3>4. Paired uncertainty for Macro F1</h3><p class="explain">The confidence interval and exact sign-flip p-value show whether the observed differences are stable across the three matched seeds.</p>{stats_table}</section>
+<section id="actm"><h2>ACTM and combined heuristic</h2><p class="sub">Purpose: decide which Tier A records receive retrospective clarification context and test whether the resulting client-level signal changes aggregation.</p><p class="explain"><strong>Important:</strong> “Prompt precision” is a retrospective source-note proxy, not feedback from real users. The combined heuristic also includes local model-adaptation effects, so it is not an isolated Smart Note usefulness score.</p>{actm_table}<h3>What the ACTM result means</h3><div class="insights"><article class="insight"><strong>Eligible = 100%</strong><p>The thresholds did not create a selective ambiguous subset; every record was eligible for ranking.</p></article><article class="insight"><strong>Prompts ≈ 30 per 100</strong><p>The nominal 30% budget, rather than eligibility, determined how many records were selected.</p></article><article class="insight"><strong>Prompt precision ≈ 84.8%</strong><p>Most selected records had usable existing source-note context under the retrospective proxy definition.</p></article><article class="insight"><strong>Uncertainty reduction ≈ 0</strong><p>The measured average before/after uncertainty change was extremely small.</p></article></div><h3>Aggregation-effect diagnosis</h3><p class="explain">Near-identical weights show whether the bounded heuristic multiplier meaningfully changed ordinary FedAvg sample-count weights.</p>{heuristic_table}<h3>Heuristic components</h3>{component_table}</section>
+<section id="class-balance"><h2>Class-balance comparison</h2><p class="sub">Purpose: test whether training-time class weights reduce majority-category collapse.</p><p class="explain">Standard training obtains higher overall accuracy, while class-weighted training predicts more categories and produces higher Macro F1. Choose the class-weighted candidate only if balanced category coverage is the priority.</p>{balance_table}</section>
+<section id="deployment"><h2>PocketIQ deployment model</h2><p class="sub">Purpose: verify the separate 14-category TF-IDF/linear ONNX package used by Flutter. It is not the Tier A federated checkpoint.</p><div class="notice"><strong>Do not compare these scores directly with Tier A.</strong> The deployment model uses a different dataset, feature contract, category set, split, and classifier. Its high held-out score concerns the synthetic US-oriented source domain and does not prove Malaysian real-world performance.</div>{deploy_table}<h3>ONNX parity</h3><p class="explain">Parity checks whether ONNX Runtime produces practically the same outputs as Python for fixed fixtures. Passing parity verifies export consistency; it does not measure categorisation accuracy.</p>{parity_table}</section>
 <section id="charts"><h2>Charts</h2><p class="sub">Select any chart to open the full local image.</p><div class="gallery">{charts}</div></section>
 <section id="catalog"><h2>Output file browser</h2><p class="sub">CSV, JSON, text, and PNG files under the selected outputs directory. Use the browser search command (Ctrl+F) to find a filename.</p>{catalog}</section>
 </main><footer>Served from <code>127.0.0.1</code>. No output is sent to an external service.</footer>

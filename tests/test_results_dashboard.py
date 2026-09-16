@@ -37,3 +37,7 @@ def test_dashboard_renders_available_outputs(tmp_path: Path) -> None:
     assert "Proposed" in page
     assert "0.8000" in page
     assert "Evidence boundary" in page
+    assert "How to read the results" in page
+    assert "Evaluation role" in page
+    assert "Plain-language reading" in page
+    assert "Do not compare these scores directly with Tier A" in page
