@@ -1,0 +1,28 @@
+Manifest validation: 28/28 passed
+
+Q8-Q9 three-seed means (recalculated from transaction rows):
+               prompt_precision  correction_yield_per_100_prompts  net_corrections  overall_accuracy
+strategy                                                                                            
+Conflict-only          0.817220                          1.250601         0.333333          0.183564
+Entropy-only           0.860991                          0.721501        -1.000000          0.182987
+Margin-only            0.828283                          3.126503        -1.000000          0.182987
+Proposed ACTM          0.848004                          2.693603         0.666667          0.183709
+Random                 0.813853                          1.250601        -0.333333          0.183276
+
+Q11-Q12 Proposed ACTM totals:
+notes_used                           1736
+wrong_to_correct                       56
+correct_to_wrong                       54
+wrong_to_different_wrong              205
+wrong_unchanged                      1214
+correct_unchanged                     207
+more_confident_final_wrong            874
+more_confident_wrong_before_after     845
+
+Q15 full versus without_heuristic_adjustment:
+  seed 42: 0 category changes; 2306 confidence values differ
+  seed 52: 0 category changes; 2301 confidence values differ
+  seed 62: 0 category changes; 2306 confidence values differ
+
+PASS: all original CSV comparisons are consistent with corrected Section 16 Q8-Q12 and Q15.
+Note: per-client counts require the separately supplied client-level audit/client mapping.
