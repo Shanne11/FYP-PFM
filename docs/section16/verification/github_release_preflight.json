@@ -1,0 +1,149 @@
+{
+  "supplement": {
+    "verified": 6,
+    "total": 6,
+    "rows": [
+      {
+        "path": "audit/canonical_class_distribution.csv",
+        "exists": true,
+        "hash_match": true
+      },
+      {
+        "path": "audit/client_participation_audit.csv",
+        "exists": true,
+        "hash_match": true
+      },
+      {
+        "path": "audit/client_size_weight_adjustment.csv",
+        "exists": true,
+        "hash_match": true
+      },
+      {
+        "path": "audit/actm_selector_recalculation.csv",
+        "exists": true,
+        "hash_match": true
+      },
+      {
+        "path": "audit/actm_selector_three_seed_means.csv",
+        "exists": true,
+        "hash_match": true
+      },
+      {
+        "path": "audit/model_contract_comparison.json",
+        "exists": true,
+        "hash_match": true
+      }
+    ]
+  },
+  "matrix": {
+    "question_count": 20,
+    "verified": 8,
+    "verified_with_limitation": 12,
+    "needs_correction": 0,
+    "Q6": "Overlapping transaction-ID values: train–validation=106; train–test=166; validation–test=40. Exact available-record overlaps=[0, 0, 0]; shared normalised note values=[24, 24, 24]. Transaction IDs are not globally unique, so repeated ID values alone do not establish duplicated transactions. No reliable merchant identifier or separate merchant-description field is available.",
+    "Q12": "confidence_after > confidence_before and final prediction wrong: 874/1,736 (50.35%); stricter wrong before and after: 845/1,736 (48.68%).",
+    "Q15": "Separate matched client-level audit: improved=0, declined=0, unchanged=450. Paired held-out predictions have zero category differences for seeds 42, 52 and 62; global accuracy and Macro F1 are identical per seed.",
+    "Q18": "remoteSyncEnabled=false; no remote upload payload or pending synchronization row; syncPending rejects direct calls. Four focused Flutter tests passed in an isolated tracked-source copy, including two optional-learning privacy tests."
+  },
+  "xlsx": {
+    "sheets": [
+      "Summary",
+      "Evidence Matrix",
+      "Artifact Hashes",
+      "Numerical Checks",
+      "Client Checks",
+      "Demo Trace",
+      "Git and Privacy"
+    ],
+    "has_q6": true,
+    "has_q12": true,
+    "has_q15": true,
+    "has_numeric_900_elsewhere": true,
+    "has_obsolete_q12_900_claim": false,
+    "cells_containing_900": [
+      {
+        "sheet": "Client Checks",
+        "cell": "B42",
+        "value": "900"
+      }
+    ],
+    "context_for_900": [
+      {
+        "sheet": "Client Checks",
+        "row": 40,
+        "values": [
+          "Q1 smallest",
+          1140,
+          41.23684210526316,
+          -0.0558039017510892,
+          -0.8610325450868928,
+          0.7861685195245993
+        ]
+      },
+      {
+        "sheet": "Client Checks",
+        "row": 41,
+        "values": [
+          "Q2",
+          1350,
+          48.33333333333334,
+          0.0124490349123109,
+          -0.7582092754037206,
+          0.7805450121384006
+        ]
+      },
+      {
+        "sheet": "Client Checks",
+        "row": 42,
+        "values": [
+          "Q3",
+          900,
+          52.46666666666667,
+          -0.0027268870856519,
+          -0.6073009571592958,
+          0.6756165936269376
+        ]
+      },
+      {
+        "sheet": "Client Checks",
+        "row": 43,
+        "values": [
+          "Q4 largest",
+          1110,
+          58.86486486486486,
+          0.0307339967164482,
+          -0.7309747179535586,
+          0.8250577717147101
+        ]
+      },
+      {
+        "sheet": "Client Checks",
+        "row": 44,
+        "values": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "has_obsolete_client_counts": false
+  },
+  "docx": {
+    "paragraphs": 218,
+    "tables": 10,
+    "has_q12": true,
+    "has_q15": true,
+    "has_flutter_limit": true,
+    "has_obsolete_900": false,
+    "has_obsolete_client_counts": false
+  },
+  "final_zip": {
+    "sha256": "af57c804d59404c949f4875b3ca61900eda8fe8953a96185417a1eb38764aeca",
+    "file_members": 72,
+    "zip_test": null
+  },
+  "all_pass": true
+}

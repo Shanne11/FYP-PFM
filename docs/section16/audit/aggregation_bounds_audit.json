@@ -1,0 +1,8 @@
+{
+  "rows": 4500,
+  "multiplier_min": 0.9125904138604596,
+  "multiplier_max": 0.9317369627623152,
+  "all_multipliers_in_0_75_1_25": true,
+  "all_coefficients_nonnegative": true,
+  "maximum_coefficient_sum_error": 8.215650382226158e-15
+}

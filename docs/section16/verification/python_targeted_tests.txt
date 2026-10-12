@@ -1,0 +1,11 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.14, pytest-8.4.2, pluggy-1.6.0
+rootdir: C:\Users\thepr\OneDrive\Documents\ChatGPT\FYP\github_readme_updates\FYP-PFM
+collected 8 items
+
+tests\test_actm_selection_baselines.py ...                               [ 37%]
+tests\test_actm_threshold_analysis.py ..                                 [ 62%]
+tests\test_evidence_freeze.py .                                          [ 75%]
+tests\test_results_dashboard.py ..                                       [100%]
+
+============================= 8 passed in 21.50s ==============================

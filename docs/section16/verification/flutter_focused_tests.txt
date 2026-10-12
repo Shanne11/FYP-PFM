@@ -1,0 +1,6 @@
+00:00 +0: loading C:/Users/thepr/.codex/visualizations/2026/08/12/019ff5d1-a337-7e01-a792-f542c40feb8b/pocketiq_flutter_final_verify_20261012/test/local_calibration_model_test.dart
+00:00 +0: C:/Users/thepr/.codex/visualizations/2026/08/12/019ff5d1-a337-7e01-a792-f542c40feb8b/pocketiq_flutter_final_verify_20261012/test/local_calibration_model_test.dart: identity calibration preserves the probability ranking
+00:00 +1: C:/Users/thepr/.codex/visualizations/2026/08/12/019ff5d1-a337-7e01-a792-f542c40feb8b/pocketiq_flutter_final_verify_20261012/test/local_calibration_model_test.dart: training reduces loss and clips the update norm
+00:01 +2: C:/Users/thepr/.codex/visualizations/2026/08/12/019ff5d1-a337-7e01-a792-f542c40feb8b/pocketiq_flutter_final_verify_20261012/test/optional_learning_upload_disabled_test.dart: remote optional-learning upload is disabled
+00:01 +3: C:/Users/thepr/.codex/visualizations/2026/08/12/019ff5d1-a337-7e01-a792-f542c40feb8b/pocketiq_flutter_final_verify_20261012/test/optional_learning_upload_disabled_test.dart: syncPending rejects direct programmatic calls
+00:02 +4: All tests passed!

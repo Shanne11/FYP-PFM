@@ -6,6 +6,8 @@ This research path is deliberately separate from the PocketIQ Flutter deployment
 
 ## Current research status
 
+The final supervisor-question evidence, verification matrix, manifests, and limitations are indexed in [`docs/section16/README.md`](docs/section16/README.md). The complete frozen package is published as a versioned GitHub release; the documentation commit is separate from the research-source commits recorded in that index.
+
 The repository contains six executable methods:
 
 | ID | Method | Learning setting | Status |

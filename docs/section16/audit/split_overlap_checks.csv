@@ -1,0 +1,4 @@
+left,right,transaction_id_overlap,exact_available_record_overlap,normalised_note_value_overlap
+train,validation,106,0,24
+train,test,166,0,24
+validation,test,40,0,24

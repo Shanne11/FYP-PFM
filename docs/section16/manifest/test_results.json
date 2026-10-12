@@ -1,0 +1,34 @@
+{
+  "python": {
+    "result": "passed",
+    "passed": 8,
+    "failed": 0,
+    "scope": [
+      "ACTM selection baselines",
+      "ACTM threshold analysis",
+      "evidence freeze validation",
+      "results dashboard"
+    ],
+    "note": "Eight targeted verification tests passed; completed experiments were not rerun during documentation reconciliation."
+  },
+  "flutter": {
+    "result": "passed",
+    "passed": 4,
+    "failed": 0,
+    "execution_environment": "isolated checkout copied byte-for-byte from the tracked Flutter source because the OneDrive checkout blocked Flutter tool startup",
+    "scope": [
+      "identity calibration probability ranking",
+      "local training loss reduction and update-norm clipping",
+      "remote optional-learning upload disabled",
+      "direct syncPending call rejection"
+    ],
+    "complete_flutter_suite_run": false,
+    "note": "Four focused tests passed in an isolated tracked-source copy. The complete Flutter suite and unrelated network/export features were not tested.",
+    "privacy_specific_tests_within_focused_set": 2
+  },
+  "independent_original_csv_verification": {
+    "result": "passed",
+    "manifest_entries_verified": 28,
+    "manifest_entries_total": 28
+  }
+}

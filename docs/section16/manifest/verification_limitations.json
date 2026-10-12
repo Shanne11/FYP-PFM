@@ -1,0 +1,12 @@
+{
+  "limitations": [
+    "BudgetWise Smart Notes are retrospective source-note proxies, not responses entered by real participants after an ACTM prompt.",
+    "Q6 does not establish merchant-disjoint splitting or absence of semantic/near-duplicate leakage.",
+    "Q12 reports 874 confidence-increased/final-wrong cases and 845 stricter wrong-before-and-after cases from 1,736 retrospective note-used transaction-seed evaluations.",
+    "Q15 supports 0 improved, 0 declined and 450 unchanged client-seed accuracies for matched final predictions; global accuracy and Macro F1 do not improve in this comparison.",
+    "Only four focused Flutter tests were run in an isolated tracked-source copy; the complete Flutter test suite was not run.",
+    "Flutter verification covers the optional-learning/local-calibration pathway only. Unrelated network, feedback, sharing and export features were not tested.",
+    "Git could not inspect the local Python .pytest_cache directory. No tracked, staged or other reportable untracked changes were found; the cache is not source or evidence.",
+    "The full Tier A checkpoint is not deployed in PocketIQ; PocketIQ uses its separate frozen 4,096-feature, 14-category ONNX contract."
+  ]
+}

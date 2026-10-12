@@ -1,0 +1,299 @@
+{
+  "manifest_version": 3,
+  "package_status": "FINAL",
+  "generated_at_utc": "2026-10-12T09:25:54.025Z",
+  "source_commits": {
+    "tier_a_python_fyp_pfm_research_source": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+    "pocketiq_flutter_research_source": "11daf49f491e70f9f7057cc3cf3bc3616990bb96"
+  },
+  "repositories": {
+    "verified_at_utc": "2026-10-12T09:25:54.025Z",
+    "python": {
+      "repository": "C:\\Users\\thepr\\OneDrive\\Documents\\ChatGPT\\FYP\\github_readme_updates\\FYP-PFM",
+      "branch": "main",
+      "head": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+      "expected_head": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+      "upstream": "origin/main",
+      "upstream_head": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+      "ahead": 0,
+      "behind": 0,
+      "working_tree_clean": true,
+      "verified": true,
+      "research_source_commit": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+      "status_note": "No tracked or staged changes and no other reportable untracked paths. Git emitted an access warning for the local .pytest_cache; the cache is not source or evidence."
+    },
+    "flutter": {
+      "repository": "C:\\Users\\thepr\\OneDrive\\Documents\\ChatGPT\\FYP\\github_readme_updates\\FYP-personal-finance-management-system",
+      "branch": "main",
+      "head": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+      "expected_head": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+      "upstream": "origin/main",
+      "upstream_head": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+      "ahead": 0,
+      "behind": 0,
+      "working_tree_clean": true,
+      "verified": true,
+      "research_source_commit": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+      "status_note": "No tracked, staged or untracked changes were reported."
+    },
+    "provenance_role": "research-source commits; the v2 evidence documentation was assembled outside both source repositories",
+    "documentation_package": {
+      "repository_commit": null,
+      "status": "standalone versioned evidence package",
+      "note": "No source-repository commit was created because only package documentation was reconciled."
+    }
+  },
+  "declared_artifact_count": 26,
+  "declared_artifacts": [
+    {
+      "path": "dataset/clean_budgetwise.csv",
+      "bytes": 784546,
+      "sha256": "608bc42c26f13e1323bc2be4bf614c28968e62a1aa873911d243c462fb4b740d"
+    },
+    {
+      "path": "data/experiment_split.json",
+      "bytes": 127654,
+      "sha256": "861960e6f787f60870610dd564dc20c741d4dadda265d46dc57e4dce7f164cd0"
+    },
+    {
+      "path": "deployment/research_model_contract.json",
+      "bytes": 4267,
+      "sha256": "94ca5771f342634cefcda738c3799b2ac20a2bcaa167bc909bf112c3da9741cf"
+    },
+    {
+      "path": "outputs/comparison/baseline_comparison.csv",
+      "bytes": 1223,
+      "sha256": "f2a3fea27835a2338996e12dbdb16134ed53e74de7464bffd2b9c74f940b4d71"
+    },
+    {
+      "path": "outputs/repeated/repeated_runs.csv",
+      "bytes": 1824,
+      "sha256": "dce2487d7bdb618186eee2b60a411cf4677ebec763c9b42cf2ac6afb8025b909"
+    },
+    {
+      "path": "outputs/repeated/repeated_summary.csv",
+      "bytes": 1483,
+      "sha256": "caeeaa8f58351d71a85f264b5fe15268b6a40ba08d60c87fb825a9a693c89861"
+    },
+    {
+      "path": "outputs/ablations/ablation_runs.csv",
+      "bytes": 4334,
+      "sha256": "075026ab78600dddc487f740adde7d86b813b1c9c4e3ea31e2d4e63d7a47988d"
+    },
+    {
+      "path": "outputs/ablations/ablation_summary.csv",
+      "bytes": 3126,
+      "sha256": "3e33b3bdd24508f580f517d112e2b0630b8d483a7ce67a419d4fc5f580238e7c"
+    },
+    {
+      "path": "outputs/actm_evaluation/actm_runs.csv",
+      "bytes": 1096,
+      "sha256": "4c42034f5eff41db5387b1d5a2683040f2cdd29189d8266d4749c7520b310bac"
+    },
+    {
+      "path": "outputs/actm_evaluation/actm_summary.csv",
+      "bytes": 1064,
+      "sha256": "a409fa76727aa23be476faef3bc51863fd49b5bf4696f606520d52bf2b829c5d"
+    },
+    {
+      "path": "outputs/actm_selection_baselines/actm_selection_runs.csv",
+      "bytes": 3881,
+      "sha256": "e6b2c9245ec07701975582bcffdc455547fc4baabdeca4e0d3eae36097fd8eb2"
+    },
+    {
+      "path": "outputs/actm_selection_baselines/actm_selection_summary.csv",
+      "bytes": 4284,
+      "sha256": "70463a6476e59d3841945dd4a77bd6a0d16fec25061035f8d36226f0ba32ec08"
+    },
+    {
+      "path": "outputs/actm_selection_baselines/actm_selection_contract.json",
+      "bytes": 588,
+      "sha256": "01d27bc1df3086459abdff4ff173c34598181d9b4789429696408baf9f67fef5"
+    },
+    {
+      "path": "outputs/actm_threshold_analysis/actm_threshold_distributions.csv",
+      "bytes": 1089,
+      "sha256": "6a80458358413debb85688068c140771b00b82bd5049fa44af9c6b3993b7a0d2"
+    },
+    {
+      "path": "outputs/actm_threshold_analysis/actm_threshold_sensitivity_summary.csv",
+      "bytes": 7920,
+      "sha256": "763381190491c92c65ec0726273f60fdb52039a2757f3783c47f11cae94dd728"
+    },
+    {
+      "path": "outputs/class_analysis/class_runs.csv",
+      "bytes": 9783,
+      "sha256": "bb9a866ae666325bb06de5ba4c9b5246c3af4d5c62403f2f5bb574b0482fdcbe"
+    },
+    {
+      "path": "outputs/class_analysis/class_summary.csv",
+      "bytes": 6016,
+      "sha256": "5f44a8d09da5f838cdfb67c0d5a51a45762fed531776f39cd5e3247b4c025e45"
+    },
+    {
+      "path": "outputs/class_balance/class_balance_runs.csv",
+      "bytes": 3916,
+      "sha256": "bb04f8213455336c43f464c8dc762d592d2f5254383fa65d4495a90bd0f9ecb0"
+    },
+    {
+      "path": "outputs/class_balance/class_balance_summary.csv",
+      "bytes": 3449,
+      "sha256": "2686becaa5ecd450ee1f989632bbd2ecbbaceb15f715abaa6f9f6b5fdb72b1f7"
+    },
+    {
+      "path": "outputs/statistics/paired_statistics.csv",
+      "bytes": 11321,
+      "sha256": "0d264dc0947a003b1bea347711519ca601846e3489fca3816a48b99ce8fcafac"
+    },
+    {
+      "path": "outputs/utility_diagnostics/utility_diagnostic_summary.csv",
+      "bytes": 3441,
+      "sha256": "96b67ee1f3507759b672360ff76bbcde40c7533037ff79f15a66c8c961a045fc"
+    },
+    {
+      "path": "outputs/class_balance/seed_42/proposed/best_global_model.pt",
+      "bytes": 93901,
+      "sha256": "445b79ea93072a3a12e8c38b0223c06dad491c4fb0931f6a8d649f351cba1bc2"
+    },
+    {
+      "path": "outputs/class_balance/seed_42/proposed/feature_pipeline.pkl",
+      "bytes": 5191,
+      "sha256": "8e6210336348bd7f3af329ba731e5132c77ec7090c6d152fc1a0ca0fcf73e3dd"
+    },
+    {
+      "path": "deployment/pocketiq_deployment_package/deployment_metrics.json",
+      "bytes": 1785,
+      "sha256": "38ce23a203cb63fdff62ce4ee264cd535926a159c02c8803022d48e79f6d252b"
+    },
+    {
+      "path": "deployment/pocketiq_deployment_package/parity_report.json",
+      "bytes": 179,
+      "sha256": "8b0d7cf0f2c5470d7245eb169daae0b88cb7647682aa2329a43d5ddc0b09978b"
+    },
+    {
+      "path": "deployment/pocketiq_deployment_package/package_manifest.json",
+      "bytes": 919,
+      "sha256": "b7dc20fd8206f6885ca6c98687e8101fbeea7534f12df055b39789cb7497033a"
+    }
+  ],
+  "correction_verification": {
+    "Q6": {
+      "status": "Verified with limitation",
+      "verified_values": {
+        "train_validation_repeated_transaction_ids": 106,
+        "train_test_repeated_transaction_ids": 166,
+        "validation_test_repeated_transaction_ids": 40,
+        "exact_available_record_overlaps": [
+          0,
+          0,
+          0
+        ]
+      },
+      "limitation": "Transaction IDs are not globally unique. Repeated ID values do not prove identical transactions; merchant-disjoint splitting and semantic near-duplicate independence are not established."
+    },
+    "Q12": {
+      "status": "Verified with limitation",
+      "note_used_transaction_seed_evaluations": 1736,
+      "confidence_increased_final_prediction_wrong": {
+        "count": 874,
+        "percent": 50.35
+      },
+      "stricter_wrong_before_and_after": {
+        "count": 845,
+        "percent": 48.68
+      },
+      "correction_note": "The earlier unsupported claim was removed from current documentation.",
+      "limitation": "The evidence uses retrospective source-note proxies, not notes entered by participants after a clarification prompt."
+    },
+    "Q15": {
+      "status": "Verified with limitation",
+      "seeds": [
+        42,
+        52,
+        62
+      ],
+      "client_seed_improved": 0,
+      "client_seed_declined": 0,
+      "client_seed_unchanged": 450,
+      "matched_final_category_differences": 0,
+      "correction_note": "The earlier unsupported client-level counts were removed from current documentation.",
+      "limitation": "The separate matched client-level audit supports these counts; final global accuracy and Macro F1 do not improve in this comparison."
+    }
+  },
+  "test_results": {
+    "python": {
+      "result": "passed",
+      "passed": 8,
+      "failed": 0,
+      "scope": [
+        "ACTM selection baselines",
+        "ACTM threshold analysis",
+        "evidence freeze validation",
+        "results dashboard"
+      ]
+    },
+    "flutter": {
+      "result": "passed",
+      "passed": 4,
+      "failed": 0,
+      "execution_environment": "isolated checkout copied byte-for-byte from the tracked Flutter source because the OneDrive checkout blocked Flutter tool startup",
+      "scope": [
+        "identity calibration probability ranking",
+        "local training loss reduction and update-norm clipping",
+        "remote optional-learning upload disabled",
+        "direct syncPending call rejection"
+      ],
+      "complete_flutter_suite_run": false
+    },
+    "independent_original_csv_verification": {
+      "result": "passed",
+      "manifest_entries_verified": 28,
+      "manifest_entries_total": 28
+    }
+  },
+  "flutter_optional_learning": {
+    "remote_sync_enabled": false,
+    "direct_sync_pending_calls_rejected": true,
+    "upload_payload_created": false,
+    "pending_synchronization_record_created": false,
+    "transaction_descriptions_uploaded": false,
+    "smart_note_text_uploaded": false,
+    "focused_tests_passed": 4,
+    "test_environment": "isolated copy verified against tracked Flutter source",
+    "complete_flutter_suite_run": false,
+    "scope": "optional-learning/local-calibration pathway only; unrelated network, feedback, sharing and export features were not tested"
+  },
+  "historical_provisional_packages": [
+    {
+      "path": "C:\\Users\\thepr\\OneDrive\\Documents\\ChatGPT\\FYP\\github_readme_updates\\FYP-PFM\\outputs\\section16_audit\\Section16_Evidence_Package_PROVISIONAL_2026-10-11.zip",
+      "bytes": 1356953,
+      "sha256": "ebae35f0d6e042fe3ade5eb39a552acb811109d3c9987701c1d73c5a3707b665",
+      "modified": false
+    },
+    {
+      "path": "C:\\Users\\thepr\\OneDrive\\Documents\\ChatGPT\\FYP\\github_readme_updates\\FYP-PFM\\outputs\\section16_audit\\Section16_Evidence_Package_Q6_CORRECTED_PROVISIONAL_2026-10-12.zip",
+      "bytes": 1362892,
+      "sha256": "79718e22d299606f7f8706d6732e9195876b7f26c3e7f700aa71124d48675c82",
+      "modified": false
+    }
+  ],
+  "limitations": [
+    "BudgetWise Smart Notes are retrospective source-note proxies, not responses entered by real participants after an ACTM prompt.",
+    "Q6 does not establish merchant-disjoint splitting or absence of semantic/near-duplicate leakage.",
+    "Q12 reports 874 confidence-increased/final-wrong cases and 845 stricter wrong-before-and-after cases from 1,736 retrospective note-used transaction-seed evaluations.",
+    "Q15 supports 0 improved, 0 declined and 450 unchanged client-seed accuracies for matched final predictions; global accuracy and Macro F1 do not improve in this comparison.",
+    "Only four focused Flutter tests were run in an isolated tracked-source copy; the complete Flutter test suite was not run.",
+    "Flutter verification covers the optional-learning/local-calibration pathway only. Unrelated network, feedback, sharing and export features were not tested.",
+    "Git could not inspect the local Python .pytest_cache directory. No tracked, staged or other reportable untracked changes were found; the cache is not source or evidence.",
+    "The full Tier A checkpoint is not deployed in PocketIQ; PocketIQ uses its separate frozen 4,096-feature, 14-category ONNX contract."
+  ],
+  "package_revision": "FINAL_v2_2026-10-12",
+  "documentation_reconciliation": {
+    "performed_at_utc": "2026-10-12T09:25:54.025Z",
+    "scope": "documentation only; no experiments rerun, no model retraining, no numerical-result changes and no Flutter implementation changes",
+    "source_repository_documentation_commit": null,
+    "package_revision": "FINAL_v2_2026-10-12",
+    "independent_review": "source_context/Section16_FINAL_Package_Independent_Review_2026-10-12.md",
+    "historical_reports_directory": "audit/historical"
+  }
+}

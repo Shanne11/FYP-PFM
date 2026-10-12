@@ -1,0 +1,25 @@
+{
+  "status": "documentation reconciled",
+  "generated_at_utc": "2026-10-12T09:25:54.025Z",
+  "research_source_commits": {
+    "python": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+    "flutter": "11daf49f491e70f9f7057cc3cf3bc3616990bb96"
+  },
+  "source_repository_documentation_commit": null,
+  "changed_current_documents": [
+    "manifest/final_evidence_manifest.json",
+    "manifest/source_repositories.json",
+    "manifest/test_results.json",
+    "manifest/verification_limitations.json",
+    "audit/section16_evidence_matrix.csv",
+    "audit/Section16_Evidence_Matrix.xlsx",
+    "audit/Section16_Evidence_Matrix_Q6_CORRECTED.xlsx",
+    "audit/Section16_Evidence_Audit.md",
+    "PACKAGE_README.md"
+  ],
+  "historical_documents_preserved": [
+    "audit/historical/Section16_Evidence_Audit_pre_freeze.md",
+    "audit/historical/Section16_Independent_CSV_Verification_Report_pre_freeze.md",
+    "verification/historical/build_final_section16_package_v1.py"
+  ]
+}

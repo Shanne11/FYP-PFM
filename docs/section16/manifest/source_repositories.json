@@ -1,0 +1,37 @@
+{
+  "verified_at_utc": "2026-10-12T09:25:54.025Z",
+  "python": {
+    "repository": "C:\\Users\\thepr\\OneDrive\\Documents\\ChatGPT\\FYP\\github_readme_updates\\FYP-PFM",
+    "branch": "main",
+    "head": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+    "expected_head": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+    "upstream": "origin/main",
+    "upstream_head": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+    "ahead": 0,
+    "behind": 0,
+    "working_tree_clean": true,
+    "verified": true,
+    "research_source_commit": "e4aabb55a7d779e2e09dcac59c2a5746895c2149",
+    "status_note": "No tracked or staged changes and no other reportable untracked paths. Git emitted an access warning for the local .pytest_cache; the cache is not source or evidence."
+  },
+  "flutter": {
+    "repository": "C:\\Users\\thepr\\OneDrive\\Documents\\ChatGPT\\FYP\\github_readme_updates\\FYP-personal-finance-management-system",
+    "branch": "main",
+    "head": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+    "expected_head": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+    "upstream": "origin/main",
+    "upstream_head": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+    "ahead": 0,
+    "behind": 0,
+    "working_tree_clean": true,
+    "verified": true,
+    "research_source_commit": "11daf49f491e70f9f7057cc3cf3bc3616990bb96",
+    "status_note": "No tracked, staged or untracked changes were reported."
+  },
+  "provenance_role": "research-source commits; the v2 evidence documentation was assembled outside both source repositories",
+  "documentation_package": {
+    "repository_commit": null,
+    "status": "standalone versioned evidence package",
+    "note": "No source-repository commit was created because only package documentation was reconciled."
+  }
+}

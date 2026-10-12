@@ -1,0 +1,39 @@
+{
+  "supplement_type": "historical_exact_audit_artifacts_for_final_v2_cross_reference",
+  "date": "2026-10-12",
+  "parent_final_package": "Section16_Evidence_Package_FINAL_v2_2026-10-12.zip",
+  "historical_source_package": "Section16_Evidence_Package_PROVISIONAL_2026-10-11.zip",
+  "files": [
+    {
+      "path": "audit/canonical_class_distribution.csv",
+      "bytes": 810,
+      "sha256": "8fdf6172b33824121b31cefe7fcc145c11fab907f9ef92c1435f59927e421d05"
+    },
+    {
+      "path": "audit/client_participation_audit.csv",
+      "bytes": 938,
+      "sha256": "87bb551ebb154324d9ef096c2ff85206d0c799bd001ff1642b7124a895675d60"
+    },
+    {
+      "path": "audit/client_size_weight_adjustment.csv",
+      "bytes": 581,
+      "sha256": "caee63202ad72a9d06412f10c4f90148cb10e39654d5b975982f8a8bc06c7d71"
+    },
+    {
+      "path": "audit/actm_selector_recalculation.csv",
+      "bytes": 1473,
+      "sha256": "a460bd6e8a01e5fdc696ab459dd445c788ddbf58a9e41fed1c5177354a7d25c3"
+    },
+    {
+      "path": "audit/actm_selector_three_seed_means.csv",
+      "bytes": 693,
+      "sha256": "2099780ce20d57952de3d4c91c5a6c1ddb079f00db5c42b2de044e5262e6b42d"
+    },
+    {
+      "path": "audit/model_contract_comparison.json",
+      "bytes": 411,
+      "sha256": "9fb2648217ff16c412b5f376f4bbadda1f18a63200a5c5e5427a501de4b3dfd4"
+    }
+  ],
+  "note": "The content is preserved unchanged from the original provisional ZIP; no old review statuses are included."
+}

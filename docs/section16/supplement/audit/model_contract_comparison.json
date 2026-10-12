@@ -1,0 +1,10 @@
+{
+  "research_contract_id": "pocketiq-class-weighted-proposed-seed42-v1",
+  "research_input_features": 105,
+  "research_output_classes": 13,
+  "deployment_package_id": "pocketiq-deployment-text-v1",
+  "deployment_input_features": 4096,
+  "deployment_output_classes": 14,
+  "contracts_are_distinct": true,
+  "deployment_model_sha256": "d5228fe4f1d029351dd3e484441de2af74d2c1cfc164794ea3efc69746b446d4"
+}

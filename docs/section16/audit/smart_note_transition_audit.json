@@ -1,0 +1,14 @@
+{
+  "cases": 1736,
+  "duplicate_seed_source_pairs": 0,
+  "wrong_to_correct": 56,
+  "correct_to_wrong": 54,
+  "changed_prediction": 315,
+  "confidence_increased_but_after_incorrect": 874,
+  "confidence_increased_wrong_before_and_after": 845,
+  "true_class_probability_increased_but_after_incorrect": 601,
+  "prompts": 2079,
+  "note_used": 1736,
+  "note_use_rate": 0.835016835016835,
+  "prompt_precision": 0.848003848003848
+}
