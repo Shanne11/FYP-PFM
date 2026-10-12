@@ -1,0 +1,25 @@
+{
+  "evaluation_role": "same-checkpoint held-out selection-policy comparison",
+  "split_manifest": "data/experiment_split.json",
+  "split_seed": 42,
+  "training_seeds": [
+    42,
+    52,
+    62
+  ],
+  "prompt_budget": 0.3,
+  "budget_rounding": "ceil",
+  "strategies": [
+    "Random",
+    "Entropy-only",
+    "Margin-only",
+    "Conflict-only",
+    "Proposed ACTM"
+  ],
+  "checkpoint_pattern": "outputs\\ablations\\seed_<seed>\\full",
+  "conflict_proxy": {
+    "merchant": "location",
+    "account_or_channel": "payment_mode"
+  },
+  "raw_notes_transmitted": false
+}

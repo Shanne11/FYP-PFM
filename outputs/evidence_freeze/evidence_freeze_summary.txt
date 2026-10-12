@@ -1,0 +1,6 @@
+Tier A evidence-freeze verification
+
+Status: provisional-uncommitted-changes
+Repository HEAD: c421ee22e6af0af7afcae4159626f66ae4a1989e
+Validated and hashed artifacts: 26
+The manifest is final only after the intended code and evidence files are committed.

@@ -1,0 +1,74 @@
+{
+  "trace_type": "Tier A controlled-research trace; not a PocketIQ Flutter audit record",
+  "seed": 42,
+  "source_index": 10883,
+  "transaction_id": "T9305",
+  "client_id": "U006",
+  "metadata": {
+    "date": "2021-04-15",
+    "transaction_type": "Expense",
+    "amount": 1520.0,
+    "payment_mode": "Unknown",
+    "location": "AHMEDABAD",
+    "gold_category": "Food"
+  },
+  "actm": {
+    "normalised_entropy": 0.9892582780483239,
+    "top_two_margin": 0.0009510964155197144,
+    "conflict_triggered": true,
+    "selected": true
+  },
+  "source_note": "Restaurant dinner",
+  "before": {
+    "prediction_index": 8,
+    "confidence": 0.11354223,
+    "true_class_probability": 0.11259112,
+    "correct": false,
+    "probability_vector": [
+      0.06120097637176514,
+      0.0772264301776886,
+      0.07204650342464447,
+      0.11259111762046814,
+      0.061053983867168427,
+      0.0581774041056633,
+      0.07684694230556488,
+      0.05994075909256935,
+      0.11354221403598785,
+      0.06282621622085571,
+      0.06997866183519363,
+      0.09879106283187866,
+      0.07577770948410034
+    ]
+  },
+  "after": {
+    "prediction_index": 3,
+    "confidence": 0.11605357,
+    "true_class_probability": 0.11605357,
+    "correct": true,
+    "probability_vector": [
+      0.061607006937265396,
+      0.07578033953905106,
+      0.07238946855068207,
+      0.11605356633663177,
+      0.06084233149886131,
+      0.05788497254252434,
+      0.07612386345863342,
+      0.06050647422671318,
+      0.11325716227293015,
+      0.06198907271027565,
+      0.0706060528755188,
+      0.09762898832559586,
+      0.07533063739538193
+    ]
+  },
+  "outcome": "wrong_to_correct",
+  "aggregation_final_round": {
+    "round": 10,
+    "sample_count": 45,
+    "base_weight": 0.0060048038430744,
+    "signal_multiplier": 0.9185611948485076,
+    "proposed_final_coefficient": 0.0059719288190956,
+    "multiplier_within_bounds": true
+  },
+  "audit_warning": "The transaction prediction trace and the final-round client coefficient are Tier A records. They must not be presented as a PocketIQ on-device local audit."
+}

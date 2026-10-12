@@ -24,6 +24,90 @@ def top_two_margin(probabilities: np.ndarray) -> np.ndarray:
     return top_two[:, 1] - top_two[:, 0]
 
 
+def _budget_limit(count: int, prompt_budget: float) -> int:
+    if count < 0:
+        raise ValueError("count cannot be negative")
+    if not 0.0 <= prompt_budget <= 1.0:
+        raise ValueError("prompt_budget must be between 0 and 1")
+    return count if prompt_budget >= 1.0 else int(np.ceil(count * prompt_budget))
+
+
+def _validate_selection_inputs(probabilities, conflicts, record_ids):
+    probabilities = np.asarray(probabilities, dtype=float)
+    conflicts = np.asarray(conflicts, dtype=bool)
+    record_ids = np.asarray(record_ids).astype(str)
+    if probabilities.ndim != 2 or probabilities.shape[0] == 0:
+        raise ValueError("probabilities must be a non-empty 2-D array")
+    if not np.isfinite(probabilities).all():
+        raise ValueError("probabilities must be finite")
+    if conflicts.shape != (probabilities.shape[0],):
+        raise ValueError("conflicts must contain one value per transaction")
+    if record_ids.shape != (probabilities.shape[0],):
+        raise ValueError("record_ids must contain one value per transaction")
+    if len(np.unique(record_ids)) != len(record_ids):
+        raise ValueError("record_ids must be unique for deterministic tie-breaking")
+    return probabilities, conflicts, record_ids
+
+
+def _ranked_mask(score, record_ids, limit, *, descending):
+    score = np.asarray(score, dtype=float)
+    record_ids = np.asarray(record_ids).astype(str)
+    selected = np.zeros(len(score), dtype=bool)
+    if limit <= 0:
+        return selected
+    primary = -score if descending else score
+    ranked = np.lexsort((record_ids, primary))
+    selected[ranked[:limit]] = True
+    return selected
+
+
+def budget_matched_selection_baselines(
+    probabilities: np.ndarray,
+    conflicts: Iterable[bool],
+    record_ids,
+    prompt_budget: float = 0.30,
+    seed: int = 42,
+) -> dict[str, np.ndarray]:
+    """Return the four predeclared ACTM selection comparators.
+
+    Every comparator selects the same ceil-based nominal prompt budget.  The
+    entropy and margin comparators rank only their named uncertainty signal.
+    The conflict comparator ranks conflict-positive records first and uses the
+    stable record identifier only to break ties and, when necessary, fill the
+    remaining budget.  Random selection samples without replacement after
+    placing records in stable identifier order.
+    """
+    probabilities, conflicts, record_ids = _validate_selection_inputs(
+        probabilities, conflicts, record_ids
+    )
+    count = len(record_ids)
+    limit = _budget_limit(count, prompt_budget)
+    entropy = predictive_entropy(probabilities) / np.log(
+        max(probabilities.shape[1], 2)
+    )
+    margin = top_two_margin(probabilities)
+
+    stable_positions = np.argsort(record_ids, kind="stable")
+    random_stable_positions = np.random.default_rng(seed).choice(
+        count, size=limit, replace=False
+    )
+    random_mask = np.zeros(count, dtype=bool)
+    random_mask[stable_positions[random_stable_positions]] = True
+
+    return {
+        "Random": random_mask,
+        "Entropy-only": _ranked_mask(
+            entropy, record_ids, limit, descending=True
+        ),
+        "Margin-only": _ranked_mask(
+            margin, record_ids, limit, descending=False
+        ),
+        "Conflict-only": _ranked_mask(
+            conflicts.astype(float), record_ids, limit, descending=True
+        ),
+    }
+
+
 class CrossAccountConflictDetector:
     """Learns context-dependent category conflicts from training rows only.
 

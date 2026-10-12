@@ -116,6 +116,12 @@ def build_page(outputs: Path, deployment: Path) -> str:
     repeated = read_csv(outputs / "repeated" / "repeated_summary.csv")
     ablations = read_csv(outputs / "ablations" / "ablation_summary.csv")
     actm_rows = read_csv(outputs / "actm_evaluation" / "actm_summary.csv")
+    actm_selection_rows = read_csv(
+        outputs / "actm_selection_baselines" / "actm_selection_summary.csv"
+    )
+    actm_threshold_rows = read_csv(
+        outputs / "actm_threshold_analysis" / "actm_threshold_sensitivity_summary.csv"
+    )
     heuristic_rows = read_csv(outputs / "utility_diagnostics" / "utility_diagnostic_summary.csv")
     components = read_csv(outputs / "utility_diagnostics" / "utility_component_summary.csv")
     balance = read_csv(outputs / "class_balance" / "class_balance_summary.csv")
@@ -205,6 +211,80 @@ def build_page(outputs: Path, deployment: Path) -> str:
     actm_table = table(
         ["Runs", "Eligible", "Prompts per 100", "Prompt precision", "Note acceptance", "Mean uncertainty reduction"],
         [[html.escape(actm.get("runs", "")), percent(actm.get("eligible_rate_mean")), number(actm.get("prompts_per_100_mean"), 2), percent(actm.get("prompt_precision_mean")), percent(actm.get("note_acceptance_rate_mean")), number(actm.get("mean_uncertainty_reduction_mean"), 6)]] if actm else [],
+    )
+    selection_roles = {
+        "Random": "Budget-matched random reference",
+        "Entropy-only": "Ranks highest normalised entropy first",
+        "Margin-only": "Ranks smallest top-two margin first",
+        "Conflict-only": "Prioritises proxy cross-context conflict",
+        "Proposed ACTM": "Combines eligibility and ACTM priority score",
+    }
+    actm_selection_table = table(
+        [
+            "Strategy",
+            "Evaluation role",
+            "Prompts",
+            "Prompts per 100",
+            "Prompt precision",
+            "Wrong to correct",
+            "Correct to wrong",
+            "Net corrections",
+            "Corrections per 100 prompts",
+            "Accuracy",
+            "Macro F1",
+        ],
+        [
+            [
+                html.escape(r.get("strategy", "")),
+                html.escape(selection_roles.get(r.get("strategy", ""), "Selection comparator")),
+                number(r.get("prompts_mean"), 0),
+                number(r.get("prompts_per_100_mean"), 3),
+                percent(r.get("prompt_precision_mean"), 1),
+                number(r.get("wrong_to_correct_mean"), 3),
+                number(r.get("correct_to_wrong_mean"), 3),
+                number(r.get("net_corrections_mean"), 3),
+                number(r.get("correction_yield_per_100_prompts_mean"), 3),
+                number(r.get("overall_accuracy_mean")),
+                number(r.get("overall_macro_f1_mean")),
+            ]
+            for r in actm_selection_rows
+        ],
+    )
+    threshold_examples = [
+        r
+        for r in actm_threshold_rows
+        if (
+            r.get("entropy_threshold") == "0.65"
+            and r.get("margin_threshold") == "0.15"
+        )
+        or (
+            r.get("include_conflict") == "False"
+            and r.get("entropy_threshold") == "0.999"
+            and r.get("margin_threshold") == "0.001"
+        )
+    ]
+    actm_threshold_table = table(
+        [
+            "Conflict proxy included",
+            "Entropy threshold",
+            "Margin threshold",
+            "Mean eligibility",
+            "Eligibility SD",
+            "Mean prompt rate",
+            "Budget fill",
+        ],
+        [
+            [
+                html.escape(r.get("include_conflict", "")),
+                number(r.get("entropy_threshold"), 4),
+                number(r.get("margin_threshold"), 4),
+                percent(r.get("eligibility_rate_mean"), 1),
+                percent(r.get("eligibility_rate_std"), 1),
+                percent(r.get("expected_prompt_rate_mean"), 1),
+                percent(r.get("budget_fill_rate_mean"), 1),
+            ]
+            for r in threshold_examples
+        ],
     )
     heuristic_table = table(
         ["Client rounds", "Fallback rate", "Near-identical weights", "Mean heuristic range", "Multiplier range", "Mean absolute weight change"],
@@ -313,7 +393,7 @@ nav{{position:sticky;top:0;z-index:5;display:flex;gap:8px;overflow:auto;padding:
 <section id="guide"><h2>How to read the results</h2><p class="sub">The most important metric for this imbalanced 13-category research task is Macro F1, because it gives every category equal importance.</p><div class="guide"><article><strong>Accuracy</strong><p>Share of all transactions classified correctly. It can look good even when minority categories are ignored.</p></article><article><strong>Macro F1</strong><p>Average category-level F1 with every category weighted equally. Higher is better.</p></article><article><strong>Weighted F1</strong><p>F1 weighted by category frequency, so common categories influence it more.</p></article><article><strong>ECE and Brier</strong><p>Calibration errors. Lower is better; they indicate how well probability confidence matches outcomes.</p></article><article><strong>Mean ± SD</strong><p>Average across three seeds and its variability. Three seeds provide exploratory, not definitive, evidence.</p></article><article><strong>95% CI and p-value</strong><p>If the difference interval crosses zero, the current evidence does not establish a reliable advantage.</p></article></div></section>
 <section id="findings"><h2>Main findings in simple language</h2><p class="sub">These statements are generated from the current output files and preserve the report's evidence limitations.</p>{findings}</section>
 <section id="tier-a"><h2>Tier A research comparisons</h2><p class="sub">Controlled BudgetWise evaluation. Each table now states why the comparison exists and what can reasonably be concluded.</p><h3>1. Baseline comparison: what each method tests</h3><p class="explain">Use this table to understand the role of every method. The non-federated metadata models and federated models answer different component questions, so do not rank all rows as if they were identical training settings.</p>{baseline_table}<h3>2. Repeated-seed federated comparison</h3><p class="explain">This is the fairest direct comparison of FedAvg, FedProx, and the proposed federated method because they use the same seeds and evaluation contract.</p>{repeated_table}<h3>3. Ablations: which proposed component matters?</h3><p class="explain">Each row removes or changes one component. A negative difference means the variant is worse than the full method; a positive difference means the variant is better.</p>{ablation_table}<h3>4. Paired uncertainty for Macro F1</h3><p class="explain">The confidence interval and exact sign-flip p-value show whether the observed differences are stable across the three matched seeds.</p>{stats_table}</section>
-<section id="actm"><h2>ACTM and combined heuristic</h2><p class="sub">Purpose: decide which Tier A records receive retrospective clarification context and test whether the resulting client-level signal changes aggregation.</p><p class="explain"><strong>Important:</strong> “Prompt precision” is a retrospective source-note proxy, not feedback from real users. The combined heuristic also includes local model-adaptation effects, so it is not an isolated Smart Note usefulness score.</p>{actm_table}<h3>What the ACTM result means</h3><div class="insights"><article class="insight"><strong>Eligible = 100%</strong><p>The thresholds did not create a selective ambiguous subset; every record was eligible for ranking.</p></article><article class="insight"><strong>Prompts ≈ 30 per 100</strong><p>The nominal 30% budget, rather than eligibility, determined how many records were selected.</p></article><article class="insight"><strong>Prompt precision ≈ 84.8%</strong><p>Most selected records had usable existing source-note context under the retrospective proxy definition.</p></article><article class="insight"><strong>Uncertainty reduction ≈ 0</strong><p>The measured average before/after uncertainty change was extremely small.</p></article></div><h3>Aggregation-effect diagnosis</h3><p class="explain">Near-identical weights show whether the bounded heuristic multiplier meaningfully changed ordinary FedAvg sample-count weights.</p>{heuristic_table}<h3>Heuristic components</h3>{component_table}</section>
+<section id="actm"><h2>ACTM and combined heuristic</h2><p class="sub">Purpose: decide which Tier A records receive retrospective clarification context and test whether the resulting client-level signal changes aggregation.</p><p class="explain"><strong>Important:</strong> “Prompt precision” is a retrospective source-note proxy, not feedback from real users. The combined heuristic also includes local model-adaptation effects, so it is not an isolated Smart Note usefulness score.</p>{actm_table}<h3>Q9: budget-matched ACTM selection comparison</h3><p class="explain">Random, entropy-only, margin-only, conflict-only and Proposed ACTM use the same frozen checkpoint, test split and nominal 30% ceil-based budget. Every strategy selected 693 of 2,308 transactions per seed. Entropy-only has the highest prompt precision, margin-only has the highest gross correction yield, conflict-only has the highest Macro F1, and Proposed ACTM has the highest mean net corrections and accuracy. No strategy dominates every outcome.</p>{actm_selection_table}<h3>ACTM eligibility-threshold diagnosis</h3><p class="explain">This sensitivity analysis uses validation data only. The frozen thresholds remain 100% eligible even without conflict because the model outputs have very high entropy and very small margins. The location/payment-mode conflict proxy also marks every validation record. A stricter illustrative pair becomes selective only after excluding that degenerate proxy, and it is not adopted as a replacement experimental setting.</p>{actm_threshold_table}<h3>What the ACTM result means</h3><div class="insights"><article class="insight"><strong>Eligible = 100%</strong><p>The thresholds did not create a selective ambiguous subset; every record was eligible for ranking.</p></article><article class="insight"><strong>Prompts ≈ 30 per 100</strong><p>The nominal 30% budget, rather than eligibility, determined how many records were selected.</p></article><article class="insight"><strong>Prompt precision ≈ 84.8%</strong><p>Most selected records had usable existing source-note context under the retrospective proxy definition.</p></article><article class="insight"><strong>Uncertainty reduction ≈ 0</strong><p>The measured average before/after uncertainty change was extremely small.</p></article></div><h3>Aggregation-effect diagnosis</h3><p class="explain">Near-identical weights show whether the bounded heuristic multiplier meaningfully changed ordinary FedAvg sample-count weights.</p>{heuristic_table}<h3>Heuristic components</h3>{component_table}</section>
 <section id="class-balance"><h2>Class-balance comparison</h2><p class="sub">Purpose: test whether training-time class weights reduce majority-category collapse.</p><p class="explain">Standard training obtains higher overall accuracy, while class-weighted training predicts more categories and produces higher Macro F1. Choose the class-weighted candidate only if balanced category coverage is the priority.</p>{balance_table}</section>
 <section id="deployment"><h2>PocketIQ deployment model</h2><p class="sub">Purpose: verify the separate 14-category TF-IDF/linear ONNX package used by Flutter. It is not the Tier A federated checkpoint.</p><div class="notice"><strong>Do not compare these scores directly with Tier A.</strong> The deployment model uses a different dataset, feature contract, category set, split, and classifier. Its high held-out score concerns the synthetic US-oriented source domain and does not prove Malaysian real-world performance.</div>{deploy_table}<h3>ONNX parity</h3><p class="explain">Parity checks whether ONNX Runtime produces practically the same outputs as Python for fixed fixtures. Passing parity verifies export consistency; it does not measure categorisation accuracy.</p>{parity_table}</section>
 <section id="charts"><h2>Charts</h2><p class="sub">Select any chart to open the full local image.</p><div class="gallery">{charts}</div></section>

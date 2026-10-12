@@ -1,0 +1,19 @@
+               precision    recall  f1-score   support
+
+        Bonus       0.14      0.11      0.12        65
+    Education       0.00      0.00      0.00       151
+Entertainment       0.00      0.00      0.00       198
+         Food       0.22      0.04      0.06       500
+    Freelance       0.33      0.01      0.03        71
+       Health       0.00      0.00      0.00        93
+   Investment       0.00      0.00      0.00        70
+        Other       0.00      0.00      0.00       108
+         Rent       0.22      0.01      0.02       401
+       Salary       0.16      0.33      0.22        67
+      Savings       0.00      0.00      0.00        57
+       Travel       0.00      0.00      0.00       294
+    Utilities       0.11      0.94      0.20       233
+
+     accuracy                           0.12      2308
+    macro avg       0.09      0.11      0.05      2308
+ weighted avg       0.12      0.12      0.05      2308

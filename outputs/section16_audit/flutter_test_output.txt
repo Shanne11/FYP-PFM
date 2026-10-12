@@ -1,0 +1,10 @@
+Command executed from an isolated copy of the current Flutter working tree:
+D:\Flutter\flutter\bin\flutter.bat test --no-pub test\optional_learning_upload_disabled_test.dart --reporter expanded
+
+00:00 +0: loading test/optional_learning_upload_disabled_test.dart
+00:00 +0: remote optional-learning upload is disabled
+00:00 +1: syncPending rejects direct programmatic calls
+00:00 +2: All tests passed!
+
+Environment note:
+The test was run from C:\Users\thepr\AppData\Local\Temp\pocketiq_q18_audit_20261011_2330\repo because OneDrive locked ios\Flutter\ephemeral\Packages\.packages in the original checkout. The isolated copy was created from Flutter HEAD 1996df89dde7623956320afaa26b4f7e9cd88d55 plus the current optional_learning_service.dart and optional_learning_upload_disabled_test.dart working-tree files. No application implementation was changed in the temporary copy.

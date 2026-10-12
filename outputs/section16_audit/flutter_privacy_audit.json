@@ -1,0 +1,35 @@
+{
+  "git": {
+    "repository": "C:\\Users\\thepr\\OneDrive\\Documents\\ChatGPT\\FYP\\github_readme_updates\\FYP-personal-finance-management-system",
+    "branch": "main",
+    "head": "1996df89dde7623956320afaa26b4f7e9cd88d55",
+    "last_commit": "1996df8 2026-09-13 12:29:33 +0800 Refresh deployment model evidence",
+    "working_tree_clean": false,
+    "changed_file_count": 11,
+    "status_short": [
+      "M lib/features/settings/view/settings_control_pages.dart",
+      " M lib/features/settings/view/settings_pages.dart",
+      " M lib/ml/learning/optional_learning_service.dart",
+      " M linux/flutter/generated_plugin_registrant.cc",
+      " M linux/flutter/generated_plugin_registrant.h",
+      " M linux/flutter/generated_plugins.cmake",
+      " M macos/Flutter/GeneratedPluginRegistrant.swift",
+      " M windows/flutter/generated_plugin_registrant.cc",
+      " M windows/flutter/generated_plugin_registrant.h",
+      " M windows/flutter/generated_plugins.cmake",
+      "?? test/optional_learning_upload_disabled_test.dart"
+    ]
+  },
+  "source_sha256": "650b7321d9ca2b4d29e9556c27bc970d4434f02c81cd2cccc1167bb3cb4f0fa7",
+  "test_sha256": "76d4b4295b7df0b1f23dbf4b8c42d988146981ef2652ed743554c417dbfc619b",
+  "remote_sync_flag_false": true,
+  "train_creates_payload_file": false,
+  "train_creates_pending_sync_row": false,
+  "sync_pending_unconditionally_throws": true,
+  "sync_pending_contains_network_call": false,
+  "programmatic_rejection_test_present": true,
+  "programmatic_rejection_test_passed": true,
+  "payload_fields": [],
+  "privacy_conclusion": "The current pathway performs local calibration only. It creates no upload payload or pending sync record, and syncPending rejects direct calls before any network operation.",
+  "evidence_limitation": "The source and test changes are uncommitted; record a new Flutter commit before calling this final frozen evidence."
+}

@@ -1,0 +1,10 @@
+ACTM validation-only threshold diagnosis
+
+Frozen threshold eligibility with the conflict proxy: 100.00%.
+Frozen threshold eligibility without the conflict proxy: 100.00%.
+Training-fitted proxy conflict rate on validation: 100.00%.
+Normalised entropy range across seeds: 0.956390 to 0.999150.
+Top-two margin range across seeds: 0.000000 to 0.022576.
+Illustrative validation-only pair without conflict (entropy >= 0.999 or margin <= 0.001): 25.80% mean eligibility (+/- 5.80%).
+
+The current 0.65 entropy and 0.15 margin thresholds are non-selective for these near-uniform model outputs. The location/payment-mode conflict proxy is also degenerate because it marks every validation record. Threshold changes alone cannot restore selectivity while that proxy is included. Any replacement thresholds or conflict definition must be chosen on validation data, frozen, and then evaluated once on held-out data; this diagnostic does not alter the reported experimental contract.

@@ -197,6 +197,10 @@ Every held-out transaction satisfies at least one ambiguity condition. Consequen
 
 Prompt precision and note acceptance are high, showing that ACTM can prioritise likely errors within a fixed interaction budget. However, uncertainty reduction after clarification is negligible. ACTM should therefore be reported as evidence for **budgeted prioritisation**, not as a validated ambiguity separator or uncertainty-reduction mechanism. Threshold calibration must be performed on validation data if a genuinely selective ambiguous subset is required.
 
+The completed Q9 comparison applies the same 693-prompt budget to Random, Entropy-only, Margin-only, Conflict-only and Proposed ACTM for each of seeds 42, 52 and 62. Entropy-only has the highest mean prompt precision (0.8610), Margin-only the highest gross correction yield (3.127 wrong-to-correct changes per 100 prompts), Conflict-only the highest mean Macro F1 (0.0440), and Proposed ACTM the highest mean net corrections (+0.667 per seed) and accuracy (0.1837). No strategy dominates every outcome, so the result supports a selection trade-off rather than an unqualified ACTM-superiority claim.
+
+The validation-only threshold investigation explains the 100% eligibility. Normalised entropy ranges from 0.956390 to 0.999150, while top-two margins range from 0.000000 to 0.022576; therefore the frozen 0.65/0.15 conditions are satisfied by every record even when conflict is excluded. The current location/payment-mode conflict proxy is also degenerate and marks 100% of validation records. An illustrative stricter pair without that proxy (entropy >= 0.999 or margin <= 0.001) reduces mean eligibility to 25.80% +/- 5.80%, but it is a diagnostic example, not an adopted replacement setting. Any replacement must be selected on validation data, frozen, and evaluated once on held-out data.
+
 ### Federated class-level diagnosis
 
 The low federated Macro F1 is caused by prediction collapse rather than uniformly weak performance across all categories:
@@ -350,6 +354,15 @@ outputs/actm_evaluation/actm_summary.csv
 outputs/actm_evaluation/actm_conclusion.txt
 outputs/actm_evaluation/actm_rates.png
 ```
+
+Run the Q9 budget-matched selector comparison and validation-only threshold diagnosis with:
+
+```powershell
+python evaluation/run_actm_selection_baselines.py
+python evaluation/analyze_actm_thresholds.py
+```
+
+These create `outputs/actm_selection_baselines/` and `outputs/actm_threshold_analysis/`, including per-seed records, three-seed summaries, the evaluation contracts and concise conclusions.
 
 ### Federated class-level analysis
 
@@ -605,13 +618,21 @@ The current checks cover:
 
 The latest full verification completed on 13 September 2026: all 29 Python tests passed, all reportable summary artefacts were present, 21 ablation runs, nine repeated-seed runs and nine class-balance runs were available, and the active output set contained no invalid JSON or zero-byte files. The previous output set is retained outside the repository as a recoverable archive rather than being mixed with the current evidence.
 
+Generate a SHA-256 traceability manifest for the reportable summaries, selected checkpoint, contracts and separate deployment-verification artefacts with:
+
+```powershell
+python evaluation/freeze_evidence.py
+```
+
+The resulting `outputs/evidence_freeze/evidence_manifest.json` remains marked `provisional-uncommitted-changes` until the intended code and evidence changes are committed. This prevents an uncommitted working tree from being described as a final evidence freeze.
+
 ## Required next evaluation work
 
 Before treating the results as final research evidence:
 
 1. If the heuristic adjustment is revised, define the new mapping and novelty measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
-3. Calibrate ACTM thresholds on validation data if the report requires a genuinely selective ambiguous subset rather than budget-based ranking.
+3. If a replacement ACTM configuration is adopted, replace the degenerate conflict proxy and select thresholds on validation data before one held-out evaluation; do not choose them from test outcomes.
 4. Decide whether three-seed exploratory evidence is sufficient for the FYP scope or whether additional seeds are feasible.
 5. Consider further training-only remedies only if the remaining zero-recall categories are unacceptable for the final scope.
 6. Keep the Tier A checkpoint and the separate PocketIQ deployment package explicitly separated in code, documentation, and reported evidence.

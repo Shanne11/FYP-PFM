@@ -1,0 +1,6 @@
+ACTM selection comparison completed under a shared nominal 30% prompt budget and frozen same-checkpoint inference. Results must be interpreted as retrospective source-note-proxy evidence, not observed human response.
+Highest gross correction yield: Margin-only (3.127 wrong-to-correct changes per 100 prompts).
+Highest mean net corrections: Proposed ACTM (0.667 per seed).
+Highest prompt precision: Entropy-only (0.860991).
+Proposed ACTM: prompt precision=0.848004, gross correction yield=2.694, net corrections=0.667 per seed.
+No strategy dominates every outcome; report the trade-off rather than an unqualified ACTM-superiority claim.

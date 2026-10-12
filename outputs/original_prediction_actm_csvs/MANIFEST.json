@@ -1,0 +1,237 @@
+{
+  "purpose": "Original transaction-level ACTM outcomes and seed 42/52/62 matched-ablation prediction CSVs for independent reproduction.",
+  "copy_policy": "Files under outputs/ are byte-for-byte copies of original experiment outputs; hashes were compared after copying.",
+  "actm_validation": {
+    "rows": 34620,
+    "expected_rows": 34620,
+    "seeds": [
+      42,
+      52,
+      62
+    ],
+    "strategies": [
+      "Conflict-only",
+      "Entropy-only",
+      "Margin-only",
+      "Proposed ACTM",
+      "Random"
+    ]
+  },
+  "matched_prediction_validation": {
+    "42": {
+      "full_rows": 2308,
+      "without_heuristic_adjustment_rows": 2308,
+      "transaction_ids_identical_and_ordered": true,
+      "unique_transaction_ids": 2291
+    },
+    "52": {
+      "full_rows": 2308,
+      "without_heuristic_adjustment_rows": 2308,
+      "transaction_ids_identical_and_ordered": true,
+      "unique_transaction_ids": 2291
+    },
+    "62": {
+      "full_rows": 2308,
+      "without_heuristic_adjustment_rows": 2308,
+      "transaction_ids_identical_and_ordered": true,
+      "unique_transaction_ids": 2291
+    }
+  },
+  "files": [
+    {
+      "packaged_path": "outputs/actm_selection_baselines/actm_selection_contract.json",
+      "original_path": "outputs/actm_selection_baselines/actm_selection_contract.json",
+      "sha256": "01d27bc1df3086459abdff4ff173c34598181d9b4789429696408baf9f67fef5",
+      "bytes": 588
+    },
+    {
+      "packaged_path": "outputs/actm_selection_baselines/actm_selection_transaction_outcomes.csv",
+      "original_path": "outputs/actm_selection_baselines/actm_selection_transaction_outcomes.csv",
+      "sha256": "ff0593230cdea5a9b26a9152d58b9b6c2be6263f81bc8eaa47d51e5cec89dc9b",
+      "bytes": 3699206,
+      "data_rows": 34620
+    },
+    {
+      "packaged_path": "outputs/actm_selection_baselines/actm_selection_runs.csv",
+      "original_path": "outputs/actm_selection_baselines/actm_selection_runs.csv",
+      "sha256": "e6b2c9245ec07701975582bcffdc455547fc4baabdeca4e0d3eae36097fd8eb2",
+      "bytes": 3881,
+      "data_rows": 15
+    },
+    {
+      "packaged_path": "outputs/actm_selection_baselines/actm_selection_summary.csv",
+      "original_path": "outputs/actm_selection_baselines/actm_selection_summary.csv",
+      "sha256": "70463a6476e59d3841945dd4a77bd6a0d16fec25061035f8d36226f0ba32ec08",
+      "bytes": 4284,
+      "data_rows": 5
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/full/predictions.csv",
+      "original_path": "outputs/ablations/seed_42/full/predictions.csv",
+      "sha256": "e4b185fcdd2bf6d5a1fb55582e10afa80bea25030236db8885f7f2020c152a89",
+      "bytes": 107669,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/full/test_record_ids.csv",
+      "original_path": "outputs/ablations/seed_42/full/test_record_ids.csv",
+      "sha256": "c0b325d7ea2801eea12b93d5918de1c7e530ac0423259c0c070cdaa77302dcc3",
+      "bytes": 28470,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/full/overall_metrics.csv",
+      "original_path": "outputs/ablations/seed_42/full/overall_metrics.csv",
+      "sha256": "f7366b863de6a05fcd31e8bd96b77320db127f6e8cc42b3e38c6d238405bc68e",
+      "bytes": 332,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/full/prompt_metrics.csv",
+      "original_path": "outputs/ablations/seed_42/full/prompt_metrics.csv",
+      "sha256": "f4c9347ce131e6372065272af3ae40c767df59ff078cbd296c30ad013e3ba47b",
+      "bytes": 233,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/without_heuristic_adjustment/predictions.csv",
+      "original_path": "outputs/ablations/seed_42/without_heuristic_adjustment/predictions.csv",
+      "sha256": "2b2e782f413f36063a801fa8aa2072103ea9883d9602e0123d2f20fd6f4d29be",
+      "bytes": 107655,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/without_heuristic_adjustment/test_record_ids.csv",
+      "original_path": "outputs/ablations/seed_42/without_heuristic_adjustment/test_record_ids.csv",
+      "sha256": "c0b325d7ea2801eea12b93d5918de1c7e530ac0423259c0c070cdaa77302dcc3",
+      "bytes": 28470,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/without_heuristic_adjustment/overall_metrics.csv",
+      "original_path": "outputs/ablations/seed_42/without_heuristic_adjustment/overall_metrics.csv",
+      "sha256": "be26058e761631715d0a266ae14910f6dd085a1cc6ab5730a08a408f06b82eae",
+      "bytes": 332,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_42/without_heuristic_adjustment/prompt_metrics.csv",
+      "original_path": "outputs/ablations/seed_42/without_heuristic_adjustment/prompt_metrics.csv",
+      "sha256": "33a49e3cd2b502b5614ddec77390a15ec8a5a12772cadf0d8f403617d4f1c5d8",
+      "bytes": 233,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/full/predictions.csv",
+      "original_path": "outputs/ablations/seed_52/full/predictions.csv",
+      "sha256": "34e032a746365e9c8cdc33092afa553791a8f1dd7ec0d5c6ed2c678d9e6c83dd",
+      "bytes": 114044,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/full/test_record_ids.csv",
+      "original_path": "outputs/ablations/seed_52/full/test_record_ids.csv",
+      "sha256": "c0b325d7ea2801eea12b93d5918de1c7e530ac0423259c0c070cdaa77302dcc3",
+      "bytes": 28470,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/full/overall_metrics.csv",
+      "original_path": "outputs/ablations/seed_52/full/overall_metrics.csv",
+      "sha256": "6e6ecf27b827d3283149176135c4fa11cb6ecfe376d7ca2840b6d2bf273b0627",
+      "bytes": 334,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/full/prompt_metrics.csv",
+      "original_path": "outputs/ablations/seed_52/full/prompt_metrics.csv",
+      "sha256": "c87e354eb7540dc6e7b856a5f985a9e4a24dbcbe4d1beb00314d26f260b3e91e",
+      "bytes": 235,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/without_heuristic_adjustment/predictions.csv",
+      "original_path": "outputs/ablations/seed_52/without_heuristic_adjustment/predictions.csv",
+      "sha256": "919bf1cb43a3f5d284c850274c16d9d1d2dcd1bd245e4424be03eed6d3417042",
+      "bytes": 113984,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/without_heuristic_adjustment/test_record_ids.csv",
+      "original_path": "outputs/ablations/seed_52/without_heuristic_adjustment/test_record_ids.csv",
+      "sha256": "c0b325d7ea2801eea12b93d5918de1c7e530ac0423259c0c070cdaa77302dcc3",
+      "bytes": 28470,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/without_heuristic_adjustment/overall_metrics.csv",
+      "original_path": "outputs/ablations/seed_52/without_heuristic_adjustment/overall_metrics.csv",
+      "sha256": "e7c170c23192e600d1c39f736f5e096da00f9588f7c7495ddd37062437059be8",
+      "bytes": 334,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_52/without_heuristic_adjustment/prompt_metrics.csv",
+      "original_path": "outputs/ablations/seed_52/without_heuristic_adjustment/prompt_metrics.csv",
+      "sha256": "10df878101773cdccc9cff3baf407d64505a4e45bfb4f729fe0ed20abe638000",
+      "bytes": 235,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/full/predictions.csv",
+      "original_path": "outputs/ablations/seed_62/full/predictions.csv",
+      "sha256": "b30399b9cd0f5d57268e9d12c34745d8aa4afd1af4fe61c889a429fdf0dfa950",
+      "bytes": 108327,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/full/test_record_ids.csv",
+      "original_path": "outputs/ablations/seed_62/full/test_record_ids.csv",
+      "sha256": "c0b325d7ea2801eea12b93d5918de1c7e530ac0423259c0c070cdaa77302dcc3",
+      "bytes": 28470,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/full/overall_metrics.csv",
+      "original_path": "outputs/ablations/seed_62/full/overall_metrics.csv",
+      "sha256": "07f270e9824c414441301c8c70a3ce518107f40f059868980b0c45e98a52bbb4",
+      "bytes": 334,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/full/prompt_metrics.csv",
+      "original_path": "outputs/ablations/seed_62/full/prompt_metrics.csv",
+      "sha256": "9d3c1b74a5a1cfe203cdbc65d8a98321726330cbc286bcdd846f0e884830924c",
+      "bytes": 234,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/without_heuristic_adjustment/predictions.csv",
+      "original_path": "outputs/ablations/seed_62/without_heuristic_adjustment/predictions.csv",
+      "sha256": "ee0acda09feeb4cca522265e2a67531eae0109992fd5caa0dea648bacada591d",
+      "bytes": 108254,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/without_heuristic_adjustment/test_record_ids.csv",
+      "original_path": "outputs/ablations/seed_62/without_heuristic_adjustment/test_record_ids.csv",
+      "sha256": "c0b325d7ea2801eea12b93d5918de1c7e530ac0423259c0c070cdaa77302dcc3",
+      "bytes": 28470,
+      "data_rows": 2308
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/without_heuristic_adjustment/overall_metrics.csv",
+      "original_path": "outputs/ablations/seed_62/without_heuristic_adjustment/overall_metrics.csv",
+      "sha256": "b9c854e8f0e250da2db192439e7a09b4e8cf63ab1743bd84c181bbd54ca91df6",
+      "bytes": 334,
+      "data_rows": 1
+    },
+    {
+      "packaged_path": "outputs/ablations/seed_62/without_heuristic_adjustment/prompt_metrics.csv",
+      "original_path": "outputs/ablations/seed_62/without_heuristic_adjustment/prompt_metrics.csv",
+      "sha256": "28aa5f2a16e33539ac38ff8d78be90ee23efb1fc8b7d8cff7e09d47f7dbf7a4a",
+      "bytes": 235,
+      "data_rows": 1
+    }
+  ]
+}

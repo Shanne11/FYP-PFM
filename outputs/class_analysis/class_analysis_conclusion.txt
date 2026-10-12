@@ -15,11 +15,11 @@ fedprox:
   Largest confusion pairs: Food->Rent (792), Travel->Rent (464), Rent->Food (405)
 
 proposed:
-  Best class F1: Food (0.2689)
+  Best class F1: Food (0.2657)
   Worst class F1: Bonus (0.0000)
   Zero recall in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings, Travel
   Never predicted in every seed: Bonus, Education, Entertainment, Freelance, Health, Other, Salary, Savings, Travel
-  Largest confusion pairs: Food->Rent (643), Rent->Food (541), Travel->Food (382)
+  Largest confusion pairs: Food->Rent (659), Rent->Food (521), Travel->Rent (387)
 
 Low Macro F1 is caused by highly uneven category performance: models concentrate
 predictions in a small number of categories while several minority classes receive

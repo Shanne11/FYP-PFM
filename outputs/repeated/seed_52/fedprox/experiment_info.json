@@ -10,6 +10,8 @@
   "rounds": 10,
   "local_epochs": 3,
   "training_seed": 52,
+  "class_weighted_loss": false,
+  "class_weights": null,
   "split_manifest_version": 2,
   "best_validation_macro_f1": 0.036640503561443695,
   "test_metrics": {
