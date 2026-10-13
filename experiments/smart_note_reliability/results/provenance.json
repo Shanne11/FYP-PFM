@@ -1,6 +1,7 @@
 {
   "extension": "Class-Balanced Effective-Number Loss and Reliability-Gated Smart Note Fusion",
   "source_commit_before_extension": "c2a71f884d20cc6e52f6bfdacd8be56e07c7947d",
+  "experimental_implementation_commit": "6d17323dca2cda54f74f9ed07078daca8a1b39e6",
   "dataset": "dataset/clean_budgetwise.csv",
   "dataset_sha256": "608bc42c26f13e1323bc2be4bf614c28968e62a1aa873911d243c462fb4b740d",
   "split_manifest": "data/experiment_split.json",

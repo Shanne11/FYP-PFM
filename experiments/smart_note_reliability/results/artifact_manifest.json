@@ -28,8 +28,8 @@
     },
     {
       "path": "experiments/smart_note_reliability/results/provenance.json",
-      "size_bytes": 1003,
-      "sha256": "bc6ff0c1b2bbe6993bc237580462269fb8a25e06df364a7e0636c3ee6de129cb"
+      "size_bytes": 1090,
+      "sha256": "a5a896ab36ad967fe6efd849df4059dfe5b2abfde057b2fc3e5b66a15d14c55a"
     },
     {
       "path": "experiments/smart_note_reliability/results/seed_42/RGSF_evaluation/gate_thresholds.json",
