@@ -1,0 +1,95 @@
+{
+  "count": 18,
+  "artifacts": [
+    {
+      "path": "experiments/smart_note_reliability/results/ablation_runs.csv",
+      "size_bytes": 4410,
+      "sha256": "acde74024ff3da122fca480a44a288845ac39fda7d5710677328f9cadacf3cdd"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/ablation_summary.csv",
+      "size_bytes": 4537,
+      "sha256": "324c7d1e62b6d1c24fb0e100f1ec0857abb0a2ebdc109c9460540e1d79afb7ed"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/loss_comparison_runs.csv",
+      "size_bytes": 1406,
+      "sha256": "40c863ed16b0c767405c1e0a3d3ce981fcca08dd27bf36a16a32ad3e57483a7b"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/loss_comparison_summary.csv",
+      "size_bytes": 1327,
+      "sha256": "b8a3573fcd9c0b76d98b10c8c93c0365f22986128faee12879f861e6b019d8a8"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/per_class_all_seeds.csv",
+      "size_bytes": 12729,
+      "sha256": "3e02e0c2bd4498cbe37e8b166fc967b979acf95bf757b17a047a3b103504ebbf"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/provenance.json",
+      "size_bytes": 1003,
+      "sha256": "bc6ff0c1b2bbe6993bc237580462269fb8a25e06df364a7e0636c3ee6de129cb"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_42/RGSF_evaluation/gate_thresholds.json",
+      "size_bytes": 160,
+      "sha256": "1bd2e6a3c9292f511f03b7cb1e820940476bb45432dc4c98484f87c0b4e527e2"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_52/RGSF_evaluation/gate_thresholds.json",
+      "size_bytes": 160,
+      "sha256": "1bd2e6a3c9292f511f03b7cb1e820940476bb45432dc4c98484f87c0b4e527e2"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_62/RGSF_evaluation/gate_thresholds.json",
+      "size_bytes": 160,
+      "sha256": "1bd2e6a3c9292f511f03b7cb1e820940476bb45432dc4c98484f87c0b4e527e2"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_42/RGSF_evaluation/A2_effective_number_without_notes_confusion_matrix.csv",
+      "size_bytes": 608,
+      "sha256": "12bc1c673f0834ab251fdc248ff31ab9de9e8b8860c653d43ecb11254498416c"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_42/RGSF_evaluation/A3_effective_number_unconditional_fusion_confusion_matrix.csv",
+      "size_bytes": 609,
+      "sha256": "5c8d5f4ed45e30ec31ea4e2d0750f932fa9b6b3bfd27ca189e31cfc9b6c25830"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_42/RGSF_evaluation/A4_effective_number_RGSF_confusion_matrix.csv",
+      "size_bytes": 609,
+      "sha256": "e49ba503f87854d8760ef1403ded07b5a521965d97e59b8f9c8753e6b4cfbd0f"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_52/RGSF_evaluation/A2_effective_number_without_notes_confusion_matrix.csv",
+      "size_bytes": 597,
+      "sha256": "2e7bbd14678704f372066c3567b931484ca4b2c641786f15d0b3d3afbacde205"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_52/RGSF_evaluation/A3_effective_number_unconditional_fusion_confusion_matrix.csv",
+      "size_bytes": 598,
+      "sha256": "1f702aaabbf65235f9caa2eeba12551ec28437ced9f6fb3c0486f275dd44fb60"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_52/RGSF_evaluation/A4_effective_number_RGSF_confusion_matrix.csv",
+      "size_bytes": 597,
+      "sha256": "df80a84dc4cb26e18964a362ddf4e0f4c909d7e4e1fbdf3bf2247943f92cefb3"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_62/RGSF_evaluation/A2_effective_number_without_notes_confusion_matrix.csv",
+      "size_bytes": 608,
+      "sha256": "b8a45852d7495ed3b2a44c3e464bb0dd48a0bc13103a6ee9f024a14b8b4ed597"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_62/RGSF_evaluation/A3_effective_number_unconditional_fusion_confusion_matrix.csv",
+      "size_bytes": 609,
+      "sha256": "07a44eab66691e3911904315a2ac58634ee390f32e6d0afcb9a8137ee7f10ce2"
+    },
+    {
+      "path": "experiments/smart_note_reliability/results/seed_62/RGSF_evaluation/A4_effective_number_RGSF_confusion_matrix.csv",
+      "size_bytes": 608,
+      "sha256": "d2350347bfed060f3198892350e3030fa4adc6a1db51f2542a384685af1e2ead"
+    }
+  ]
+}

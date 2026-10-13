@@ -1,0 +1,7 @@
+{
+  "selected_on": "validation",
+  "min_confidence_delta": 0.0,
+  "min_margin_delta": 0.0,
+  "min_entropy_reduction": 0.0,
+  "min_lexical_novelty": 0.25
+}

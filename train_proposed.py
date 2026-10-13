@@ -30,7 +30,7 @@ from models.federated.heuristic import (
     clarification_heuristic,
 )
 from models.mlp import MLP
-from utils.class_balance import inverse_frequency_weights
+from utils.class_balance import effective_number_weights, inverse_frequency_weights
 from utils.experiment_data import load_experiment_data, save_split_indices
 from utils.metrics import metric_summary
 from utils.proposed_features import ProposedFeatureBuilder
@@ -62,6 +62,16 @@ def arguments():
     )
     parser.add_argument("--class-weighted-loss", action="store_true",
                         help="Use inverse-frequency weights fitted on training labels only.")
+    parser.add_argument(
+        "--loss-mode",
+        choices=["standard", "inverse_frequency", "effective_number"],
+        default="standard",
+        help="Experimental loss; weights are always calculated from training labels only.",
+    )
+    parser.add_argument(
+        "--effective-beta", type=float, default=0.9999,
+        help="Beta for effective-number class-balanced loss.",
+    )
     parser.add_argument("--max-clients", type=int, default=None,
                         help="Development/smoke-test limit; omit for the experiment.")
     parser.add_argument("--conflict-merchant-column", default="location",
@@ -162,7 +172,19 @@ def main(config):
         raise ValueError(f"Tier A contract requires 13 categories; received {classes}")
     training_labels = features.category_encoder.transform(train["category"])
     class_weighted_loss = getattr(config, "class_weighted_loss", False)
-    class_weights = inverse_frequency_weights(training_labels, classes) if class_weighted_loss else None
+    loss_mode = getattr(config, "loss_mode", "standard")
+    effective_beta = getattr(config, "effective_beta", 0.9999)
+    if class_weighted_loss and loss_mode == "standard":
+        # Preserve the existing command-line flag and historical callers.
+        loss_mode = "inverse_frequency"
+    if loss_mode == "inverse_frequency":
+        class_weights = inverse_frequency_weights(training_labels, classes)
+    elif loss_mode == "effective_number":
+        class_weights = effective_number_weights(training_labels, classes, effective_beta)
+    elif loss_mode == "standard":
+        class_weights = None
+    else:
+        raise ValueError(f"Unknown loss mode: {loss_mode}")
     global_model = MLP(input_size, classes)
 
     client_ids = sorted(train["user_id"].fillna("Unknown").astype(str).unique())
@@ -343,7 +365,9 @@ def main(config):
         },
         "rounds": config.rounds, "local_epochs": config.local_epochs,
         "training_seed": config.seed,
-        "class_weighted_loss": class_weighted_loss,
+        "class_weighted_loss": loss_mode != "standard",
+        "loss_mode": loss_mode,
+        "effective_beta": effective_beta if loss_mode == "effective_number" else None,
         "class_weights": class_weights.tolist() if class_weights is not None else None,
         "best_validation_macro_f1": best_f1, "final_test_metrics": overall,
         "actm_conflict_columns": {
