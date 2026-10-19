@@ -53,10 +53,6 @@ server/state/
 # Jupyter
 .ipynb_checkpoints/
 
-# Full experimental checkpoints and transaction-level extension outputs stay local.
-# Selected compact summaries are force-added after review.
-experiments/smart_note_reliability/results/**
-
 # ML models
 *.pkl
 
