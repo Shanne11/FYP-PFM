@@ -1,0 +1,12 @@
+{
+  "version": "tier_a_v2_only",
+  "training_rows": 9108,
+  "validation_rows": 2102,
+  "test_rows_scored": 0,
+  "metadata_features": 71,
+  "note_features": 37,
+  "total_features": 108,
+  "categories": 13,
+  "currency_handling": "training-fitted per-currency signed-log robust scaling",
+  "feature_fitting": "training partition only"
+}

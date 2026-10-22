@@ -1,0 +1,34 @@
+{
+  "experiment": "V2 note alignment permutation",
+  "partition": "validation",
+  "checkpoint": "proposed_no_signal_adjustment_seed_42",
+  "seed": 42,
+  "permutations": 50,
+  "validation_rows": 2102,
+  "test_rows_scored": 0,
+  "actm_prompts": 631,
+  "notes_used": 528,
+  "no_notes": {
+    "macro_f1": 0.12702195996154325,
+    "accuracy": 0.30209324452902,
+    "wrong_to_correct": 0,
+    "correct_to_wrong": 0,
+    "net_corrections": 0
+  },
+  "original_notes": {
+    "macro_f1": 0.12546017530545556,
+    "accuracy": 0.2973358705994291,
+    "wrong_to_correct": 5,
+    "correct_to_wrong": 15,
+    "net_corrections": -10
+  },
+  "shuffled_notes": {
+    "mean_macro_f1": 0.12625882565673918,
+    "std_macro_f1": 0.0011952319470365437,
+    "min_macro_f1": 0.12380535949495473,
+    "max_macro_f1": 0.12947814241710073,
+    "mean_net_corrections": -3.7,
+    "fraction_shuffled_f1_ge_original": 0.82
+  },
+  "limitations": "Inference-only control with a frozen model. Does not establish causal effects of training with different note policies."
+}

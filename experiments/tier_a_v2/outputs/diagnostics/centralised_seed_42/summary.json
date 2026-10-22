@@ -1,0 +1,18 @@
+{
+  "experiment": "V2 centralised diagnostic",
+  "seed": 42,
+  "best_epoch": 14,
+  "best_validation_macro_f1": 0.1631219278153187,
+  "best_epoch_metrics": {
+    "epoch": 14,
+    "train_macro_f1": 0.3235580703628317,
+    "validation_macro_f1": 0.1631219278153187,
+    "validation_accuracy": 0.25166508087535683,
+    "validation_loss": 2.0109262466430664,
+    "predicted_categories": 13,
+    "zero_recall_categories": 0
+  },
+  "features": 108,
+  "loss": "effective_number_beta_0.9999",
+  "test_rows_scored": 0
+}

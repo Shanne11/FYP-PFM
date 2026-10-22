@@ -1,0 +1,25 @@
+{
+  "original_rows": 15900,
+  "exact_duplicates_removed": 900,
+  "removal_reasons": {
+    "missing_category": 270,
+    "invalid_amount": 268,
+    "invalid_date": 451
+  },
+  "v2_rows": 14011,
+  "categories": 13,
+  "currency_markers": {
+    "UNMARKED": 11174,
+    "INR": 2126,
+    "USD": 711
+  },
+  "ambiguous_date_count": 3374,
+  "low_information_note_rows": 5095,
+  "warnings": [
+    "Currency markers are preserved; no FX conversion performed.",
+    "Slash dates assumed MM/DD/YYYY.",
+    "Dash dates assumed DD-MM-YY or DD-MM-YYYY.",
+    "Category labels and note meanings were not manually corrected.",
+    "V2 is exploratory and has not been trained or evaluated."
+  ]
+}
