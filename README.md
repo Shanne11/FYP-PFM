@@ -4,6 +4,21 @@ This repository implements the controlled Tier A research evaluation for a clari
 
 This research path is deliberately separate from the PocketIQ Flutter deployment model. Tier A uses the controlled BudgetWise data contract with 105 features and 13 categories; PocketIQ uses a separately trained frozen 4,096-feature, 14-category ONNX deployment package. The Tier A research checkpoint is not deployed in the mobile application.
 
+## Research pathways — start here
+
+This repository contains several distinct research pathways.
+Do not combine their results as one matched experiment.
+
+| Pathway | Role | Documentation |
+| --- | --- | --- |
+| Primary Tier A (105 features) | Authoritative federated thesis evaluation | [Section 16](docs/section16/README.md) and [primary class-weighted evidence](docs/chapter5_20261021/README.md) |
+| BudgetWise Tier A V2 (108 features) | Exploratory validation and note-quality analysis | [V2 README](experiments/tier_a_v2/README.md) |
+| Federated diagnosis | Supporting underfitting and optimisation research | [Diagnosis README](experiments/federated_diagnosis/README.md) |
+| Expanded V2 Stage B/C | Separate genuine-note and offline-selector evaluation | Separate Chapter 5 evidence package |
+| PocketIQ | Separate frozen mobile deployment model | [Deployment](deployment/) |
+
+**[Open the complete experiment registry](docs/EXPERIMENT_REGISTRY.md)**
+
 ## Current research status
 
 The final supervisor-question evidence, verification matrix, manifests, and limitations are indexed in [`docs/section16/README.md`](docs/section16/README.md). The documentation commit is separate from the research-source commits recorded in that index. The historical index records a release filename, but no release asset was available when checked on 22 October 2026; do not assume the full archive can currently be downloaded from GitHub.
