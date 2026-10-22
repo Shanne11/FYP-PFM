@@ -1,6 +1,6 @@
 # Federated Diagnosis Experiment
 
-This directory contains the validation-only Phase 1/2 diagnosis. It does not modify the historical Section 16 evidence or PocketIQ.
+This directory contains the initial validation-only diagnosis, optimisation screens, three-seed replication and the subsequently authorised Stage 5 held-out extension. It does not modify the historical Section 16 evidence or PocketIQ.
 
 ## Reproduce the completed diagnosis
 
@@ -50,4 +50,13 @@ The seed-42 standard versus effective-number loss comparison can be reproduced w
 .\.venv\Scripts\python.exe experiments\federated_diagnosis\run_class_balance_screen.py
 ```
 
-Effective-number loss prevented single-class collapse for seed 42 and improved both validation accuracy and Macro F1 through round 25. Results are under `outputs/class_balance_screen/`; replication has not been run.
+Effective-number loss prevented single-class collapse for seed 42 and improved both validation accuracy and Macro F1 through round 25. Results are under `outputs/class_balance_screen/`; replication has been completed for seeds 42, 52 and 62.
+
+## Completed Stage 4 replication and Stage 5 held-out evaluation
+
+- [Stage 4 report](outputs/class_balance_replication/THREE_SEED_REPLICATION_RESULTS.md): validation accuracy 0.2344 +/- 0.0052 and Macro F1 0.0834 +/- 0.0111 for effective-number loss.
+- [Stage 5 report](outputs/stage5_heldout/STAGE5_HELDOUT_RESULTS.md): held-out accuracy 0.2327 +/- 0.0070 and Macro F1 0.0831 +/- 0.0087, versus standard CE 0.2202 +/- 0.0051 and 0.0365 +/- 0.0082.
+
+Both stages use 68 metadata features, 25 rounds and fixed round-25 comparisons. These are separate exploratory experiments, not the primary 105-feature, 10-round Tier A Proposed evaluation. The held-out partition had been inspected previously.
+
+Reproduction entry points are `run_class_balance_replication.py` and `run_stage5_heldout.py`. See their output directories for configurations and historical manifests. Some CSVs/checkpoints referenced by those manifests are not tracked in this repository; the reports alone do not constitute a complete artifact bundle. No fresh training was run for this documentation update.

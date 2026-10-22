@@ -1,6 +1,6 @@
 # Section 16 Evidence and Question Traceability
 
-This directory is the browsable GitHub index for the final Section 16 evidence. It links each supervisor question to the verified report, matrix, script, test record, or audit output that supports the answer. The complete frozen package is published as the GitHub release `section16-evidence-final-v2-2026-10-12`.
+This directory is the browsable GitHub index for the final Section 16 evidence. It links each supervisor question to the verified report, matrix, script, test record, or audit output that supports the answer. The historical intended release identifier is `section16-evidence-final-v2-2026-10-12`. On 22 October 2026, the GitHub releases endpoint returned no releases and that tag could not be found. The source index remains available here, but the full archive is not verified as downloadable from GitHub.
 
 ## Provenance
 
