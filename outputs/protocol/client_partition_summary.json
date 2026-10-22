@@ -1,0 +1,40 @@
+{
+  "split_manifest_version": 2,
+  "split_seed": 42,
+  "training_records": 7494,
+  "distinct_source_user_groups": 150,
+  "client_size": {
+    "minimum": 30,
+    "median": 50.0,
+    "mean": 49.96,
+    "maximum": 70
+  },
+  "category_order": [
+    "Bonus",
+    "Education",
+    "Entertainment",
+    "Food",
+    "Freelance",
+    "Health",
+    "Investment",
+    "Other",
+    "Rent",
+    "Salary",
+    "Savings",
+    "Travel",
+    "Utilities"
+  ],
+  "payment_modes": [
+    "Bank Transfer",
+    "Bank Transfr",
+    "Bank_Transfer",
+    "BankTransfer",
+    "card",
+    "CASH",
+    "Crd",
+    "Csh",
+    "Unknown",
+    "UPI"
+  ],
+  "source": "training partition only; deterministic source user_id grouping"
+}

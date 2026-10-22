@@ -1,0 +1,62 @@
+{
+  "method": "A1 zeroed Smart Note representation + ACTM + bounded utility-weighted FedAvg",
+  "split": {
+    "train": 136,
+    "validation": 1729,
+    "test": 2308,
+    "seed": 42,
+    "manifest_version": 2
+  },
+  "actm": {
+    "entropy_threshold": 0.65,
+    "margin_threshold": 0.15,
+    "prompt_budget": 0.3
+  },
+  "note_strategy": "selective",
+  "zero_note_features": true,
+  "note_features_enabled": false,
+  "fusion_mode": "semantic_anchor",
+  "utility_weights": [
+    0.5,
+    0.3,
+    0.2
+  ],
+  "utility_weighting_enabled": true,
+  "utility_multiplier_bounds": [
+    0.75,
+    1.25
+  ],
+  "minimum_notes_for_weighting": 1,
+  "cross_account_proxy": {
+    "merchant": "location",
+    "account": "payment_mode"
+  },
+  "rounds": 1,
+  "local_epochs": 1,
+  "training_seed": 42,
+  "class_weighted_loss": false,
+  "class_weights": null,
+  "best_validation_macro_f1": 0.014369638800018548,
+  "final_test_metrics": {
+    "accuracy": 0.03726169844020797,
+    "macro_precision": 0.02285500997360707,
+    "macro_recall": 0.06014928390005735,
+    "macro_f1": 0.01437371127752196,
+    "weighted_precision": 0.04123488942967155,
+    "weighted_recall": 0.03726169844020797,
+    "weighted_f1": 0.0182384556369019,
+    "ece": 0.05224816117635839,
+    "brier_score": 0.9204298385427103,
+    "calibration_available": true
+  },
+  "transaction_text_features": {
+    "enabled": false,
+    "columns": [],
+    "vocabulary_size": 0,
+    "fit_scope": null
+  },
+  "actm_conflict_columns": {
+    "merchant": "location",
+    "account": "payment_mode"
+  }
+}

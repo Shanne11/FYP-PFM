@@ -1,0 +1,24 @@
+{
+  "source_commit": "8934dfa3e50e3593ee1c0d584e7a4d75230cd5c9",
+  "source_worktree_note": "diagnosis scripts and outputs are uncommitted by user instruction",
+  "dataset_sha256": "608bc42c26f13e1323bc2be4bf614c28968e62a1aa873911d243c462fb4b740d",
+  "split_manifest_sha256": "861960e6f787f60870610dd564dc20c741d4dadda265d46dc57e4dce7f164cd0",
+  "split_manifest_version": 2,
+  "seeds": [
+    42,
+    52,
+    62
+  ],
+  "newly_executed_seeds": [
+    52,
+    62
+  ],
+  "reused_seed_42_verified_artifacts": 17,
+  "rounds": 25,
+  "beta": 0.9999,
+  "features": 68,
+  "clients": 150,
+  "held_out_evaluated": false,
+  "runtime_seconds_new_seeds": 380.49986609999905,
+  "statistical_limitation": "Three seeds describe variability but do not establish statistical significance."
+}

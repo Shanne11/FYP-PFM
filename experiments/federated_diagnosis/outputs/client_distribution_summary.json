@@ -1,0 +1,14 @@
+{
+  "clients": 150,
+  "transactions_min": 30,
+  "transactions_median": 50.0,
+  "transactions_max": 70,
+  "represented_classes_min": 8,
+  "represented_classes_median": 12.0,
+  "represented_classes_max": 13,
+  "single_class_clients": 0,
+  "clients_with_at_most_3_classes": 0,
+  "dominant_share_mean": 0.2392665825753542,
+  "normalised_entropy_mean": 0.8416892891803681,
+  "all_clients_participate_each_round": true
+}

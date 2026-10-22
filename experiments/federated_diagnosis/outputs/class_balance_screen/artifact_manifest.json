@@ -1,0 +1,117 @@
+{
+  "experiment": {
+    "seed": 42,
+    "rounds": 25,
+    "beta": 0.9999,
+    "difference_under_test": "standard versus effective-number weighted local cross-entropy",
+    "weight_formula": "(1-beta)/(1-beta**n_c), then divide by arithmetic mean",
+    "class_counts_source": "training partition only",
+    "validation_loss": "standard unweighted cross-entropy for both variants",
+    "training_objective_losses_comparable": false,
+    "matched": [
+      "initial model",
+      "architecture",
+      "metadata features",
+      "client map and order",
+      "participation",
+      "reset Adam",
+      "learning rate",
+      "local epochs",
+      "batch size",
+      "communication rounds",
+      "sample-count FedAvg",
+      "random seed"
+    ],
+    "held_out_evaluated": false,
+    "split_manifest_version": 2,
+    "runtime_seconds": 93.32832099997904
+  },
+  "artifact_count": 17,
+  "artifacts": [
+    {
+      "path": "CLASS_BALANCE_RESULTS.md",
+      "bytes": 4707,
+      "sha256": "25d941d2169ccd08f1be14369d25b9da1e0991509e1c7a5b126451df7a593638"
+    },
+    {
+      "path": "effective_number_seed_42/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "5e1936bca33ce554b47b2e0152aec061797de9969f77a5f28ec4cb353873e8b4"
+    },
+    {
+      "path": "effective_number_seed_42/config_and_summary.json",
+      "bytes": 1459,
+      "sha256": "d49e68d8823cfc31c2286f40c07de30ba6165d244bf54100fb1d4c3cbbd70859"
+    },
+    {
+      "path": "effective_number_seed_42/per_class_metrics.csv",
+      "bytes": 25008,
+      "sha256": "0d0f63deefd66ada846cdd94711c374105c226e0fa4bfbd0fcdf08056b3201e7"
+    },
+    {
+      "path": "effective_number_seed_42/prediction_distributions.csv",
+      "bytes": 18371,
+      "sha256": "dba542cb23ef4cd080f085c6056361cb0f874326b983db2cb8392d809bf46170"
+    },
+    {
+      "path": "effective_number_seed_42/round_metrics.csv",
+      "bytes": 5092,
+      "sha256": "b146553902eaa0b88d9647aacd938366a597cb078722e04dd61f1bc1e6e661a1"
+    },
+    {
+      "path": "experiment_configuration.json",
+      "bytes": 810,
+      "sha256": "887d30c87f0d673c0e1a911661becdf8379e776d21e1091c8167c033126e8dfe"
+    },
+    {
+      "path": "PER_CLASS_METRICS.csv",
+      "bytes": 47305,
+      "sha256": "1ceda032634b3025b5e5e1dd5787b27146fa000da10cee28b62b8ba88a2a06b2"
+    },
+    {
+      "path": "PREDICTION_DISTRIBUTIONS.csv",
+      "bytes": 36582,
+      "sha256": "e79af6c5a690fbee9945cb2095bd7ec9cb7bfad0cf2204ac1e2769faa846fa21"
+    },
+    {
+      "path": "ROUND_COMPARISON.csv",
+      "bytes": 2486,
+      "sha256": "fdb06a88339482260796bd56ff9dbccc4308389b63a1e9fdca1dbacbc5f5e040"
+    },
+    {
+      "path": "standard_cross_entropy_seed_42/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "1a2ff38ba7a86337c1165558b603b8a0308ab4839483e127cf2a7f8dd27acb6d"
+    },
+    {
+      "path": "standard_cross_entropy_seed_42/config_and_summary.json",
+      "bytes": 1094,
+      "sha256": "ba66df070a553ac401098b92a7e14e2ecc956b02b3580349773f26cb428410d9"
+    },
+    {
+      "path": "standard_cross_entropy_seed_42/per_class_metrics.csv",
+      "bytes": 22369,
+      "sha256": "161033d9719475e9bac073c362e2c65d09c735105e8159603444ff8e994dec28"
+    },
+    {
+      "path": "standard_cross_entropy_seed_42/prediction_distributions.csv",
+      "bytes": 18287,
+      "sha256": "0ee7553a32685e61dee2c597a77cf5f14de0dc02721d6e936b2c82734d641138"
+    },
+    {
+      "path": "standard_cross_entropy_seed_42/round_metrics.csv",
+      "bytes": 4816,
+      "sha256": "c08daa8c77d5283fd79ad63907dc138ea11bf7a67ba2e2a7294f0811b059ee48"
+    },
+    {
+      "path": "summary.csv",
+      "bytes": 1581,
+      "sha256": "6e58489e8853bec6c66f0018de18dbef9528bbcedf95ce12c1a547ad9dc7e1f8"
+    },
+    {
+      "path": "training_class_counts_and_weights.csv",
+      "bytes": 404,
+      "sha256": "3eacd16fd4f94745e26a2538029efa2216167091d310a0c788b546bc06985dbd"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "experiment": {
+    "stage": "one-seed validation screening",
+    "seed": 42,
+    "sgd_candidates": [
+      0.01,
+      0.03,
+      0.1
+    ],
+    "sgd_selection_rule": "highest best-round validation Macro F1 in the 10-round screen; validation accuracy breaks ties",
+    "selected_sgd_learning_rate": 0.01,
+    "sgd_momentum": 0.9,
+    "split_manifest_version": 2,
+    "held_out_evaluated": false,
+    "runtime_seconds": 163.65733000001637,
+    "scientific_limitation": "Adam versus SGD changes both optimiser algorithm and state behaviour."
+  },
+  "artifact_count": 20,
+  "artifacts": [
+    {
+      "path": "adam_reset_seed_42/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "1a2ff38ba7a86337c1165558b603b8a0308ab4839483e127cf2a7f8dd27acb6d"
+    },
+    {
+      "path": "adam_reset_seed_42/config_and_summary.json",
+      "bytes": 813,
+      "sha256": "346edd19cab31f68e9c8f459c17e48bf35fac6c0692b88254a607cb5324135e3"
+    },
+    {
+      "path": "adam_reset_seed_42/round_metrics.csv",
+      "bytes": 3786,
+      "sha256": "fec68970e79d7c961e5309fa09ef1334a6ab4c6bafc4e6dd85784d8119017b11"
+    },
+    {
+      "path": "OPTIMISATION_SCREEN_RESULTS.md",
+      "bytes": 3814,
+      "sha256": "5f9cbd418c90ea1621bb371fe79e160c73b52a79299647fc22a46854c55ab1ed"
+    },
+    {
+      "path": "sgd_reset_seed_42/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "ddb860e376e0311e1b79256dc672bf8996f06ccba426b146ed6e124a7022899b"
+    },
+    {
+      "path": "sgd_reset_seed_42/config_and_summary.json",
+      "bytes": 813,
+      "sha256": "e2952a7123e4d691169bc030eaa59010b71b04de122efa06c60b79eb923ea6ed"
+    },
+    {
+      "path": "sgd_reset_seed_42/round_metrics.csv",
+      "bytes": 3717,
+      "sha256": "e60d47ae5d666c6d9897b037cc372acdaf132dba9e1ef6d657d566679c435d92"
+    },
+    {
+      "path": "sgd_tuning_lr_0.01/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "ddb860e376e0311e1b79256dc672bf8996f06ccba426b146ed6e124a7022899b"
+    },
+    {
+      "path": "sgd_tuning_lr_0.01/config_and_summary.json",
+      "bytes": 786,
+      "sha256": "f7427d075dd35c339ea46bcf254caf051eadd7bba5bd26b3436065892a3bad4c"
+    },
+    {
+      "path": "sgd_tuning_lr_0.01/round_metrics.csv",
+      "bytes": 1604,
+      "sha256": "121cb2a9db49d7da884995582b2a3ddb30412f9cbafd6b875508440a57c10035"
+    },
+    {
+      "path": "sgd_tuning_lr_0.03/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "847fe35b7a73950ba60936028f88ee250f414b89f7f3980f07ce2d370d7e2860"
+    },
+    {
+      "path": "sgd_tuning_lr_0.03/config_and_summary.json",
+      "bytes": 788,
+      "sha256": "0bb6649be6f63da680bfc722c89a564f71b42b3026aadfa1687ed01c8fa70828"
+    },
+    {
+      "path": "sgd_tuning_lr_0.03/round_metrics.csv",
+      "bytes": 1604,
+      "sha256": "57d0a758f5960d1642f5b384ccfaa244f4a1c3cbddb1d8c99c10c3e3de129c47"
+    },
+    {
+      "path": "sgd_tuning_lr_0.1/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "2cb8b28e6280d59f6de8f0c0b8aa2dcedbe6633bb09d80dc1189f7952d0cc9a1"
+    },
+    {
+      "path": "sgd_tuning_lr_0.1/config_and_summary.json",
+      "bytes": 785,
+      "sha256": "c75fdbfe93dd35f9dc4a1d87be1deac6709145388f53f578061c696b59334cd4"
+    },
+    {
+      "path": "sgd_tuning_lr_0.1/round_metrics.csv",
+      "bytes": 1587,
+      "sha256": "5c88a3b1d1d604989847ac208e023f45ca801193dd66bff115510e975ee9898d"
+    },
+    {
+      "path": "sgd_tuning_summary.csv",
+      "bytes": 1082,
+      "sha256": "3e0b62435da000a6357695052c91ffc43571067353bd1ec78eb9f3048ebe0e24"
+    },
+    {
+      "path": "stage1_comparison.csv",
+      "bytes": 922,
+      "sha256": "7d47a6b9339b60057116e341d11bd6adec2af71dfd80aa66b1199279bca35c74"
+    },
+    {
+      "path": "stage1_experiment.json",
+      "bytes": 516,
+      "sha256": "bdbf3b526b020bf05489d410beff2fdde029cce46820ecc056ce14dbf77f2021"
+    },
+    {
+      "path": "TRAINING_IMPROVEMENT_RESULTS.csv",
+      "bytes": 963,
+      "sha256": "8d4129561153936a4b8b7ea2bdee5552d2c70d0f8a46b2c28bb53b6855e8416d"
+    }
+  ]
+}

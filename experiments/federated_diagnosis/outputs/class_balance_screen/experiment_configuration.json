@@ -1,0 +1,27 @@
+{
+  "seed": 42,
+  "rounds": 25,
+  "beta": 0.9999,
+  "difference_under_test": "standard versus effective-number weighted local cross-entropy",
+  "weight_formula": "(1-beta)/(1-beta**n_c), then divide by arithmetic mean",
+  "class_counts_source": "training partition only",
+  "validation_loss": "standard unweighted cross-entropy for both variants",
+  "training_objective_losses_comparable": false,
+  "matched": [
+    "initial model",
+    "architecture",
+    "metadata features",
+    "client map and order",
+    "participation",
+    "reset Adam",
+    "learning rate",
+    "local epochs",
+    "batch size",
+    "communication rounds",
+    "sample-count FedAvg",
+    "random seed"
+  ],
+  "held_out_evaluated": false,
+  "split_manifest_version": 2,
+  "runtime_seconds": 93.32832099997904
+}

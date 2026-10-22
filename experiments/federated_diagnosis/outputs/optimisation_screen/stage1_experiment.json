@@ -1,0 +1,16 @@
+{
+  "stage": "one-seed validation screening",
+  "seed": 42,
+  "sgd_candidates": [
+    0.01,
+    0.03,
+    0.1
+  ],
+  "sgd_selection_rule": "highest best-round validation Macro F1 in the 10-round screen; validation accuracy breaks ties",
+  "selected_sgd_learning_rate": 0.01,
+  "sgd_momentum": 0.9,
+  "split_manifest_version": 2,
+  "held_out_evaluated": false,
+  "runtime_seconds": 163.65733000001637,
+  "scientific_limitation": "Adam versus SGD changes both optimiser algorithm and state behaviour."
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "D:\\thepr\\Download\\FYP-PFM\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "tests/test_stage5_heldout.py",
+    "tests/test_class_balance_screen.py",
+    "tests/test_class_balance_replication.py",
+    "-q"
+  ],
+  "returncode": 0,
+  "stdout": "......                                                                   [100%]\n6 passed in 3.88s\n",
+  "stderr": "",
+  "passed": true,
+  "broader_suite_limitation": "tests/test_frozen_evaluation_contracts.py was not included because its pre-existing import of models.federated.actm.matched_random_selection cannot currently be collected."
+}
