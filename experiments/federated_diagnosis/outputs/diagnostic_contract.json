@@ -1,0 +1,42 @@
+{
+  "source_commit": "8934dfa3e50e3593ee1c0d584e7a4d75230cd5c9",
+  "branch": "codex/federated-underfitting-diagnosis",
+  "dataset_sha256": "608bc42c26f13e1323bc2be4bf614c28968e62a1aa873911d243c462fb4b740d",
+  "split_manifest_sha256": "861960e6f787f60870610dd564dc20c741d4dadda265d46dc57e4dce7f164cd0",
+  "split_manifest_version": 2,
+  "records": {
+    "train": 7494,
+    "validation": 1729,
+    "test": 2308
+  },
+  "clients": 150,
+  "categories": [
+    "Bonus",
+    "Education",
+    "Entertainment",
+    "Food",
+    "Freelance",
+    "Health",
+    "Investment",
+    "Other",
+    "Rent",
+    "Salary",
+    "Savings",
+    "Travel",
+    "Utilities"
+  ],
+  "category_count": 13,
+  "features": {
+    "metadata": 68,
+    "notes": 37,
+    "total": 105
+  },
+  "preprocessing_fit_partition": "training only",
+  "held_out_used_by_new_diagnostics": false,
+  "seeds": [
+    42,
+    52,
+    62
+  ],
+  "central_mlp_epochs": 30
+}

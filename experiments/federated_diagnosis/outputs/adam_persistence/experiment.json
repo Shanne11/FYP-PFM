@@ -1,0 +1,22 @@
+{
+  "seed": 42,
+  "rounds": 25,
+  "learning_rate": 0.001,
+  "difference_under_test": "per-client Adam optimiser state reset versus persistence",
+  "matched": [
+    "initial global model",
+    "architecture",
+    "training and validation records",
+    "68 metadata features",
+    "150-client map and order",
+    "all-client participation",
+    "batch size 32",
+    "three local epochs",
+    "standard cross-entropy",
+    "sample-count FedAvg",
+    "random seed"
+  ],
+  "held_out_evaluated": false,
+  "split_manifest_version": 2,
+  "runtime_seconds": 212.80978370000958
+}

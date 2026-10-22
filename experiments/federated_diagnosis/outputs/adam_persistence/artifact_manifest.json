@@ -1,0 +1,87 @@
+{
+  "experiment": {
+    "seed": 42,
+    "rounds": 25,
+    "learning_rate": 0.001,
+    "difference_under_test": "per-client Adam optimiser state reset versus persistence",
+    "matched": [
+      "initial global model",
+      "architecture",
+      "training and validation records",
+      "68 metadata features",
+      "150-client map and order",
+      "all-client participation",
+      "batch size 32",
+      "three local epochs",
+      "standard cross-entropy",
+      "sample-count FedAvg",
+      "random seed"
+    ],
+    "held_out_evaluated": false,
+    "split_manifest_version": 2,
+    "runtime_seconds": 212.80978370000958
+  },
+  "artifact_count": 12,
+  "artifacts": [
+    {
+      "path": "ADAM_PERSISTENCE_RESULTS.md",
+      "bytes": 3919,
+      "sha256": "124a8337928fd351b3e624e9fdffc4368011a853b7c22bd1264429be6b03a7d5"
+    },
+    {
+      "path": "comparison.csv",
+      "bytes": 1162,
+      "sha256": "b85f2053c960a5b7b1ef7bdc8dc5aeefc97f4bb5054bf72e1975d566f5ec749d"
+    },
+    {
+      "path": "experiment.json",
+      "bytes": 590,
+      "sha256": "1f8ee2834e0d8e7009c462691e410e4c91afca8e42cbb4e5716b21abe1dff9b4"
+    },
+    {
+      "path": "KEY_ROUND_COMPARISON.csv",
+      "bytes": 960,
+      "sha256": "cfdf866679a142e43bd4c3aab3649da165477bec79e03ca643bc0369638ac7a5"
+    },
+    {
+      "path": "persistent_client_adam_seed_42/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "32d9ffa36809e407658eb8a435d44476c9c4b80e845123c6998f6f3173469ec2"
+    },
+    {
+      "path": "persistent_client_adam_seed_42/client_optimiser_steps.csv",
+      "bytes": 179900,
+      "sha256": "ac3123d9fd2a30570126dc363264e174f18af5755b993251499bf804b2f1cd7f"
+    },
+    {
+      "path": "persistent_client_adam_seed_42/config_and_summary.json",
+      "bytes": 999,
+      "sha256": "3a6314b1089e0332c930739ce69404dffaab16ce7e093db33f8318ecd6c833dc"
+    },
+    {
+      "path": "persistent_client_adam_seed_42/round_metrics.csv",
+      "bytes": 3831,
+      "sha256": "dbe54a54dfcb504185de008d7966d86fa07f26d47cede3c9f323fd7b1aa036ce"
+    },
+    {
+      "path": "reset_adam_seed_42/best_validation_model.pt",
+      "bytes": 75069,
+      "sha256": "1a2ff38ba7a86337c1165558b603b8a0308ab4839483e127cf2a7f8dd27acb6d"
+    },
+    {
+      "path": "reset_adam_seed_42/client_optimiser_steps.csv",
+      "bytes": 133701,
+      "sha256": "289f88454d452f8fdcf363e8a53b4577ca2912267841c34e3ce6b8fe350a7ecd"
+    },
+    {
+      "path": "reset_adam_seed_42/config_and_summary.json",
+      "bytes": 991,
+      "sha256": "3c6775520517edc0eef9960ddfb649431dd7c6f4eb2d24d94a9269aa32cc1c76"
+    },
+    {
+      "path": "reset_adam_seed_42/round_metrics.csv",
+      "bytes": 3550,
+      "sha256": "328ee541e15a917fa80b42e8f3861e99ce242c543ee092223784f197a03b0097"
+    }
+  ]
+}

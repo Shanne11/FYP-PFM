@@ -1,0 +1,11 @@
+{
+  "command": "python -m pytest -p no:cacheprovider tests/test_class_balance_replication.py tests/test_class_balance_screen.py tests/test_optimisation_screen.py -q",
+  "result": "4 passed in 24.38s",
+  "exit_code": 0,
+  "python_major_minor": "3.11",
+  "torch_version": "2.14.0+cpu",
+  "pandas_version": "2.3.3",
+  "scikit_learn_version": "1.9.1",
+  "pytest_version": "8.4.2",
+  "repository_venv_limitation": "The repository .venv launcher points to a removed Windows Store Python; tests used an existing compatible project runtime without changing dependencies or source files."
+}
