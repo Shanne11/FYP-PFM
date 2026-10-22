@@ -1,0 +1,8 @@
+research_question,variant,seed,run_completed,rounds_10,local_epochs_3,seed_matches,inverse_frequency_loss,class_weighted,note_strategy_matches,signal_adjustment_matches,same_heldout_records,same_category_mapping,probabilities_valid,a1_note_used_zero,proposed_actm_trigger_count,comparator_actm_trigger_count,proposed_note_used_count,comparator_note_used_count,heldout_actm_mask_identical,heldout_note_use_mask_identical
+RQ3/RO3,class_weighted_a1_without_notes,42,True,True,True,True,True,True,True,True,True,True,True,True,693,693,573,0,False,False
+RQ3/RO3,class_weighted_a1_without_notes,52,True,True,True,True,True,True,True,True,True,True,True,True,693,693,564,0,False,False
+RQ3/RO3,class_weighted_a1_without_notes,62,True,True,True,True,True,True,True,True,True,True,True,True,693,693,574,0,False,False
+RQ4/RO5,class_weighted_no_adjustment,42,True,True,True,True,True,True,True,True,True,True,True,,693,693,573,573,True,True
+RQ4/RO5,class_weighted_no_adjustment,52,True,True,True,True,True,True,True,True,True,True,True,,693,693,564,564,True,True
+RQ4/RO5,class_weighted_no_adjustment,62,True,True,True,True,True,True,True,True,True,True,True,,693,693,574,574,False,False
+

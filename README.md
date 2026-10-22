@@ -6,7 +6,7 @@ This research path is deliberately separate from the PocketIQ Flutter deployment
 
 ## Current research status
 
-The final supervisor-question evidence, verification matrix, manifests, and limitations are indexed in [`docs/section16/README.md`](docs/section16/README.md). The complete frozen package is published as a versioned GitHub release; the documentation commit is separate from the research-source commits recorded in that index.
+The final supervisor-question evidence, verification matrix, manifests, and limitations are indexed in [`docs/section16/README.md`](docs/section16/README.md). The documentation commit is separate from the research-source commits recorded in that index. The historical index records a release filename, but no release asset was available when checked on 22 October 2026; do not assume the full archive can currently be downloaded from GitHub.
 
 The repository contains six executable methods:
 
@@ -20,6 +20,20 @@ The repository contains six executable methods:
 | P | ACTM + selective Smart Notes + clarification-derived heuristic + bounded heuristic-adjusted FedAvg | Federated, human-in-the-loop | Implemented and rerun |
 
 The corrected implementation, three-seed federated evaluation, proposed-method ablations, ACTM/prompt analysis, class-level diagnosis, class-weighted remedy and paired uncertainty analysis have been completed and rerun. ACTM currently supports budgeted prioritisation, but its frozen thresholds mark every held-out record as eligible. The results do **not** show a material benefit from the current bounded heuristic-adjusted aggregation.
+
+
+### Current primary class-weighted results (21 October 2026)
+
+The frozen primary protocol uses 105 features, 150 simulated clients, 10 communication rounds, three local epochs, batch size 32, learning rate 0.001 and seeds 42, 52 and 62. The six missing class-weighted ablations are complete. Existing class-weighted Proposed checkpoints were reused after configuration and training-only weight checks.
+
+| Primary comparison | Proposed Macro F1 | Comparator Macro F1 | Proposed minus comparator | 95% paired t interval | Verdict |
+|---|---:|---:|---:|---|---|
+| RQ3/RO3: Proposed vs A1 without notes | 0.066090 | 0.066504 | -0.000413 | [-0.001273, 0.000446] | Not Achieved |
+| RQ4/RO5: Proposed vs no adjustment | 0.066090 | 0.066795 | -0.000705 | [-0.003723, 0.002313] | Not Achieved |
+
+Neither component improved mean Macro F1 under the primary matched comparison. Both comparisons had zero wins across three seeds. See [the evidence index](docs/chapter5_20261021/README.md) for the saved summary, seed differences and original verification records. Three seeds do not establish population-level statistical significance.
+
+The earlier unweighted comparisons below are historical supporting analyses. They must not replace these primary class-weighted RQ3/RQ4 comparisons. The separate [federated diagnosis extension](experiments/federated_diagnosis/README.md) uses 68 metadata features and 25 rounds; its effective-number results do not replace the frozen 105-feature, 10-round Proposed results.
 
 ## Corrected experiment contract
 
@@ -118,7 +132,7 @@ The dataset does not provide merchant or account columns. The current conflict d
 
 This must be described as a limitation. It should not be presented as an evaluation using genuine merchant and account identifiers.
 
-## Repeated-seed federated results
+## Historical unweighted repeated-seed federated results
 
 FedAvg, FedProx, and Proposed were evaluated using training seeds 42, 52, and 62 while keeping the corrected dataset and frozen split unchanged. Values are mean +/- sample standard deviation across three runs.
 
@@ -130,7 +144,7 @@ FedAvg, FedProx, and Proposed were evaluated using training seeds 42, 52, and 62
 
 The proposed method has the strongest mean federated accuracy, Macro F1, Weighted F1 and Brier score. Its mean ECE is effectively tied with, but marginally higher than, FedProx. All differences are small relative to the between-seed variation, and the paired analysis does not establish a statistically significant advantage.
 
-## Proposed-method ablation results
+## Historical unweighted proposed-method ablation results
 
 The full method and six ablations were evaluated with the same seeds. Values are mean +/- sample standard deviation.
 
@@ -191,13 +205,13 @@ The three full-method runs produce the following ACTM evidence:
 | Ambiguity eligibility rate | 100.0% |
 | Prompts per 100 transactions | 30.03 |
 | Prompt precision | 84.80% +/- 1.06% |
-| Note acceptance rate | 83.50% +/- 0.68% |
+| Retrospective source-note use rate | 83.50% +/- 0.68% |
 | Mean uncertainty reduction | 0.000276 +/- 0.000268 |
 | Ambiguous-subset Macro F1 | 0.0432 +/- 0.0058 |
 
 Every held-out transaction satisfies at least one ambiguity condition. Consequently, the “ambiguous subset” is the complete test set and its metrics are identical to the overall proposed-method metrics. Selectivity is currently produced by the 30% prompt budget rather than by the entropy, margin, and conflict thresholds separating a smaller ambiguous subset.
 
-Prompt precision and note acceptance are high, showing that ACTM can prioritise likely errors within a fixed interaction budget. However, uncertainty reduction after clarification is negligible. ACTM should therefore be reported as evidence for **budgeted prioritisation**, not as a validated ambiguity separator or uncertainty-reduction mechanism. Threshold calibration must be performed on validation data if a genuinely selective ambiguous subset is required.
+Prompt precision is the proportion of selected transactions whose initial prediction was incorrect. The separate source-note use rate is the proportion of selected transactions for which the retrospective note was used. Neither measures participant acceptance. However, uncertainty reduction after clarification is negligible. ACTM should therefore be reported as evidence for **budgeted prioritisation**, not as a validated ambiguity separator or uncertainty-reduction mechanism. Threshold calibration must be performed on validation data if a genuinely selective ambiguous subset is required.
 
 The completed Q9 comparison applies the same 693-prompt budget to Random, Entropy-only, Margin-only, Conflict-only and Proposed ACTM for each of seeds 42, 52 and 62. Entropy-only has the highest mean prompt precision (0.8610), Margin-only the highest gross correction yield (3.127 wrong-to-correct changes per 100 prompts), Conflict-only the highest mean Macro F1 (0.0440), and Proposed ACTM the highest mean net corrections (+0.667 per seed) and accuracy (0.1837). No strategy dominates every outcome, so the result supports a selection trade-off rather than an unqualified ACTM-superiority claim.
 
@@ -618,7 +632,7 @@ The current checks cover:
 - sample-based aggregation weights, bounded heuristic multipliers, and fallback behaviour;
 - syntax compilation and end-to-end federated smoke execution.
 
-The latest full verification completed on 13 September 2026: all 29 Python tests passed, all reportable summary artefacts were present, 21 ablation runs, nine repeated-seed runs and nine class-balance runs were available, and the active output set contained no invalid JSON or zero-byte files. The previous output set is retained outside the repository as a recoverable archive rather than being mixed with the current evidence.
+The historical full verification completed on 13 September 2026: all 29 Python tests passed, all reportable summary artefacts were present, 21 ablation runs, nine repeated-seed runs and nine class-balance runs were available, and the active output set contained no invalid JSON or zero-byte files. The previous output set is retained outside the repository as a recoverable archive rather than being mixed with the current evidence.
 
 Generate a SHA-256 traceability manifest for the reportable summaries, selected checkpoint, contracts and separate deployment-verification artefacts with:
 
@@ -626,11 +640,11 @@ Generate a SHA-256 traceability manifest for the reportable summaries, selected 
 python evaluation/freeze_evidence.py
 ```
 
-The resulting `outputs/evidence_freeze/evidence_manifest.json` remains marked `provisional-uncommitted-changes` until the intended code and evidence changes are committed. This prevents an uncommitted working tree from being described as a final evidence freeze.
+The existing `outputs/evidence_freeze/evidence_manifest.json` is a historical provisional snapshot. Its old HEAD and working-tree status describe that snapshot, not current main. Preserve it and consult `docs/section16/README.md` and `docs/chapter5_20261021/README.md` for later evidence. A new freeze requires fresh hash verification; committing documentation alone does not verify historical artifacts.
 
-## Required next evaluation work
+## Optional future experiments
 
-Before treating the results as final research evidence:
+The completed frozen results include negative findings. The following are possible future experiments requiring a separate protocol; they are not prerequisites for reporting the existing results:
 
 1. If the heuristic adjustment is revised, define the new mapping and novelty measure using development data only, then rerun the frozen three-seed evaluation and ablations.
 2. Evaluate alternative prompt budgets and multiplier bounds without selecting settings using the final test results.
