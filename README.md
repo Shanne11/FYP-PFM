@@ -14,7 +14,7 @@ Do not combine their results as one matched experiment.
 | Primary Tier A (105 features) | Authoritative federated thesis evaluation | [Section 16](docs/section16/README.md) and [primary class-weighted evidence](docs/chapter5_20261021/README.md) |
 | BudgetWise Tier A V2 (108 features) | Exploratory validation and note-quality analysis | [V2 README](experiments/tier_a_v2/README.md) |
 | Federated diagnosis | Supporting underfitting and optimisation research | [Diagnosis README](experiments/federated_diagnosis/README.md) |
-| Expanded V2 Stage B/C | Separate genuine-note and offline-selector evaluation | Separate Chapter 5 evidence package |
+| Expanded V2 Stage A–B–C | Separate genuine Smart Note and offline-selector evaluation | [Verified Expanded V2 Evidence](docs/expanded_v2/stage_abc_final_20261019/README.md) |
 | PocketIQ | Separate frozen mobile deployment model | [Deployment](deployment/) |
 
 **[Open the complete experiment registry](docs/EXPERIMENT_REGISTRY.md)**
@@ -35,6 +35,83 @@ The later local Flutter regression suite passed **77/77 tests**. Test 3 did not 
 **[View PocketIQ Tests 1–5 Evidence](docs/pocketiq/physical_device_testing_20261023/README.md)**
 
 These results support PocketIQ deployment and functional verification, separately from Tier A federated experiments and Expanded V2 participant evaluation.
+
+## Expanded V2 Stage A–B–C Results
+
+The Expanded V2 study evaluates original bank-description context, genuine owner-written Smart Notes, and offline clarification selection. This is a separate centralised evaluation from the Tier A federated-learning experiments and PocketIQ mobile deployment.
+
+### Stage A — Original Bank-Description Evaluation
+
+The five-seed evaluation reported:
+
+| Model | Mean Accuracy |
+|---|---:|
+| A1 — Metadata-only | 31.41% |
+| A3 — Metadata + Word TF-IDF | 57.03% |
+| A5 — Equal-tuning model | 60.56% |
+| A5 — Matched feature budget | 56.95% |
+
+The character-feature advantage did not persist under the matched feature-budget comparison. Stage A evaluates existing bank descriptions, not newly collected Smart Notes.
+
+### Stage B — Genuine Smart Note Evaluation
+
+The study involved **30 participants and 254 owner-confirmed transactions** with genuine owner-written Smart Notes.
+
+B1 and B2 use the same frozen model and preprocessing. Only the presence of Smart Note text differs.
+
+| Model | Mean Accuracy | Macro F1 |
+|---|---:|---:|
+| B0 — Dedicated no-note baseline | 63.22% | 0.2949 |
+| B1 — Unified model without Smart Note | 64.63% | 0.2966 |
+| B2 — Same frozen model with Smart Note | **79.10%** | **0.3862** |
+
+The B1-to-B2 comparison produced:
+
+- Wrong-to-Correct: 32
+- Correct-to-Wrong: 1
+- Correct-to-Correct: 137
+- Wrong-to-Wrong: 44
+- Net corrections: +31
+
+These transitions cover 214 transaction-seed cases across five evaluations, not 214 independent transactions.
+
+**Finding:** Genuine owner-written Smart Notes improved classification performance within this frozen participant dataset.
+
+### Stage C — Offline Clarification Selection
+
+Stage C evaluates selective access to previously collected Smart Notes through offline replay.
+
+The comparison includes Random, Entropy, and Margin selection methods under different query budgets.
+
+At the nominal 30% query budget, the Margin/G1 configuration achieved:
+
+| Metric | Result |
+|---|---:|
+| Mean Accuracy | 74.91% |
+| Realised Mean Query Share | 31.31% |
+| Net Corrections | +22 |
+
+Stage C used offline pre-collected-note replay rather than live user prompting. Learned Benefit and G3 were blocked and not evaluated.
+
+The results do not demonstrate statistical superiority of Margin over other selection methods.
+
+### Limitations
+
+- The study involved only 30 participants and 254 transactions.
+- Reference labels were owner-confirmed, not independently adjudicated.
+- Description-template overlap remained across evaluation partitions.
+- Housing and Insurance had zero observed category support.
+- All collected Smart Notes were answered; skip behaviour was not evaluated.
+- Live prompting, response time, and user effort were not measured.
+- The Expanded V2 results are not directly comparable with the separate Tier A federated experiments or PocketIQ deployment evaluation.
+- Restricted participant data and raw Smart Notes are excluded from the public GitHub evidence.
+
+### Expanded V2 Evidence
+
+The sanitised evidence package includes Stage A diagnostics, Stage B genuine-note evaluation, Stage C offline selection, limitations, figures, and final verification reports.
+
+**[View Expanded V2 Stage A–B–C Verified Evidence](docs/expanded_v2/stage_abc_final_20261019/README.md)**
+
 ## Current research status
 
 The final supervisor-question evidence, verification matrix, manifests, and limitations are indexed in [`docs/section16/README.md`](docs/section16/README.md). The documentation commit is separate from the research-source commits recorded in that index. The historical index records a release filename, but no release asset was available when checked on 22 October 2026; do not assume the full archive can currently be downloaded from GitHub.
