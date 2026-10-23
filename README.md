@@ -18,7 +18,23 @@ Do not combine their results as one matched experiment.
 | PocketIQ | Separate frozen mobile deployment model | [Deployment](deployment/) |
 
 **[Open the complete experiment registry](docs/EXPERIMENT_REGISTRY.md)**
+## PocketIQ Physical-Device Testing (23 October 2026)
 
+PocketIQ Tests 1–5 have been completed on a physical Android device. The tests verify transaction persistence, ACTM Review and Smart Note interaction, correction and audit persistence, CSV export/sharing, and limited network/security behaviour.
+
+| Test | Result |
+|---|---|
+| Test 1 — Persistence | PASS |
+| Test 2 — ACTM Review and Smart Note | PASS |
+| Test 3 — Correction and audit persistence | PASS WITH LIMITATION |
+| Test 4 — CSV sharing and local saving | PASS |
+| Test 5 — Network/security audit | PASS WITH LIMITATIONS |
+
+The later local Flutter regression suite passed **77/77 tests**. Test 3 did not visibly demonstrate an Android Settings Force stop; Test 4 Downloads saving was user-confirmed; and Test 5 does not establish a formal security or privacy guarantee.
+
+**[View PocketIQ Tests 1–5 Evidence](docs/pocketiq/physical_device_testing_20261023/README.md)**
+
+These results support PocketIQ deployment and functional verification, separately from Tier A federated experiments and Expanded V2 participant evaluation.
 ## Current research status
 
 The final supervisor-question evidence, verification matrix, manifests, and limitations are indexed in [`docs/section16/README.md`](docs/section16/README.md). The documentation commit is separate from the research-source commits recorded in that index. The historical index records a release filename, but no release asset was available when checked on 22 October 2026; do not assume the full archive can currently be downloaded from GitHub.
