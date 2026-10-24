@@ -1,0 +1,31 @@
+{
+  "evaluation": "validation-only",
+  "seeds": [
+    42,
+    52,
+    62
+  ],
+  "records_per_seed": 1729,
+  "checkpoint_root": "outputs/ablations",
+  "checkpoint_sha256": {
+    "42": {
+      "best_global_model.pt": "3da187aa76d27c69ce21676573dc6c02c3a236161e9dbc93d711c643e6bc22b5",
+      "feature_pipeline.pkl": "fa07e3ac115dad32fb5ded5a8b50ef04357d0f02e2d02c7a5fa2599b1ed30c7f",
+      "model_config.json": "82b4f99b73fbb1ab77910ae7509c59cf35b321d791edd04dc04c984e1c75d19a"
+    },
+    "52": {
+      "best_global_model.pt": "28ffc161a46f6eafad0aec3e3fcd3cc5a67300dd31c8b37cc452c0e58bbbeb0b",
+      "feature_pipeline.pkl": "fa07e3ac115dad32fb5ded5a8b50ef04357d0f02e2d02c7a5fa2599b1ed30c7f",
+      "model_config.json": "82b4f99b73fbb1ab77910ae7509c59cf35b321d791edd04dc04c984e1c75d19a"
+    },
+    "62": {
+      "best_global_model.pt": "015d607061048767ba57ca2f4cf10ce2d12bbd3dcc3061d9004e9610e22d9aa4",
+      "feature_pipeline.pkl": "fa07e3ac115dad32fb5ded5a8b50ef04357d0f02e2d02c7a5fa2599b1ed30c7f",
+      "model_config.json": "82b4f99b73fbb1ab77910ae7509c59cf35b321d791edd04dc04c984e1c75d19a"
+    }
+  },
+  "mean_delta_net_rate": 0.0014400553457918559,
+  "mean_delta_true_class_probability": 1.9323403345576176e-06,
+  "held_out_results_changed": false,
+  "rq2_verdict_changed": false
+}
